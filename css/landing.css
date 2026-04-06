@@ -334,27 +334,27 @@
 
   /* Show mobile enter buttons — positioned within each half */
   .landing__btn {
-    opacity: 1;
+    opacity: 1 !important;
     pointer-events: auto;
     font-size: 0.7rem;
     padding: 0.4em 1.2em;
     z-index: 10;
-    border: none;
+    border-width: 1px;
   }
 
   .landing__btn--vamps {
     left: 50%;
     transform: translateX(-50%);
-    bottom: clamp(1.5rem, 4vh, 3rem);
-    top: auto;
+    bottom: auto;
+    top: 40%;
   }
 
   .landing__btn--ismael {
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-    bottom: clamp(1.5rem, 4vh, 3rem);
-    top: auto;
+    bottom: auto;
+    top: 90%;
   }
 
   .landing__enter {
