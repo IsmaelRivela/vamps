@@ -67,4 +67,21 @@ export function initGlyphCursor() {
   document.addEventListener('mouseleave', () => {
     cursor.style.opacity = '0'
   })
+
+  // Show normal cursor on header/nav
+  const nav = document.querySelector('.nav, header')
+  if (nav) {
+    nav.style.cursor = 'auto'
+    nav.querySelectorAll('a, button').forEach(el => {
+      el.style.cursor = 'pointer'
+    })
+    nav.addEventListener('mouseenter', () => {
+      cursor.style.opacity = '0'
+      document.documentElement.style.cursor = ''
+    })
+    nav.addEventListener('mouseleave', () => {
+      cursor.style.opacity = '1'
+      document.documentElement.style.cursor = 'none'
+    })
+  }
 }

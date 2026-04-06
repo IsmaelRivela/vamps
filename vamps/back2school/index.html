@@ -412,6 +412,26 @@
 </head>
 <body>
 
+  <!-- Password gate -->
+  <div id="pwGate" style="position:fixed;inset:0;z-index:99999;background:#000;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'Inter',sans-serif;">
+    <p style="color:#fff;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.5rem;">This page is work in progress</p>
+    <input id="pwInput" type="password" placeholder="Password" autofocus autocomplete="off"
+      style="background:transparent;border:1px solid #333;color:#fff;padding:.6rem 1rem;font-size:1rem;font-family:inherit;text-align:center;outline:none;width:220px;letter-spacing:.05em;" />
+    <p id="pwError" style="color:#c22424;font-size:.7rem;margin-top:.75rem;opacity:0;transition:opacity .2s;">Wrong password</p>
+  </div>
+  <script>
+  (function(){
+    if(sessionStorage.getItem('b2s_auth')){document.getElementById('pwGate').remove();return}
+    var input=document.getElementById('pwInput'),err=document.getElementById('pwError');
+    input.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){
+        if(input.value==='vampsinprogress'){sessionStorage.setItem('b2s_auth','1');document.getElementById('pwGate').remove()}
+        else{err.style.opacity='1';input.value='';setTimeout(function(){err.style.opacity='0'},1500)}
+      }
+    });
+  })();
+  </script>
+
   <div class="page-transition"></div>
 
   <nav class="nav">

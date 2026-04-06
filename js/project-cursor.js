@@ -78,5 +78,22 @@ export function initProjectCursor({ src, size = 40, lerp: lerpFactor = 0.15 } = 
     el.style.cursor = 'none'
   })
 
+  // Show normal cursor on header/nav
+  const nav = document.querySelector('.nav, header, .proj__nav')
+  if (nav) {
+    nav.style.cursor = 'auto'
+    nav.querySelectorAll('a, button').forEach(el => {
+      el.style.cursor = 'pointer'
+    })
+    nav.addEventListener('mouseenter', () => {
+      cursor.classList.remove('proj-cursor--visible')
+      document.documentElement.style.cursor = ''
+    })
+    nav.addEventListener('mouseleave', () => {
+      cursor.classList.add('proj-cursor--visible')
+      document.documentElement.style.cursor = 'none'
+    })
+  }
+
   requestAnimationFrame(update)
 }

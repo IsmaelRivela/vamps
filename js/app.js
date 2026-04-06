@@ -23,9 +23,9 @@ function glyphUrl(name) {
 
 // Cursor SVG per project (keyed by pathname substring)
 const PROJECT_CURSORS = {
-  copydad:  glyphUrl('copydad1'),
+  copydad:     glyphUrl('copydad1'),
+  'vamps-case': glyphUrl('vamps2'),
   // tulipana: '/assets/glifos/tulipana1.svg',
-  // vamps:    '/assets/glifos/vamps1.svg',
   // verbena:  '...'
 }
 
