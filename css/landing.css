@@ -254,23 +254,24 @@
     cursor: auto;
   }
 
-  /* Split sides 50/50 without fluid divider */
+  /* Stack sides vertically */
   .landing__side {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 50%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 50%;
     clip-path: none;
   }
 
   .landing__side--vamps {
-    left: 0;
-    right: auto;
+    top: 0;
+    bottom: auto;
   }
 
   .landing__side--ismael {
-    left: 50%;
-    right: 0;
+    top: 50%;
+    bottom: 0;
   }
 
   .landing__side--vamps .landing__content {
@@ -316,13 +317,16 @@
   }
 
   .landing__btn--vamps {
-    left: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: clamp(1.5rem, 4vh, 3rem);
   }
 
   .landing__btn--ismael {
-    right: 25%;
-    left: auto;
-    transform: translateX(50%);
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: clamp(1.5rem, 4vh, 3rem);
   }
 
   .landing__enter {
@@ -330,12 +334,14 @@
   }
 
   .landing__enter--vamps {
-    left: 25%;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .landing__enter--ismael {
-    right: 25%;
-    left: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 
   .landing__morph-canvas {
