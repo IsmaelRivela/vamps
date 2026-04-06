@@ -329,6 +329,7 @@ body.theme-vamps {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  will-change: transform;
   scale: 1.15;
 }
 
@@ -576,22 +577,13 @@ body.theme-vamps {
   /* Reset scale on mobile — iOS Safari clips scaled content */
   .vamps-page__img img {
     scale: 1;
-    -webkit-transform: translateZ(0);
   }
 
   .vamps-page__img--transparent img {
     scale: 1;
     width: 60%;
-    height: auto;
     margin: 0 auto;
     display: block;
-    object-fit: contain;
-  }
-
-  /* Ensure image containers have explicit dimensions */
-  .vamps-page__img {
-    min-height: 200px;
-    position: relative;
   }
 
   /* Slot: full width with padding */

@@ -61,27 +61,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const isMobile = window.innerWidth <= 768
   const pxScale = isMobile ? 0.35 : 1 // tame parallax on small screens
 
-  // Images — heavy parallax + slight scale (desktop only)
-  if (!isMobile) {
-    document.querySelectorAll('.vamps-content .vamps-page__img img').forEach((img, i) => {
-      const dir = i % 2 === 0 ? 1 : -1
-      const dist = 200
-      gsap.fromTo(img,
-        { y: -dist * dir, scale: 1.08 },
-        {
-          y: dist * dir,
-          scale: 1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: img.parentElement,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true,
-          },
-        }
-      )
-    })
-  }
+  // Images — heavy parallax + slight scale
+  document.querySelectorAll('.vamps-content .vamps-page__img img').forEach((img, i) => {
+    const dir = i % 2 === 0 ? 1 : -1
+    const dist = 200 * pxScale
+    gsap.fromTo(img,
+      { y: -dist * dir, scale: isMobile ? 1.04 : 1.08 },
+      {
+        y: dist * dir,
+        scale: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: img.parentElement,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      }
+    )
+  })
 
   // Huge titles — slow rise, feels heavy
   document.querySelectorAll('.vamps-page__huge').forEach((el, i) => {
