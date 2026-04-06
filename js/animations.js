@@ -303,8 +303,11 @@ export function initMagneticElements() {
 export function initParallax() {
   if (prefersReducedMotion) return
 
+  const isMobile = window.innerWidth <= 768
+  const scale = isMobile ? 0.4 : 1
+
   gsap.utils.toArray('[data-parallax]').forEach(el => {
-    const speed = parseFloat(el.dataset.parallax) || 0.2
+    const speed = (parseFloat(el.dataset.parallax) || 0.2) * scale
 
     gsap.to(el, {
       y: () => speed * 100,

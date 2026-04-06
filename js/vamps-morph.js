@@ -9,11 +9,11 @@ import logoSvgUrl from '/assets/vamps/logovamps.svg?url'
 import titleSvgUrl from '/assets/vamps/vampstitle.svg?url'
 
 const IS_MOBILE = window.matchMedia('(max-width: 768px)').matches
-const LOGO_PARTICLES = IS_MOBILE ? 800 : 3000
-const TITLE_PARTICLES = IS_MOBILE ? 5000 : 20000
+const LOGO_PARTICLES = IS_MOBILE ? 400 : 3000
+const TITLE_PARTICLES = IS_MOBILE ? 2500 : 20000
 const EASE = 0.0525
 const ALPHA_SPEED = 0.02        // linear alpha step per frame
-const SQUARE_SIZE = 1.5       // square particle size
+const SQUARE_SIZE = IS_MOBILE ? 2 : 1.5  // slightly bigger on mobile to compensate fewer particles
 const SAMPLE_W = 800
 const SAMPLE_H = 800
 const LOGO_MAX_W = 120

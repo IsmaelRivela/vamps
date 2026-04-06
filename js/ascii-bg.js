@@ -197,7 +197,9 @@ export function initAsciiBg(selector) {
   const getW = () => isFixed ? window.innerWidth : parent.offsetWidth
   const getH = () => isFixed ? window.innerHeight : parent.offsetHeight
 
-  const CELL = 70           // px per character cell (x5)
+  const isMobile = window.innerWidth <= 768
+
+  const CELL = isMobile ? 90 : 70  // larger cells = fewer calcs on mobile
   const NOISE_SCALE = 0.06  // bigger scale → bigger blobs with more space
   const TIME_SPEED = 0.0004 // animation speed
   const CHAR_FLIP = 0.06    // probability of char changing per frame
@@ -209,13 +211,14 @@ export function initAsciiBg(selector) {
   let glyphsLoaded = false
   glyphsReady.then(() => { glyphsLoaded = true })
 
-  // 4 layers with different offsets for deep misaligned overlay
-  const LAYERS = [
+  // On mobile use 2 layers instead of 4 for performance
+  const ALL_LAYERS = [
     { offsetX: 0,             offsetY: 0,             noiseOff: 0,    timeOff: 0 },
     { offsetX: 0.45 * CELL,   offsetY: 0.35 * CELL,   noiseOff: 7.7,  timeOff: 1.3 },
     { offsetX: 0.2 * CELL,    offsetY: 0.65 * CELL,   noiseOff: 14.2, timeOff: 2.8 },
     { offsetX: 0.7 * CELL,    offsetY: 0.15 * CELL,   noiseOff: 22.5, timeOff: 4.1 },
   ]
+  const LAYERS = isMobile ? [ALL_LAYERS[0], ALL_LAYERS[1]] : ALL_LAYERS
 
   let cols, rows
   let grids = []
