@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <script>document.documentElement.lang=localStorage.getItem('site-lang')||'en'</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>VAMPS — Pharma Collection</title>
+  <meta name="description" content="VAMPS Pharma — Colección: anillo, nails, posters, camisetas, packaging farmacéutico, tiritas." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+
+  <style>
+    :root {
+      --ph-red: #c22424;
+      --ph-black: #0a0a0a;
+      --ph-white: #f0f0f0;
+      --ph-muted: #666;
+      --ph-mono: 'Space Mono', 'JetBrains Mono', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--ph-black);
+      color: var(--ph-white);
+      overflow: hidden;
+    }
+
+    /* ——— PAGE LAYOUT ———
+       Desktop: empty left panel + scene right
+       Mobile:  scene full-screen
+    ——————————————————— */
+    .pharma-page {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Left panel — 3D canvas */
+    .pharma-panel {
+      display: block;
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55vw;
+      height: 35vh;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    @media (min-width: 769px) {
+      .pharma-panel {
+        position: relative;
+        top: auto;
+        left: auto;
+        transform: none;
+        flex: 1;
+        width: auto;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: auto;
+      }
+    }
+
+    .pharma-panel canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ——— SCENE ——— */
+    .pharma-scene {
+      position: relative;
+      height: 100%;
+      overflow: hidden;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+
+    /* Mobile: full width */
+    .pharma-scene { width: 100%; }
+
+    /* Desktop: width driven by bg aspect ratio */
+    @media (min-width: 769px) {
+      .pharma-scene {
+        width: auto;
+        height: 100%;
+      }
+    }
+
+    /* Background — 100% height, auto width, keep ratio */
+    .scene__bg {
+      display: block;
+      height: 100%;
+      width: auto;
+      position: relative;
+      z-index: 0;
+    }
+
+    /* On mobile, cover the viewport */
+    @media (max-width: 768px) {
+      .scene__bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    /* Scanline overlay */
+    .scene__scan {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Character — pinned to bottom, height = viewport, ratio preserved */
+    .scene__char {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 100%;
+      aspect-ratio: 1472 / 2210;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .scene__char img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .scene__char-closed {
+      position: relative;
+    }
+
+    .scene__char-open {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      opacity: 0;
+    }
+
+    .scene__char.is-speaking .scene__char-open   { opacity: 1; }
+    .scene__char.is-speaking .scene__char-closed  { opacity: 0; }
+
+    /* Dialogue box */
+    .scene__dialog {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      background: rgba(10, 10, 10, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-top: 2px solid var(--ph-red);
+      padding: 1.25rem 1.5rem 1rem;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .scene__dialog-name {
+      font-family: var(--ph-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      color: var(--ph-red);
+      margin-bottom: 0.5rem;
+    }
+
+    .scene__dialog-text {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+      line-height: 1.6;
+      color: var(--ph-white);
+      min-height: 2.8em;
+    }
+
+    .scene__dialog-hint {
+      font-family: var(--ph-mono);
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--ph-muted);
+      margin-top: 0.75rem;
+      text-align: right;
+      animation: hint-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.4; }
+      50%      { opacity: 1; }
+    }
+
+    /* Choice buttons */
+    .scene__choices {
+      display: none;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+
+    .scene__choices.is-visible {
+      display: flex;
+    }
+
+    .scene__choice-btn {
+      font-family: var(--ph-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--ph-white);
+      background: transparent;
+      color: var(--ph-white);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .scene__choice-btn:hover {
+      background: var(--ph-red);
+      border-color: var(--ph-red);
+      color: var(--ph-black);
+    }
+
+    /* CTA after dialogue ends */
+    .scene__cta {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-top: 2px solid var(--ph-red);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    .scene__cta.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .scene__cta-text {
+      font-family: var(--ph-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--ph-muted);
+    }
+
+    .scene__cta-btn {
+      font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ph-black);
+      background: var(--ph-red);
+      border: none;
+      padding: 0.8rem 2.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .scene__cta-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 30px rgba(194,36,36,0.5);
+    }
+
+    /* ——— PRODUCT PICKER (end of dialogue) ——— */
+    .scene__product-pick {
+      display: none;
+      gap: 0.6rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .scene__product-pick.is-visible {
+      display: flex;
+    }
+
+    .scene__product-pick-btn {
+      font-family: var(--ph-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0.5rem 1.2rem;
+      border: 1px solid var(--ph-white);
+      background: transparent;
+      color: var(--ph-white);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .scene__product-pick-btn:hover {
+      background: var(--ph-red);
+      border-color: var(--ph-red);
+      color: var(--ph-black);
+    }
+
+    /* ——— PRODUCT PAGE OVERLAY ——— */
+    .product-page {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: var(--ph-black);
+      color: var(--ph-white);
+      overflow-y: auto;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .product-page.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .product-page__back {
+      position: fixed;
+      top: 1.25rem;
+      left: 1.25rem;
+      z-index: 110;
+      font-family: var(--ph-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--ph-white);
+      background: rgba(10,10,10,0.7);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(240,240,240,0.2);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .product-page__back:hover {
+      border-color: var(--ph-red);
+    }
+
+    .product-page__inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 5rem 1.5rem 4rem;
+    }
+
+    .product-page__title {
+      font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      line-height: 1.1;
+    }
+
+    .product-page__gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 2.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .product-page__gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .product-page__img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: #1a1a1a;
+      border: 1px solid rgba(240,240,240,0.06);
+    }
+
+    .product-page__3d-wrap {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #1a1a1a;
+      border: 1px solid rgba(240,240,240,0.06);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-page__3d-wrap canvas {
+      position: absolute;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .product-page__buy {
+      border-top: 2px solid var(--ph-red);
+      padding-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .product-page__price {
+      font-family: var(--ph-mono);
+      font-size: 1.5rem;
+      color: var(--ph-red);
+    }
+
+    .product-page__desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--ph-muted);
+      max-width: 500px;
+    }
+
+    .product-page__buy-btn {
+      font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ph-black);
+      background: var(--ph-red);
+      border: none;
+      padding: 1rem 2.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      align-self: flex-start;
+    }
+
+    .product-page__buy-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 30px rgba(194,36,36,0.5);
+    }
+
+    /* Prev / Next nav */
+    .product-page__nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(240,240,240,0.1);
+    }
+
+    .product-page__nav-btn {
+      font-family: var(--ph-mono);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--ph-white);
+      background: transparent;
+      border: 1px solid rgba(240,240,240,0.2);
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .product-page__nav-btn:hover {
+      border-color: var(--ph-red);
+      background: rgba(194,36,36,0.15);
+    }
+    /* Pharma lang toggle */
+    .pharma-lang {
+      position: fixed;
+      top: 60px;
+      right: 12px;
+      z-index: 100;
+      background: none;
+      border: 2px solid rgba(255,255,255,0.3);
+      padding: 4px 6px;
+      cursor: pointer;
+      image-rendering: pixelated;
+      transition: border-color 0.2s;
+    }
+    .pharma-lang:hover {
+      border-color: var(--ph-red);
+    }
+    .pharma-lang svg {
+      display: block;
+      width: 28px;
+      height: 20px;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-transition"></div>
+
+  <!-- Pixel flag lang toggle -->
+  <button class="pharma-lang" id="pharmaLang" title="Switch language">
+    <!-- UK flag pixel (shown when lang=en, click switches to es) -->
+    <svg class="pharma-lang__en" viewBox="0 0 14 10" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+      <rect width="14" height="10" fill="#012169"/>
+      <path d="M0,0 L14,10 M14,0 L0,10" stroke="#fff" stroke-width="2"/>
+      <path d="M0,0 L14,10 M14,0 L0,10" stroke="#C8102E" stroke-width="1"/>
+      <rect x="5" y="0" width="4" height="10" fill="#fff"/>
+      <rect x="0" y="3" width="14" height="4" fill="#fff"/>
+      <rect x="6" y="0" width="2" height="10" fill="#C8102E"/>
+      <rect x="0" y="4" width="14" height="2" fill="#C8102E"/>
+    </svg>
+    <!-- Spain flag pixel (shown when lang=es, click switches to en) -->
+    <svg class="pharma-lang__es" viewBox="0 0 14 10" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+      <rect width="14" height="2" fill="#AA151B"/>
+      <rect y="2" width="14" height="6" fill="#F1BF00"/>
+      <rect y="8" width="14" height="2" fill="#AA151B"/>
+    </svg>
+  </button>
+
+  <nav class="nav">
+    <a href="/" class="nav__logo">IR</a>
+    <div class="nav__links">
+      <a href="/vamps.html" class="nav__link">VAMPS</a>
+      <a href="/ismael.html" class="nav__link">Work</a>
+      <!-- <button class="nav__lang" id="langToggle">ES</button> -->
+    </div>
+  </nav>
+
+  <main class="pharma-page">
+
+    <!-- LEFT PANEL — 3D Canvas -->
+    <div class="pharma-panel" id="panel">
+      <canvas id="three-canvas"></canvas>
+    </div>
+
+    <!-- SCENE — Visual Novel -->
+    <div class="pharma-scene" id="scene">
+
+      <img class="scene__bg" src="/assets/vamps/pharma/fondo-pharma.png" alt="" />
+      <div class="scene__scan"></div>
+
+      <div class="scene__char" id="character">
+        <img class="scene__char-closed" src="/assets/vamps/pharma/cerrado-pharma-pix.png" alt="" />
+        <img class="scene__char-open"   src="/assets/vamps/pharma/abierto-pharma-pix.png" alt="" />
+      </div>
+
+      <div class="scene__dialog" id="dialog">
+        <div class="scene__dialog-name">Farmacia Apothecary & Co.</div>
+        <div class="scene__dialog-text" id="dialogText"></div>
+        <div class="scene__dialog-hint" id="dialogHint">Click to continue</div>
+        <div class="scene__choices" id="choices">
+          <button class="scene__choice-btn" data-choice="yes">Yes</button>
+          <button class="scene__choice-btn" data-choice="no">No</button>
+        </div>
+        <div class="scene__choices" id="buyChoices" style="display:none;">
+          <button class="scene__choice-btn" data-buy="yes">Buy it</button>
+          <button class="scene__choice-btn" data-buy="next">See another</button>
+        </div>
+        <div class="scene__product-pick" id="productPick">
+          <button class="scene__product-pick-btn" data-product="0">Ring</button>
+          <button class="scene__product-pick-btn" data-product="1">Nails</button>
+          <button class="scene__product-pick-btn" data-product="2">Tee</button>
+        </div>
+      </div>
+
+      <div class="scene__cta" id="sceneCta">
+        <span class="scene__cta-text">The collection awaits</span>
+        <button class="scene__cta-btn" id="ctaBtn">See collection</button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- PRODUCT PAGE OVERLAY -->
+  <div class="product-page" id="productPage">
+    <button class="product-page__back" id="productBack">← Back</button>
+    <div class="product-page__inner">
+      <h1 class="product-page__title" id="productTitle"></h1>
+      <div class="product-page__gallery" id="productGallery">
+        <img class="product-page__img" id="productImg1" src="" alt="" />
+        <div class="product-page__3d-wrap">
+          <canvas id="product-three-canvas"></canvas>
+        </div>
+      </div>
+      <div class="product-page__buy">
+        <div class="product-page__price" id="productPrice"></div>
+        <p class="product-page__desc" id="productDesc"></p>
+        <button class="product-page__buy-btn" id="productBuyBtn">Buy</button>
+      </div>
+      <div class="product-page__nav">
+        <button class="product-page__nav-btn" id="productPrev">← Previous</button>
+        <button class="product-page__nav-btn" id="productNext">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    /* ── Language system ── */
+    let lang = localStorage.getItem('site-lang') || 'en';
+
+    const i18n = {
+      intro: {
+        en: [
+          'Welcome to the pharmacy.',
+          "We don't cure anything here… but we've got what you need.",
+          'Let me show you around.',
+        ],
+        es: [
+          'Bienvenido a la farmacia.',
+          'Aquí no curamos nada… pero tenemos lo que necesitas.',
+          'Déjame enseñarte lo que hay.',
+        ],
+      },
+      hint: { en: 'Click to continue', es: 'Click para continuar' },
+      yes: { en: 'Yes', es: 'Sí' },
+      no: { en: 'No', es: 'No' },
+      buyIt: { en: 'Buy it', es: 'Comprarlo' },
+      seeAnother: { en: 'See another', es: 'Ver otro' },
+      buyBtn: { en: 'Buy', es: 'Comprar' },
+      backBtn: { en: '← Back', es: '← Volver' },
+      prevBtn: { en: '← Previous', es: '← Anterior' },
+      nextBtn: { en: 'Next →', es: 'Siguiente →' },
+      ctaText: { en: 'The collection awaits', es: 'La colección te espera' },
+      ctaBtn: { en: 'See collection', es: 'Ver colección' },
+      decline: {
+        en: "Ok, let's move on.",
+        es: 'Vale, pasemos a otra cosa.',
+      },
+      wantBuy: {
+        en: 'Want to buy it?',
+        es: '¿Quieres comprarlo?',
+      },
+      endDismiss: {
+        en: "Well, that's all there is. Take it or leave it — don't mess me around, I'm closing in 5 minutes.",
+        es: 'Pues esto es lo que hay. Lo tomas o lo dejas, no me marees que cierro en 5 minutos.',
+      },
+      pickProducts: {
+        en: ['Ring', 'Nails', 'Tee'],
+        es: ['Anillo', 'Nails', 'Camiseta'],
+      },
+    };
+
+    function t(key) {
+      const v = i18n[key];
+      return v ? (v[lang] || v.en) : key;
+    }
+
+    const products = [
+      {
+        id: 'ring',
+        title: 'Vampire Fang Ring',
+        price: '€ 49',
+        desc: { en: 'Vampire fang ring. 925 sterling silver with polished finish.', es: 'Anillo de colmillo vampírico. Plata de ley 925 con acabado pulido.' },
+        question: { en: 'Wanna see the ring?', es: '¿Quieres ver el anillo?' },
+        pitch: { en: '925 sterling silver, polished finish. A fang you wear on your finger.', es: 'Plata de ley 925, acabado pulido. Un colmillo que se lleva en el dedo.' },
+        image: '/assets/vamps/pharma/anillo.jpg',
+        model: 0,
+      },
+      {
+        id: 'nails',
+        title: 'Nail Art Set',
+        price: '€ 29',
+        desc: { en: 'Vampiric pharma-style press-on nail set.', es: 'Set de uñas press-on con diseño farmacéutico vampírico.' },
+        question: { en: 'Wanna see the nails?', es: '¿Quieres ver las nails?' },
+        pitch: { en: 'Press-on nails with pharma design. Stick them on, pull them off, repeat.', es: 'Press-on nails con diseño farmacéutico. Ponlas, quítalas, repite.' },
+        image: '/assets/vamps/pharma/nails.png',
+        model: 1,
+      },
+      {
+        id: 'tee',
+        title: 'Pharma Tee',
+        price: '€ 35',
+        desc: { en: 'Oversized tee with VAMPS pharma graphic.', es: 'Camiseta oversized con gráfica farmacéutica VAMPS.' },
+        question: { en: 'Wanna see the tee?', es: '¿Quieres ver la camiseta?' },
+        pitch: { en: 'Oversized, heavy cotton, pharma graphic. Basic but not really.', es: 'Oversized, algodón grueso, gráfica farmacéutica. Básica pero no tanto.' },
+        image: '/assets/vamps/pharma/camiseta.png',
+        model: 2,
+      },
+    ];
+
+    /* ── Flag toggle logic ── */
+    const pharmaLangBtn = document.getElementById('pharmaLang');
+    const flagEn = pharmaLangBtn.querySelector('.pharma-lang__en');
+    const flagEs = pharmaLangBtn.querySelector('.pharma-lang__es');
+
+    function updateFlagDisplay() {
+      // Show the flag of the CURRENT language (click to switch to the other)
+      flagEn.style.display = lang === 'en' ? 'block' : 'none';
+      flagEs.style.display = lang === 'es' ? 'block' : 'none';
+    }
+
+    function updateUIText() {
+      document.getElementById('dialogHint').textContent = t('hint');
+      // Yes/No buttons
+      const choiceBtns = choices.querySelectorAll('.scene__choice-btn');
+      choiceBtns[0].textContent = t('yes');
+      choiceBtns[1].textContent = t('no');
+      // Buy buttons
+      const buyBtns = buyChoices.querySelectorAll('.scene__choice-btn');
+      buyBtns[0].textContent = t('buyIt');
+      buyBtns[1].textContent = t('seeAnother');
+      // Product pick buttons
+      const pickBtns = document.querySelectorAll('.scene__product-pick-btn');
+      const pickNames = i18n.pickProducts[lang] || i18n.pickProducts.en;
+      pickBtns.forEach((btn, i) => { btn.textContent = pickNames[i]; });
+      // CTA
+      document.querySelector('.scene__cta-text').textContent = t('ctaText');
+      document.getElementById('ctaBtn').textContent = t('ctaBtn');
+      // Product page
+      document.getElementById('productBack').textContent = t('backBtn');
+      document.getElementById('productPrev').textContent = t('prevBtn');
+      document.getElementById('productNext').textContent = t('nextBtn');
+      document.getElementById('productBuyBtn').textContent = t('buyBtn');
+    }
+
+    pharmaLangBtn.addEventListener('click', () => {
+      lang = lang === 'en' ? 'es' : 'en';
+      localStorage.setItem('site-lang', lang);
+      document.documentElement.lang = lang;
+      updateFlagDisplay();
+      updateUIText();
+    });
+
+    updateFlagDisplay();
+
+    /* ── DOM refs ── */
+    const character   = document.getElementById('character');
+    const dialogBox   = document.getElementById('dialog');
+    const dialogText  = document.getElementById('dialogText');
+    const dialogHint  = document.getElementById('dialogHint');
+    const choices     = document.getElementById('choices');
+    const buyChoices  = document.getElementById('buyChoices');
+    const sceneCta    = document.getElementById('sceneCta');
+    const scene       = document.getElementById('scene');
+    const productPage = document.getElementById('productPage');
+    const productBack = document.getElementById('productBack');
+    const productPrev = document.getElementById('productPrev');
+    const productNext = document.getElementById('productNext');
+    let currentProductIndex = 0;
+
+    /* Product page helpers */
+    function openProduct(index) {
+      currentProductIndex = ((index % products.length) + products.length) % products.length;
+      const p = products[currentProductIndex];
+      document.getElementById('productTitle').textContent = p.title;
+      document.getElementById('productPrice').textContent = p.price;
+      document.getElementById('productDesc').textContent  = p.desc[lang] || p.desc.en;
+      document.getElementById('productImg1').src = p.image;
+      if (typeof window.pharmaShowProductModel === 'function') {
+        window.pharmaShowProductModel(p.model);
+      }
+      productPage.scrollTop = 0;
+      productPage.classList.add('is-visible');
+    }
+
+    productBack.addEventListener('click', () => {
+      productPage.classList.remove('is-visible');
+    });
+
+    productPrev.addEventListener('click', () => {
+      openProduct(currentProductIndex - 1);
+    });
+
+    productNext.addEventListener('click', () => {
+      openProduct(currentProductIndex + 1);
+    });
+
+    let mouthInterval = null;
+    let isTyping = false;
+    let waitingForChoice = false;
+    let currentTypingText = '';
+    let currentTypingCallback = null;
+    let typeTimer = null;
+
+    // State machine
+    let phase = 'intro';
+    let introStep = 0;
+    let productStep = 0;
+    let declinedAll = true; // tracks if user said no to everything
+
+    function startSpeaking() {
+      character.classList.add('is-speaking');
+      let open = true;
+      mouthInterval = setInterval(() => {
+        open = !open;
+        if (open) character.classList.add('is-speaking');
+        else character.classList.remove('is-speaking');
+      }, 180);
+    }
+
+    function stopSpeaking() {
+      clearInterval(mouthInterval);
+      mouthInterval = null;
+      character.classList.remove('is-speaking');
+    }
+
+    function hideAllChoices() {
+      choices.classList.remove('is-visible');
+      buyChoices.style.display = 'none';
+      waitingForChoice = false;
+    }
+
+    function showYesNo() {
+      dialogHint.style.visibility = 'hidden';
+      choices.classList.add('is-visible');
+      waitingForChoice = true;
+    }
+
+    function showBuyOrNext() {
+      dialogHint.style.visibility = 'hidden';
+      buyChoices.style.display = '';
+      buyChoices.classList.add('is-visible');
+      waitingForChoice = true;
+    }
+
+    function hideBuyOrNext() {
+      buyChoices.classList.remove('is-visible');
+      buyChoices.style.display = 'none';
+      waitingForChoice = false;
+    }
+
+    function typeLine(text, callback) {
+      if (typeTimer) { clearTimeout(typeTimer); typeTimer = null; }
+      isTyping = true;
+      currentTypingText = text;
+      currentTypingCallback = callback || null;
+      dialogText.textContent = '';
+      dialogHint.style.visibility = 'hidden';
+      hideAllChoices();
+      startSpeaking();
+
+      let i = 0;
+      const speed = 35;
+
+      function tick() {
+        if (!isTyping) return;
+        if (i < text.length) {
+          dialogText.textContent += text[i];
+          i++;
+          typeTimer = setTimeout(tick, speed);
+        } else {
+          typeTimer = null;
+          stopSpeaking();
+          isTyping = false;
+          if (callback) callback();
+        }
+      }
+
+      tick();
+    }
+
+    function goToEnd() {
+      if (declinedAll) {
+        // Said no to everything → dismissive line first
+        phase = 'dismissEnd';
+        typeLine(t('endDismiss'), () => {
+          dialogHint.style.visibility = 'visible';
+        });
+      } else {
+        phase = 'end';
+        dialogBox.style.display = 'none';
+        sceneCta.classList.add('is-visible');
+      }
+    }
+
+    function askNextProduct() {
+      if (productStep >= products.length) {
+        goToEnd();
+        return;
+      }
+      phase = 'ask';
+      const p = products[productStep];
+      typeLine(p.question[lang] || p.question.en, () => {
+        stopSpeaking();
+        showYesNo();
+      });
+    }
+
+    function runCurrent() {
+      if (phase === 'intro') {
+        const lines = i18n.intro[lang] || i18n.intro.en;
+        if (introStep < lines.length) {
+          typeLine(lines[introStep], () => {
+            dialogHint.style.visibility = 'visible';
+          });
+        } else {
+          askNextProduct();
+        }
+      }
+    }
+
+    // --- Yes/No handler ---
+    function handleChoice(answer) {
+      hideAllChoices();
+
+      if (phase === 'ask') {
+        if (answer === 'no') {
+          typeLine(t('decline'), () => {
+            productStep++;
+            dialogHint.style.visibility = 'visible';
+            phase = 'skipWait';
+          });
+        } else {
+          declinedAll = false;
+          const p = products[productStep];
+          if (typeof window.pharmaShowModel === 'function') {
+            window.pharmaShowModel(p.model);
+          }
+          phase = 'showing';
+          typeLine(p.pitch[lang] || p.pitch.en, () => {
+            dialogHint.style.visibility = 'visible';
+          });
+        }
+      }
+    }
+
+    // --- Buy / Next handler ---
+    function handleBuy(action) {
+      hideBuyOrNext();
+
+      if (action === 'yes') {
+        openProduct(productStep);
+        productStep++;
+        askNextProduct();
+      } else {
+        productStep++;
+        askNextProduct();
+      }
+    }
+
+    /* Click to advance */
+    scene.addEventListener('click', (e) => {
+      if (e.target.closest('.scene__cta-btn')) return;
+      if (e.target.closest('.scene__choice-btn')) return;
+      if (e.target.closest('.scene__product-pick-btn')) return;
+      if (waitingForChoice) return;
+
+      if (isTyping) {
+        if (typeTimer) { clearTimeout(typeTimer); typeTimer = null; }
+        stopSpeaking();
+        isTyping = false;
+        dialogText.textContent = currentTypingText;
+        if (currentTypingCallback) currentTypingCallback();
+        return;
+      }
+
+      if (phase === 'intro') {
+        introStep++;
+        const lines = i18n.intro[lang] || i18n.intro.en;
+        if (introStep < lines.length) {
+          runCurrent();
+        } else {
+          askNextProduct();
+        }
+      } else if (phase === 'showing') {
+        phase = 'buyOrNext';
+        typeLine(t('wantBuy'), () => {
+          stopSpeaking();
+          showBuyOrNext();
+        });
+      } else if (phase === 'skipWait') {
+        askNextProduct();
+      } else if (phase === 'dismissEnd') {
+        phase = 'end';
+        dialogBox.style.display = 'none';
+        sceneCta.classList.add('is-visible');
+      }
+    });
+
+    /* Choice buttons (Yes/No) */
+    choices.addEventListener('click', (e) => {
+      const btn = e.target.closest('.scene__choice-btn');
+      if (!btn) return;
+      e.stopPropagation();
+      handleChoice(btn.dataset.choice);
+    });
+
+    /* Buy buttons */
+    buyChoices.addEventListener('click', (e) => {
+      const btn = e.target.closest('.scene__choice-btn');
+      if (!btn) return;
+      e.stopPropagation();
+      handleBuy(btn.dataset.buy);
+    });
+
+    /* Init UI text & start */
+    updateUIText();
+    runCurrent();
+  })();
+  </script>
+
+  <script type="module">
+  import * as THREE from 'three';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+  import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+
+  (function () {
+    const canvas = document.getElementById('three-canvas');
+    const panel  = document.getElementById('panel');
+    if (!canvas || !panel) return;
+
+    /* Wait until panel is visible and has dimensions */
+    function waitForSize(cb) {
+      const check = () => {
+        if (panel.clientWidth > 0 && panel.clientHeight > 0) { cb(); }
+        else { requestAnimationFrame(check); }
+      };
+      check();
+    }
+
+    waitForSize(() => {
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setClearColor(0x000000, 0);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+
+      const w = panel.clientWidth;
+      const h = panel.clientHeight;
+      renderer.setSize(w, h);
+
+      const scene3d = new THREE.Scene();
+      const camera  = new THREE.PerspectiveCamera(45, w / h, 0.1, 200);
+      camera.position.set(0, 0, 4);
+
+      /* Environment map for metallic reflections */
+      const pmremGenerator = new THREE.PMREMGenerator(renderer);
+      scene3d.environment = pmremGenerator.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+      pmremGenerator.dispose();
+
+      /* Lights */
+      scene3d.add(new THREE.AmbientLight(0xffffff, 1));
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+      dirLight.position.set(3, 4, 5);
+      scene3d.add(dirLight);
+
+      const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      backLight.position.set(-3, -2, -3);
+      scene3d.add(backLight);
+
+      const redLight = new THREE.PointLight(0xc22424, 4, 15);
+      redLight.position.set(-2, 0, 3);
+      scene3d.add(redLight);
+
+      /* Draco decoder */
+      const dracoLoader = new DRACOLoader();
+      dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+
+      /* Models */
+      const loader = new GLTFLoader();
+      loader.setDRACOLoader(dracoLoader);
+      const models = [];
+      const pivots  = []; /* wrapper groups for rotation */
+      let activeIndex = -1;
+
+      const modelPaths = [
+        '/assets/vamps/pharma/3d/vampire+fang+ring+3d+model.opt.glb',
+        '/assets/vamps/pharma/3d/nail+art+3d+model.opt.glb',
+        '/assets/vamps/pharma/3d/white+t-shirt+3d+model.opt.glb',
+      ];
+
+      function fitToView(object) {
+        /* Compute normals if missing */
+        object.traverse((child) => {
+          if (child.isMesh && child.geometry) {
+            if (!child.geometry.attributes.normal) {
+              child.geometry.computeVertexNormals();
+            }
+          }
+        });
+
+        /* Reset transforms first */
+        object.position.set(0, 0, 0);
+        object.scale.set(1, 1, 1);
+        object.updateMatrixWorld(true);
+
+        const box = new THREE.Box3().setFromObject(object);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+
+        const maxDim = Math.max(size.x, size.y, size.z);
+        if (maxDim === 0) return;
+
+        const scale = 2 / maxDim;
+        object.scale.setScalar(scale);
+
+        /* Re-center after scaling */
+        box.setFromObject(object);
+        box.getCenter(center);
+        object.position.set(-center.x, -center.y, -center.z);
+      }
+
+      modelPaths.forEach((path, i) => {
+        loader.load(
+          path,
+          (gltf) => {
+            const model = gltf.scene;
+            fitToView(model);
+
+            /* Wrap in pivot group: tilt on model, spin on pivot */
+            const pivot = new THREE.Group();
+
+            if (i === 0) {
+              /* Ring: half size + lay flat, fangs pointing down */
+              model.scale.multiplyScalar(0.5);
+              model.rotation.z = -Math.PI * 0.5;
+              model.rotation.x = -Math.PI * 0.15;
+            }
+
+            pivot.add(model);
+            pivot.visible = false;
+            scene3d.add(pivot);
+            models[i] = model;
+            pivots[i] = pivot;
+            console.log('[pharma3d] loaded:', path);
+          },
+          undefined,
+          (err) => { console.error('[pharma3d] error loading:', path, err); }
+        );
+      });
+
+      /* Switch model — with scale-up entrance */
+      function showModel(index) {
+        pivots.forEach((p, i) => {
+          if (!p) return;
+          if (i === index) {
+            p.visible = true;
+            p.scale.set(0, 0, 0);
+            p.position.y = -1.5;
+            /* Animate entrance */
+            const dur = 1200;
+            const start = performance.now();
+            function enter(now) {
+              const t = Math.min((now - start) / dur, 1);
+              /* easeOutCubic */
+              const ease = 1 - Math.pow(1 - t, 3);
+              p.scale.setScalar(ease);
+              p.position.y = -1.5 * (1 - ease);
+              if (t < 1) requestAnimationFrame(enter);
+            }
+            requestAnimationFrame(enter);
+          } else {
+            p.visible = false;
+          }
+        });
+        activeIndex = index;
+      }
+      window.pharmaShowModel = showModel;
+
+      /* Resize */
+      function resize() {
+        const w = panel.clientWidth;
+        const h = panel.clientHeight;
+        if (w === 0 || h === 0) return;
+        renderer.setSize(w, h);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+
+      window.addEventListener('resize', resize);
+
+      /* Animate — spin the pivot group (world Y), not the tilted model */
+      function animate() {
+        requestAnimationFrame(animate);
+        const pivot = pivots[activeIndex];
+        if (pivot) {
+          pivot.rotation.y -= 0.008;
+        }
+        renderer.render(scene3d, camera);
+      }
+
+      animate();
+    });
+  })();
+
+  /* ——— PRODUCT PAGE 3D RENDERER ——— */
+  (function () {
+    const canvas = document.getElementById('product-three-canvas');
+    const wrap   = canvas?.parentElement;
+    if (!canvas || !wrap) return;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x1a1a1a, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
+    const scene3d = new THREE.Scene();
+    const camera  = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+    camera.position.set(0, 0, 4);
+
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    scene3d.environment = pmremGenerator.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+    pmremGenerator.dispose();
+
+    scene3d.add(new THREE.AmbientLight(0xffffff, 1));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2);
+    dirLight.position.set(3, 4, 5);
+    scene3d.add(dirLight);
+
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(dracoLoader);
+
+    const prodModels = [];
+    const prodPivots = [];
+    let prodActive = -1;
+
+    const modelPaths = [
+      '/assets/vamps/pharma/3d/vampire+fang+ring+3d+model.opt.glb',
+      '/assets/vamps/pharma/3d/nail+art+3d+model.opt.glb',
+      '/assets/vamps/pharma/3d/white+t-shirt+3d+model.opt.glb',
+    ];
+
+    function fitToView(object) {
+      object.traverse((child) => {
+        if (child.isMesh && child.geometry && !child.geometry.attributes.normal) {
+          child.geometry.computeVertexNormals();
+        }
+      });
+      object.position.set(0, 0, 0);
+      object.scale.set(1, 1, 1);
+      object.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(object);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      if (maxDim === 0) return;
+      const scale = 2 / maxDim;
+      object.scale.setScalar(scale);
+      box.setFromObject(object);
+      box.getCenter(center);
+      object.position.set(-center.x, -center.y, -center.z);
+    }
+
+    modelPaths.forEach((path, i) => {
+      loader.load(path, (gltf) => {
+        const model = gltf.scene;
+        fitToView(model);
+        const pivot = new THREE.Group();
+        if (i === 0) {
+          model.scale.multiplyScalar(0.5);
+          model.rotation.z = -Math.PI * 0.5;
+          model.rotation.x = -Math.PI * 0.15;
+        }
+        pivot.add(model);
+        pivot.visible = false;
+        scene3d.add(pivot);
+        prodModels[i] = model;
+        prodPivots[i] = pivot;
+      });
+    });
+
+    function showProductModel(index) {
+      prodPivots.forEach((p, i) => { if (p) p.visible = (i === index); });
+      prodActive = index;
+      /* Defer resize until overlay is visible and wrap has dimensions */
+      requestAnimationFrame(() => requestAnimationFrame(resize));
+    }
+    window.pharmaShowProductModel = showProductModel;
+
+    function resize() {
+      const w = wrap.clientWidth;
+      const h = wrap.clientHeight;
+      if (w === 0 || h === 0) return;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    /* Use ResizeObserver for reliable responsive sizing */
+    new ResizeObserver(() => resize()).observe(wrap);
+    window.addEventListener('resize', resize);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const pivot = prodPivots[prodActive];
+      if (pivot) pivot.rotation.y -= 0.008;
+      renderer.render(scene3d, camera);
+    }
+    animate();
+  })();
+  </script>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

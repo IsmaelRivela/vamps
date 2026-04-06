@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAMPOT!!!</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #fff;
+      gap: 1.5rem;
+    }
+
+    .slot {
+      position: relative;
+      width: 90vw;
+      max-width: 600px;
+      aspect-ratio: 1200 / 1185;
+    }
+
+    .slot__frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .slot__reel {
+      position: absolute;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* Reel positions in % from the 1200x1185 image */
+    .slot__reel--0 { left: 24.42%; top: 67.17%; width: 15.58%; height: 21.35%; }
+    .slot__reel--1 { left: 42.25%; top: 67.17%; width: 15.58%; height: 21.35%; }
+    .slot__reel--2 { left: 60.08%; top: 67.17%; width: 15.58%; height: 21.35%; }
+
+    .slot__strip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slot__strip img {
+      width: 100%;
+      height: var(--reel-h);
+      object-fit: contain;
+      padding: 15%;
+      filter: brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(6000%) hue-rotate(360deg) brightness(95%)
+             drop-shadow(0 0 6px rgba(255, 0, 0, 0.8))
+             drop-shadow(0 0 20px rgba(255, 0, 0, 0.4));
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      z-index: 3;
+    }
+
+    .credits-bar {
+      font-size: 0.85rem;
+      color: #666;
+      display: flex;
+      gap: 2rem;
+    }
+
+    .credits-bar span {
+      color: #c22424;
+      font-weight: 700;
+    }
+
+    .btn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      animation: coinPulse 1.5s ease-in-out infinite;
+    }
+
+    .btn__coin {
+      width: 100px;
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 0 10px rgba(194, 36, 36, 0.5));
+    }
+
+    .btn__label {
+      position: absolute;
+      top: -1.6rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #c22424;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .btn:hover {
+      animation: none;
+      transform: scale(1.1);
+    }
+
+    .btn:active { transform: scale(0.95); }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      animation: none;
+      transform: none;
+    }
+
+    @keyframes coinPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
+    }
+
+    .message {
+      font-size: 1rem;
+      min-height: 1.4em;
+      text-align: center;
+      color: #666;
+    }
+
+    .message--jackpot {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #c22424;
+      animation: jackpot 0.4s ease infinite alternate;
+    }
+
+    .message--win {
+      color: #e0a030;
+      font-weight: 600;
+    }
+
+    @keyframes jackpot {
+      from { text-shadow: 0 0 10px rgba(194,36,36,0.6); transform: scale(1); }
+      to   { text-shadow: 0 0 30px rgba(194,36,36,1); transform: scale(1.08); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slot">
+    <img class="slot__frame" src="/assets/vamps/jackpot.png" alt="" />
+    <div class="slot__reel slot__reel--0" id="reel0"><div class="slot__strip"></div></div>
+    <div class="slot__reel slot__reel--1" id="reel1"><div class="slot__strip"></div></div>
+    <div class="slot__reel slot__reel--2" id="reel2"><div class="slot__strip"></div></div>
+  </div>
+
+  <div class="controls">
+    <div class="credits-bar">
+      <div>Credits: <span id="credits">100</span></div>
+      <div>Bet: <span>10</span></div>
+    </div>
+    <button class="btn" id="spin">
+      <span class="btn__label">Insert Coin</span>
+      <img class="btn__coin" src="/assets/vamps/coinvamp-pix.png" alt="Insert coin" />
+    </button>
+    <div class="message" id="msg">Good luck!</div>
+  </div>
+
+  <script>
+    const SYMBOLS = ['vamps1','vamps3','vamps4','vamps5','vamps6','vamps7','vamps8']
+    const JACKPOT = 'vamps3'
+    const BET = 10
+    const COPIES = 10
+
+    let credits = 100
+    let spinning = false
+
+    const creditsEl = document.getElementById('credits')
+    const msgEl = document.getElementById('msg')
+    const spinBtn = document.getElementById('spin')
+
+    // Each reel's item height matches the reel container height
+    const reels = [0, 1, 2].map(i => {
+      const reel = document.getElementById('reel' + i)
+      const strip = reel.querySelector('.slot__strip')
+      const totalItems = SYMBOLS.length * COPIES
+
+      for (let j = 0; j < totalItems; j++) {
+        const img = document.createElement('img')
+        const sym = SYMBOLS[j % SYMBOLS.length]
+        img.src = `/assets/glifos/${sym}.svg`
+        img.alt = sym
+        img.dataset.symbol = sym
+        strip.appendChild(img)
+      }
+
+      return { reel, strip, totalItems, currentOffset: 0, spinsUsed: 0 }
+    })
+
+    // Set --reel-h CSS variable so all images have the same height
+    reels.forEach(({ reel }) => {
+      reel.style.setProperty('--reel-h', reel.offsetHeight + 'px')
+    })
+    window.addEventListener('resize', () => {
+      reels.forEach(({ reel }) => {
+        reel.style.setProperty('--reel-h', reel.offsetHeight + 'px')
+      })
+    })
+
+    function getRandomSymbol() {
+      return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]
+    }
+
+    function spinReel(reelData, targetSymbol, delay) {
+      return new Promise(resolve => {
+        const { reel, strip } = reelData
+        const reelH = reel.offsetHeight
+
+        // How many extra full rotations to spin (3-5 full cycles worth)
+        const extraSpins = (3 + Math.floor(Math.random() * 3)) * SYMBOLS.length
+        const targetIndex = SYMBOLS.indexOf(targetSymbol)
+
+        // Calculate how many items to advance from current position
+        const currentSymIndex = reelData.spinsUsed % SYMBOLS.length
+        let advance = targetIndex - currentSymIndex
+        if (advance <= 0) advance += SYMBOLS.length
+        advance += extraSpins
+
+        const landIndex = reelData.spinsUsed + advance
+
+        // Ensure strip has enough items
+        while (strip.children.length <= landIndex + SYMBOLS.length) {
+          for (let j = 0; j < SYMBOLS.length; j++) {
+            const img = document.createElement('img')
+            const sym = SYMBOLS[j % SYMBOLS.length]
+            img.src = `/assets/glifos/${sym}.svg`
+            img.alt = sym
+            img.dataset.symbol = sym
+            strip.appendChild(img)
+          }
+        }
+
+        // Re-query after potential append
+        const allImgs = strip.querySelectorAll('img')
+
+        // Set the target symbol at landing position
+        allImgs[landIndex].src = `/assets/glifos/${targetSymbol}.svg`
+        allImgs[landIndex].dataset.symbol = targetSymbol
+
+        // Each item is exactly reelH tall
+        const itemH = reelH
+        const targetY = -(landIndex * itemH)
+        const duration = 2 + delay * 0.5
+
+        setTimeout(() => {
+          strip.style.transition = `transform ${duration}s cubic-bezier(0.15, 0.85, 0.25, 1)`
+          strip.style.transform = `translateY(${targetY}px)`
+          setTimeout(() => {
+            reelData.spinsUsed = landIndex
+            resolve(targetSymbol)
+          }, duration * 1000)
+        }, delay * 300)
+      })
+    }
+
+    async function spin() {
+      if (spinning) return
+      if (credits < BET) {
+        msgEl.textContent = 'No credits left!'
+        msgEl.className = 'message'
+        return
+      }
+
+      spinning = true
+      spinBtn.disabled = true
+      credits -= BET
+      creditsEl.textContent = credits
+      msgEl.textContent = '...'
+      msgEl.className = 'message'
+
+      const results = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()]
+
+      await Promise.all(reels.map((r, i) => spinReel(r, results[i], i)))
+
+      if (results[0] === JACKPOT && results[1] === JACKPOT && results[2] === JACKPOT) {
+        credits += 500
+        creditsEl.textContent = credits
+        msgEl.textContent = 'VAMPOT!!! +500'
+        msgEl.className = 'message message--jackpot'
+      } else if (results[0] === results[1] && results[1] === results[2]) {
+        credits += 100
+        creditsEl.textContent = credits
+        msgEl.textContent = 'Three of a kind! +100'
+        msgEl.className = 'message message--win'
+      } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
+        credits += 20
+        creditsEl.textContent = credits
+        msgEl.textContent = 'Pair! +20'
+        msgEl.className = 'message message--win'
+      } else {
+        msgEl.textContent = 'Try again...'
+        msgEl.className = 'message'
+      }
+
+      spinning = false
+      spinBtn.disabled = false
+    }
+
+    spinBtn.addEventListener('click', spin)
+  </script>
+</body>
+</html>

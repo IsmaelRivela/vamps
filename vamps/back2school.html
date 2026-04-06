@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- <script>document.documentElement.lang=localStorage.getItem('site-lang')||'en'</script> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAMPS — Back2School Collection</title>
+  <meta name="description" content="VAMPS Back2School — Colección experimental. Cuando un vampiro va al cole." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+
+  <style>
+    :root {
+      --b2s-paper:  #f5f0e8;
+      --b2s-ink:    #1a1a1a;
+      --b2s-pencil: #666;
+      --b2s-red:    #c22424;
+      --b2s-blue:   #4a7ab5;
+      --b2s-ruled:  #c8d8e8;
+      --b2s-margin: #e08080;
+      --b2s-tape:   rgba(255, 255, 200, 0.55);
+      --b2s-mono:   'Space Mono', monospace;
+      --b2s-hand:   'Caveat', cursive;
+    }
+
+    html {
+      background: var(--b2s-paper);
+    }
+
+    body {
+      margin: 0;
+      background: var(--b2s-paper);
+      color: var(--b2s-ink);
+      overflow-x: hidden;
+    }
+
+    /* ——— THE NOTEBOOK PAGE ——— */
+    .notebook {
+      position: relative;
+      width: 100%;
+      background: var(--b2s-paper);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* Ruled lines */
+    .notebook::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          transparent,
+          transparent 31px,
+          var(--b2s-ruled) 31px,
+          var(--b2s-ruled) 32px
+        );
+      background-position: 0 16px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Red margin line */
+    .notebook::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 72px;
+      bottom: 0;
+      width: 2px;
+      background: var(--b2s-margin);
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @media (max-width: 600px) {
+      .notebook::after {
+        left: 32px;
+      }
+    }
+
+    /* ——— CONTENT CANVAS ——— */
+    .nb {
+      position: relative;
+      z-index: 1;
+      padding: 4rem clamp(1.5rem, 5vw, 6rem) 3rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ——— SCATTERED BLOCK — base for text + photo items ——— */
+    .nb__block {
+      max-width: 420px;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .nb__block--right { margin-left: auto; }
+    .nb__block--center { margin-left: auto; margin-right: auto; }
+    .nb__block--push-r { margin-left: 35%; }
+    .nb__block--push-r2 { margin-left: 55%; }
+    .nb__block--wide { max-width: 600px; }
+    .nb__block--narrow { max-width: 500px; }
+    .nb__block--full { max-width: 100%; }
+    .nb__block--photo { max-width: 600px; }
+
+    /* Row — photo + text side by side */
+    .nb__row {
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .nb__row--reverse { flex-direction: row-reverse; }
+    .nb__row--center { justify-content: center; }
+    .nb__row--end { justify-content: flex-end; }
+    .nb__row--spread { justify-content: space-between; }
+
+    .nb__row > .nb__block { margin: 0; flex-shrink: 0; }
+
+    @media (max-width: 600px) {
+      .nb__block--push-r,
+      .nb__block--push-r2 { margin-left: 0; }
+      .nb__row { flex-direction: column; }
+    }
+
+    /* Handwritten text */
+    .nb__hand {
+      font-family: var(--b2s-hand);
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      line-height: 1.78;
+      color: var(--b2s-ink);
+      margin: 0 0 1rem;
+    }
+
+    .nb__hand--big {
+      font-size: clamp(2.5rem, 7vw, 5rem);
+      font-weight: 700;
+      line-height: 1;
+      margin: 0 0 1rem;
+    }
+
+    .nb__hand--giant {
+      font-size: clamp(4rem, 12vw, 9rem);
+      font-weight: 700;
+      line-height: 0.85;
+      margin: 0;
+      letter-spacing: -0.03em;
+    }
+
+    .nb__hand--red { color: var(--b2s-red); }
+    .nb__hand--blue { color: var(--b2s-blue); }
+    .nb__hand--pencil {
+      color: var(--b2s-pencil);
+      font-size: clamp(1rem, 2vw, 1.2rem);
+    }
+
+    .nb__struck {
+      text-decoration: line-through;
+      text-decoration-color: var(--b2s-red);
+      text-decoration-thickness: 2px;
+      opacity: 0.5;
+    }
+
+    .nb__underline {
+      text-decoration: underline wavy var(--b2s-red);
+      text-underline-offset: 4px;
+    }
+
+    .nb__circle {
+      border: 2.5px solid var(--b2s-red);
+      border-radius: 50%;
+      padding: 0.1em 0.5em;
+      display: inline-block;
+    }
+
+    .nb__margin-note {
+      position: absolute;
+      left: -60px;
+      font-family: var(--b2s-hand);
+      font-size: 1rem;
+      color: var(--b2s-red);
+      transform: rotate(-8deg);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .nb__margin-note { display: none; }
+    }
+
+    /* ——— TAPED PHOTOS ——— */
+    .nb__photo {
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .nb__photo img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      border: 4px solid white;
+      box-shadow: 2px 3px 12px rgba(0,0,0,0.15);
+    }
+
+    .nb__photo--wide img { max-width: 100%; }
+    .nb__photo--xs img { max-width: 100%; }
+
+    .nb__photo::before,
+    .nb__photo::after {
+      content: '';
+      position: absolute;
+      width: 80px;
+      height: 22px;
+      background: var(--b2s-tape);
+      z-index: 2;
+      backdrop-filter: blur(1px);
+    }
+
+    .nb__photo::before {
+      top: -10px;
+      left: 15%;
+      transform: rotate(-3deg);
+    }
+
+    .nb__photo::after {
+      bottom: -8px;
+      right: 12%;
+      transform: rotate(2deg);
+    }
+
+    .nb__photo--tape-top::after { display: none; }
+    .nb__photo--tape-bottom::before { display: none; }
+
+    .nb__photo--tilt-r { transform: rotate(1.5deg); }
+    .nb__photo--tilt-l { transform: rotate(-2deg); }
+    .nb__photo--tilt-r2 { transform: rotate(3deg); }
+    .nb__photo--tilt-l2 { transform: rotate(-3.5deg); }
+
+    /* ——— DOODLES ——— */
+    .nb__doodle {
+      position: absolute;
+      font-family: var(--b2s-hand);
+      color: var(--b2s-blue);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .nb__doodle--star::before { content: '★'; font-size: 2rem; }
+    .nb__doodle--heart::before { content: '♡'; font-size: 1.5rem; color: var(--b2s-red); }
+
+    .nb__sep {
+      border: none;
+      border-top: 2px dashed var(--b2s-pencil);
+      opacity: 0.3;
+      margin: 3rem 0;
+    }
+
+    .nb__stamp {
+      display: inline-block;
+      font-family: var(--b2s-mono);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--b2s-red);
+      border: 2.5px solid var(--b2s-red);
+      padding: 0.3em 0.8em;
+      transform: rotate(-5deg);
+      opacity: 0.7;
+    }
+
+    /* ——— PAGE NUMBER ——— */
+    .nb__page-num {
+      font-family: var(--b2s-hand);
+      font-size: 1.2rem;
+      color: var(--b2s-pencil);
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+
+    /* ——— NAV ——— */
+    .nb__nav {
+      display: flex;
+      justify-content: space-between;
+      padding: 2rem 0 3rem;
+      border-top: 1px solid rgba(0,0,0,0.1);
+      margin-top: 2rem;
+    }
+
+    .nb__nav a {
+      font-family: var(--b2s-hand);
+      font-size: 1.3rem;
+      color: var(--b2s-red);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .nb__nav a:hover {
+      opacity: 0.6;
+    }
+
+    /* ——— COFFEE STAIN ——— */
+    .nb__stain {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 40%,
+        rgba(139, 90, 43, 0.06) 42%,
+        rgba(139, 90, 43, 0.12) 50%,
+        rgba(139, 90, 43, 0.06) 58%,
+        transparent 60%
+      );
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* ——— FOLDED CORNER ——— */
+    .notebook__fold {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(
+        135deg,
+        transparent 50%,
+        #e8e3db 50%,
+        #ddd8d0 100%
+      );
+      box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+      z-index: 5;
+    }
+
+    /* ——— SVG DOODLES ——— */
+    .nb__svg-doodle {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.06;
+    }
+
+    .nb__svg-doodle img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Vamps Boy — hero drawing */
+    .nb__boy {
+      position: absolute;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.08;
+    }
+
+    .nb__boy img {
+      width: 100%;
+      height: auto;
+    }
+
+    .nb__boy--hero {
+      top: 60px;
+      right: clamp(-2rem, 2vw, 4rem);
+      width: clamp(350px, 55vw, 800px);
+      opacity: 0.09;
+    }
+
+    .nb__boy--mid {
+      top: 52%;
+      left: clamp(-2rem, 1vw, 2rem);
+      width: clamp(250px, 35vw, 500px);
+      transform: scaleX(-1) rotate(-5deg);
+      opacity: 0.05;
+    }
+
+    .nb__boy--bottom {
+      bottom: 12%;
+      right: clamp(0rem, 6vw, 8rem);
+      width: clamp(200px, 28vw, 400px);
+      transform: rotate(8deg);
+      opacity: 0.04;
+    }
+
+    @media (max-width: 600px) {
+      .nb__boy--hero {
+        width: 80vw;
+        right: -3rem;
+        top: 30px;
+        opacity: 0.07;
+      }
+      .nb__boy--mid,
+      .nb__boy--bottom { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-transition"></div>
+
+  <nav class="nav">
+    <a href="/" class="nav__logo">IR</a>
+    <div class="nav__links">
+      <a href="/vamps.html" class="nav__link">VAMPS</a>
+      <a href="/ismael.html" class="nav__link">Work</a>
+      <!-- <button class="nav__lang" id="langToggle">ES</button> -->
+    </div>
+  </nav>
+
+  <main class="notebook">
+
+    <!-- Coffee stain -->
+    <div class="nb__stain" style="top: 180px; right: 40px; transform: rotate(15deg);"></div>
+    <div class="nb__stain" style="top: 2800px; right: 120px; width: 90px; height: 90px; transform: rotate(-20deg);"></div>
+
+    <!-- Vamps Boy — protagonist drawings -->
+    <div class="nb__boy nb__boy--hero">
+      <img src="/assets/vamps/back2school/vamps-boy.svg" alt="" />
+    </div>
+    <div class="nb__boy nb__boy--mid">
+      <img src="/assets/vamps/back2school/vamps-boy.svg" alt="" />
+    </div>
+    <div class="nb__boy nb__boy--bottom">
+      <img src="/assets/vamps/back2school/vamps-boy.svg" alt="" />
+    </div>
+
+    <!-- Glifo doodles scattered -->
+    <div class="nb__svg-doodle" style="top: 320px; left: 3%; width: 200px; transform: rotate(12deg);">
+      <img src="/assets/glifos/vamps1.svg" alt="" />
+    </div>
+    <div class="nb__svg-doodle" style="top: 700px; right: 5%; width: 180px; transform: rotate(-18deg);">
+      <img src="/assets/glifos/vamps3.svg" alt="" />
+    </div>
+    <div class="nb__svg-doodle" style="top: 1200px; left: 8%; width: 160px; transform: rotate(25deg);">
+      <img src="/assets/glifos/vamps4.svg" alt="" />
+    </div>
+    <div class="nb__svg-doodle" style="top: 1600px; right: 12%; width: 200px; transform: rotate(-8deg);">
+      <img src="/assets/glifos/vamps5.svg" alt="" />
+    </div>
+    <div class="nb__svg-doodle" style="top: 2100px; left: 2%; width: 150px; transform: rotate(30deg);">
+      <img src="/assets/glifos/vamps6.svg" alt="" />
+    </div>
+    <div class="nb__svg-doodle" style="top: 2500px; right: 8%; width: 190px; transform: rotate(-15deg);">
+      <img src="/assets/glifos/vamps7.svg" alt="" />
+    </div>
+    <div class="nb__svg-doodle" style="top: 3000px; left: 6%; width: 170px; transform: rotate(20deg);">
+      <img src="/assets/glifos/vamps8.svg" alt="" />
+    </div>
+
+    <!-- Folded corner -->
+    <div class="notebook__fold"></div>
+
+    <div class="nb">
+
+      <!-- ——— TITLE — left ——— -->
+      <div class="nb__block" style="position: relative;">
+        <span class="nb__margin-note" style="top: 0;">← esto es importante</span>
+        <p class="nb__hand nb__hand--giant nb__hand--red">School<br/>Day</p>
+        <span class="nb__stamp" style="margin-top: 0.5rem;">VAMPS Collection · 2026</span>
+      </div>
+
+      <!-- ——— ORIGIN TEXT + PHOTO side by side ——— -->
+      <div class="nb__row nb__row--spread">
+        <div class="nb__block" style="max-width: 380px; position: relative;">
+          <span class="nb__margin-note" style="top: 6px;">origen ↓</span>
+          <p class="nb__hand">
+            School Day aparece siguiendo la línea natural de un diseño. 
+            No lo desarrollé yo, sino un niño al que le hacía gracia ponerse una 
+            camiseta con un vampiro y al que llamó 
+            <span class="nb__underline nb__hand--red">"el demonio que va al cole"</span>.
+          </p>
+        </div>
+        <div class="nb__block nb__block--photo">
+          <div class="nb__photo nb__photo--tilt-r nb__photo--tape-top">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school1.jpg" alt="" loading="lazy" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ——— TEXT — pushed right ——— -->
+      <div class="nb__block nb__block--right" style="max-width: 360px;">
+        <p class="nb__hand">
+          Que acompañe a un niño en su día de cole me 
+          encantó — es el tipo de conexión que pocas veces se siente 
+          por un <span class="nb__circle">objeto inanimado</span>.
+        </p>
+      </div>
+
+      <hr class="nb__sep" />
+
+      <!-- ——— PHOTO + CONCEPT side by side reversed ——— -->
+      <div class="nb__row nb__row--reverse">
+        <div class="nb__block" style="max-width: 400px; position: relative;">
+          <span class="nb__margin-note" style="top: 4px; left: auto; right: -70px;">concepto →</span>
+          <p class="nb__hand nb__hand--big">
+            <span class="nb__struck">ropa infantil con un dibujo</span><br/>
+            un compañero de aventuras
+          </p>
+        </div>
+        <div class="nb__block nb__block--photo">
+          <div class="nb__photo nb__photo--tilt-l2 nb__photo--tape-bottom">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school2.jpeg" alt="" loading="lazy" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ——— TEXT — center-ish ——— -->
+      <div class="nb__block nb__block--push-r" style="max-width: 350px;">
+        <p class="nb__hand">
+          Back2School no es ropa infantil con un dibujo. Es la idea de que 
+          un garabato se convierta en compañero de aventuras. Un vampiro 
+          que se despierta temprano, desayuna cereales y coge el bus del cole. 
+          <span class="nb__hand--blue">Lo absurdo como estándar.</span>
+        </p>
+      </div>
+
+      <!-- ——— PHOTO + annotation — left ——— -->
+      <div class="nb__block nb__block--photo">
+        <div class="nb__photo nb__photo--tilt-r2">
+          <img src="/assets/vamps/back2school/vamps-image-asset-back2school3.jpeg" alt="" loading="lazy" />
+        </div>
+        <p class="nb__hand nb__hand--pencil" style="margin-top: 1rem;">^ fotos que molan mucho</p>
+      </div>
+
+      <hr class="nb__sep" />
+
+      <!-- ——— PACKAGING TITLE — right ——— -->
+      <div class="nb__block nb__block--right" style="position: relative;">
+        <span class="nb__margin-note" style="top: 6px; left: auto; right: -60px; transform: rotate(6deg);">packaging</span>
+        <p class="nb__hand nb__hand--big nb__hand--blue">
+          Hot, Fresh<br/>& Tasty
+        </p>
+      </div>
+
+      <!-- ——— TEXT + 2 PHOTOS scattered ——— -->
+      <div class="nb__row">
+        <div class="nb__block nb__block--photo">
+          <div class="nb__photo nb__photo--tilt-l nb__photo--tape-top">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school4.jpeg" alt="" loading="lazy" />
+          </div>
+        </div>
+        <div class="nb__block" style="max-width: 340px;">
+          <p class="nb__hand">
+            Qué tiene que ver una caja de pizza con un día de cole? 
+            <span class="nb__hand--pencil">Nada,</span> pero la pizza box 
+            de VAMPS va por su cuenta. Cajas, sprays, joyería — anillos de 
+            colmillos, pulseras de pedrería negra, colgantes tribales — 
+            stencils de metacrilato. 
+            <span class="nb__stamp" style="transform: rotate(2deg);">Basic tuff</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- ——— 2 PHOTOS — right-ish ——— -->
+      <div class="nb__row nb__row--end" style="gap: 1.5rem;">
+        <div class="nb__block nb__block--photo">
+          <div class="nb__photo nb__photo--tilt-r">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school5.jpg" alt="" loading="lazy" />
+          </div>
+        </div>
+        <div class="nb__block nb__block--photo">
+          <div class="nb__photo nb__photo--tilt-l2 nb__photo--tape-bottom">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school6.jpg" alt="" loading="lazy" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ——— Photo left + text right ——— -->
+      <div class="nb__row nb__row--spread">
+        <div class="nb__block nb__block--photo">
+          <div class="nb__photo nb__photo--tilt-l">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school7.jpg" alt="" loading="lazy" />
+          </div>
+        </div>
+        <div class="nb__block" style="max-width: 300px; position: relative;">
+          <span class="nb__doodle nb__doodle--star" style="top: -16px; right: 0;"></span>
+          <p class="nb__hand">
+            Ojalá VAMPS genere eso más a menudo. 
+            Es un buen estándar al que aspirar.
+          </p>
+        </div>
+      </div>
+
+      <hr class="nb__sep" />
+
+      <!-- ——— GIANT VAMPS — center ——— -->
+      <div class="nb__block nb__block--center nb__block--full" style="text-align: center;">
+        <p class="nb__hand nb__hand--giant">VAMPS</p>
+      </div>
+
+      <!-- ——— 2 LAST PHOTOS — spread ——— -->
+      <div class="nb__row nb__row--spread" style="margin-top: 2rem;">
+        <div class="nb__block nb__block--photo">
+          <div class="nb__photo nb__photo--tilt-r">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school8.jpg" alt="" loading="lazy" />
+          </div>
+        </div>
+        <div class="nb__block nb__block--photo" style="align-self: flex-end;">
+          <div class="nb__photo nb__photo--tilt-l">
+            <img src="/assets/vamps/back2school/vamps-image-asset-back2school9.jpg" alt="" loading="lazy" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ——— LAST — wide photo center ——— -->
+      <div class="nb__block nb__block--center nb__block--full" style="margin-top: 2rem; text-align: center;">
+        <div class="nb__photo nb__photo--wide nb__photo--tape-top">
+          <img src="/assets/vamps/back2school/vamps-image-asset-back2school10.jpeg" alt="" loading="lazy" />
+        </div>
+      </div>
+
+      <!-- ——— PAGE NUMBER ——— -->
+      <div class="nb__page-num">— 1 —</div>
+
+      <!-- ——— NAV ——— -->
+      <nav class="nb__nav">
+        <a href="/vamps.html">← Volver a VAMPS</a>
+        <a href="/vamps/pharma.html">Pharma →</a>
+      </nav>
+
+    </div>
+
+  </main>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

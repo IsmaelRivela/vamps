@@ -1,0 +1,605 @@
+/* ============================================
+   VAMPS — Concept Brand Theme
+   8-column grid layout
+   ============================================ */
+
+:root {
+  --vamps-red: #c22424;
+  --vamps-black: #000000;
+  --vamps-white: #f5f5f5;
+  --vamps-gray: #888;
+  --vamps-cols: 8;
+  --vamps-gap: 16px;
+}
+
+body.theme-vamps {
+  background: var(--vamps-black);
+  color: var(--vamps-white);
+}
+
+/* — Nav override — */
+
+.theme-vamps .nav__logo {
+  color: var(--vamps-red);
+}
+
+.theme-vamps .nav__link {
+  color: var(--vamps-white);
+}
+
+.theme-vamps .nav__link:hover,
+.theme-vamps .nav__link.active {
+  color: var(--vamps-red);
+}
+
+/* — 8-column page grid — */
+
+.vamps-page {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: var(--vamps-gap);
+  padding: 0;
+  width: 100%;
+}
+
+.vamps-page__full {
+  grid-column: 1 / -1;
+}
+
+/* — Hero — */
+
+.vamps-hero {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  z-index: 0;
+}
+
+.vamps-hero__img {
+  width: 100%;
+  aspect-ratio: 1 / 1; /* SVG viewBox is 300×300 */
+  background: url('/assets/vamps/portada-vamps-abajo.png') center center / contain no-repeat;
+  -webkit-mask-image: url('/assets/vamps/vampstitle.svg');
+  mask-image: url('/assets/vamps/vampstitle.svg');
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  animation: hero-cycle 1.5s steps(1) infinite;
+}
+
+@keyframes hero-cycle {
+  0%      { background: url('/assets/vamps/portada-vamps-abajo.png') center center / contain no-repeat; }
+  33.33%  { background: url('/assets/vamps/portada-vamps-abajo2.JPG') center center / contain no-repeat; }
+  66.66%  { background: var(--vamps-red); }
+}
+
+/* — Content wrapper — scrolls over the pinned hero — */
+
+.vamps-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: var(--vamps-gap);
+}
+
+/* — Slot machine — left 3 cols — */
+
+.vamps-page__slot {
+  grid-column: 1 / 4;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.slot {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1200 / 1185;
+}
+
+.slot__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.slot__reel {
+  position: absolute;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.slot__reel--0 { left: 24.42%; top: 67.17%; width: 15.58%; height: 21.35%; }
+.slot__reel--1 { left: 42.25%; top: 67.17%; width: 15.58%; height: 21.35%; }
+.slot__reel--2 { left: 60.08%; top: 67.17%; width: 15.58%; height: 21.35%; }
+
+.slot__strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.slot__strip img {
+  width: 100%;
+  height: var(--reel-h);
+  object-fit: contain;
+  padding: 15%;
+  filter: brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(6000%) hue-rotate(360deg) brightness(95%)
+         drop-shadow(0 0 6px rgba(255, 0, 0, 0.8))
+         drop-shadow(0 0 20px rgba(255, 0, 0, 0.4));
+  flex-shrink: 0;
+}
+
+.slot__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  position: relative;
+}
+
+.slot__credits {
+  font-size: 0.8rem;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: right;
+  background: #000;
+  padding: 0.3rem 0.5rem;
+  line-height: 1.4;
+}
+
+.slot__credits span {
+  color: var(--vamps-red);
+  font-weight: 700;
+}
+
+.slot__btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  animation: coinPulse 1.5s ease-in-out infinite;
+}
+
+.slot__btn-coin {
+  width: 80px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(194, 36, 36, 0.5));
+}
+
+.slot__btn-label {
+  position: absolute;
+  bottom: -1.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--vamps-red);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.slot__btn:hover {
+  animation: none;
+  transform: scale(1.1);
+}
+
+.slot__btn:active { transform: scale(0.95); }
+
+.slot__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  animation: none;
+  transform: none;
+}
+
+@keyframes coinPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+
+.slot__msg {
+  font-size: 0.85rem;
+  min-height: 1.4em;
+  text-align: center;
+  color: #666;
+}
+
+.slot__msg--jackpot {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--vamps-red);
+  animation: jackpot 0.4s ease infinite alternate;
+}
+
+.slot__msg--win {
+  color: #e0a030;
+  font-weight: 600;
+}
+
+@keyframes jackpot {
+  from { text-shadow: 0 0 10px rgba(194,36,36,0.6); transform: scale(1); }
+  to   { text-shadow: 0 0 30px rgba(194,36,36,1); transform: scale(1.08); }
+}
+
+/* — Big text blocks — */
+
+.vamps-page__bigtext {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.vamps-page__bigtext span {
+  font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  color: var(--vamps-red);
+}
+
+.vamps-page__bigtext--right {
+  grid-column: 4 / 9;
+  padding: var(--space-xl) var(--space-lg);
+  background: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.vamps-page__bigtext--left {
+  grid-column: 1 / 5;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+/* — Huge words — full-width separators — */
+
+.vamps-page__huge {
+  padding: 0;
+  overflow: hidden;
+  grid-column: 1 / -1;
+}
+
+.vamps-page__huge span {
+  font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 20vw;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--vamps-white);
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: block;
+  width: fit-content;
+  margin: 0 auto;
+  background: var(--vamps-black);
+  padding: 0;
+}
+
+.vamps-page__huge--right {
+  grid-column: 1 / -1;
+}
+
+/* — Huge link hover — */
+.vamps-page__huge--link {
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.vamps-page__huge--link span {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.vamps-page__huge--link:hover span {
+  background: var(--vamps-red);
+  color: var(--vamps-black);
+}
+
+/* — Images — various placements — */
+
+.vamps-page__img {
+  overflow: hidden;
+  background: var(--vamps-black);
+}
+
+.vamps-page__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+  scale: 1.15;
+}
+
+.vamps-page__img--transparent {
+  background: transparent;
+}
+
+.vamps-page__img--transparent img {
+  object-fit: contain;
+  scale: 1;
+}
+
+/* Flickering red glow on image (respects alpha) */
+.vamps-page__img--flicker img {
+  filter: drop-shadow(0 0 25px rgba(194, 36, 36, 0.8));
+  will-change: filter;
+  animation: flicker 4s ease-in-out infinite;
+}
+
+@keyframes flicker {
+  0%, 30%, 38%, 60%, 78%, 100% { filter: drop-shadow(0 0 25px rgba(194, 36, 36, 0.8)); }
+  32%, 36% { filter: drop-shadow(0 0 5px rgba(194, 36, 36, 0.1)); }
+  63%, 75% { filter: drop-shadow(0 0 3px rgba(194, 36, 36, 0.05)); }
+}
+
+.vamps-page__img--wide {
+  grid-column: 2 / 7;
+  aspect-ratio: 16 / 7;
+}
+
+.vamps-page__img--left {
+  grid-column: 1 / 5;
+  aspect-ratio: 4 / 3;
+}
+
+.vamps-page__img--right-sm {
+  grid-column: 6 / 9;
+  aspect-ratio: 3 / 4;
+}
+
+.vamps-page__img--center {
+  grid-column: 3 / 7;
+  aspect-ratio: 1 / 1;
+}
+
+.vamps-page__img--left-wide {
+  grid-column: 1 / 6;
+  aspect-ratio: 16 / 9;
+}
+
+.vamps-page__img--right-wide {
+  grid-column: 4 / 9;
+  aspect-ratio: 16 / 9;
+}
+
+.vamps-page__img--left-sm {
+  grid-column: 1 / 4;
+  aspect-ratio: 3 / 4;
+}
+
+/* — Text blocks — */
+
+.vamps-page__text {
+  display: flex;
+  align-items: center;
+  background: var(--vamps-black);
+}
+
+.vamps-page__text p {
+  font-size: var(--size-md);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--vamps-gray);
+}
+
+.vamps-page__text strong {
+  color: var(--vamps-red);
+  font-weight: 400;
+}
+
+.vamps-page__text--right {
+  grid-column: 5 / 9;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.vamps-page__text--left {
+  grid-column: 1 / 4;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.vamps-page__text--far-right {
+  grid-column: 6 / 9;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+/* — Red band — */
+
+.vamps-page__band {
+  display: grid;
+  grid-template-columns: 5fr 3fr;
+  background: var(--vamps-red);
+}
+
+.vamps-page__band .vamps-page__img {
+  background: transparent;
+}
+
+.vamps-page__band .vamps-page__img--left-wide {
+  grid-column: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.vamps-page__band .vamps-page__text--far-right {
+  grid-column: auto;
+  background: transparent;
+}
+
+.vamps-page__text--dark p {
+  color: var(--vamps-black);
+}
+
+/* — Footer — */
+
+.vamps-footer {
+  border-top: 1px solid #1a1a1a;
+  padding: var(--space-xl) 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--vamps-black);
+}
+
+.vamps-footer__back {
+  font-size: var(--size-sm);
+  color: var(--vamps-gray);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.vamps-footer__back:hover {
+  color: var(--vamps-red);
+}
+
+.vamps-footer__brand {
+  font-size: var(--size-sm);
+  color: var(--vamps-gray);
+}
+
+/* — Draggable Stickers — */
+
+.sticker {
+  position: absolute;
+  width: 800px;
+  height: 800px;
+  object-fit: contain;
+  opacity: 1;
+  cursor: grab;
+  z-index: 999;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.sticker--sm {
+  width: 220px;
+  height: 220px;
+}
+
+.sticker--dragging {
+  opacity: 1;
+  cursor: grabbing;
+  transform: scale(1.2) rotate(3deg);
+  z-index: 11;
+  transition: none;
+  filter: drop-shadow(0 0 12px rgba(194, 36, 36, 0.9));
+}
+
+/* — Responsive — */
+
+@media (max-width: 768px) {
+  .vamps-page {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .vamps-content {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .vamps-page__slot,
+  .vamps-page__bigtext--right,
+  .vamps-page__bigtext--left,
+  .vamps-page__img--wide,
+  .vamps-page__img--left,
+  .vamps-page__img--right-sm,
+  .vamps-page__img--center,
+  .vamps-page__img--left-wide,
+  .vamps-page__img--right-wide,
+  .vamps-page__img--left-sm,
+  .vamps-page__text--right,
+  .vamps-page__text--left,
+  .vamps-page__text--far-right,
+  .vamps-page__huge--right {
+    grid-column: 1 / -1;
+  }
+
+  /* Band stacks vertically */
+  .vamps-page__band {
+    grid-template-columns: 1fr;
+  }
+
+  .vamps-page__band .vamps-page__img--left-wide {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* Text blocks: consistent padding */
+  .vamps-page__text--right,
+  .vamps-page__text--left,
+  .vamps-page__text--far-right {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .vamps-page__bigtext--right,
+  .vamps-page__bigtext--left {
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  /* Images: constrain aspect ratios */
+  .vamps-page__img--right-sm,
+  .vamps-page__img--left-sm {
+    aspect-ratio: 4 / 5;
+  }
+
+  .vamps-page__img--center {
+    aspect-ratio: 1 / 1;
+  }
+
+  .vamps-page__img--wide,
+  .vamps-page__img--left-wide,
+  .vamps-page__img--right-wide {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* Scale down image overflow from parallax */
+  .vamps-page__img img {
+    scale: 1.1;
+  }
+
+  /* Slot: full width with padding */
+  .vamps-page__slot {
+    padding: 0 var(--space-md);
+  }
+
+  /* Stickers smaller on mobile */
+  .sticker {
+    width: 120px;
+    height: 120px;
+  }
+
+  /* Hero title */
+  .vamps-hero__title {
+    font-size: clamp(4rem, 20vw, 8rem);
+  }
+
+  /* Footer */
+  .vamps-footer {
+    padding: var(--space-lg) var(--space-md);
+    flex-direction: column;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+}

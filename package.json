@@ -1,0 +1,25 @@
+{
+  "name": "vamps-concept-web",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "optimize": "node optimize-assets.mjs",
+    "webp": "node convert-to-webp.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "gsap": "^3.14.2",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5",
+    "svgo": "^4.0.1",
+    "vite": "^6.4.1"
+  },
+  "type": "module"
+}

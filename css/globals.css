@@ -1,0 +1,247 @@
+/* ============================================
+   VAMPS — Design Tokens & Global Styles
+   ============================================ */
+
+:root {
+  /* — Colors — */
+  --color-bg: #0a0a0a;
+  --color-bg-secondary: #111111;
+  --color-surface: #1a1a1a;
+  --color-text: #f0f0f0;
+  --color-text-muted: #888888;
+  --color-accent: #e0e0e0;
+  --color-border: #2a2a2a;
+  --color-highlight: #ffffff;
+
+  /* — Typography — */
+  --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* — Sizes — */
+  --size-xs: 0.75rem;
+  --size-sm: 0.875rem;
+  --size-base: 1rem;
+  --size-md: 1.125rem;
+  --size-lg: 1.5rem;
+  --size-xl: 2rem;
+  --size-2xl: 3rem;
+  --size-3xl: 4.5rem;
+  --size-4xl: 6rem;
+  --size-hero: clamp(3rem, 8vw, 8rem);
+
+  /* — Spacing — */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 5rem;
+  --space-3xl: 8rem;
+  --space-section: clamp(4rem, 10vh, 8rem);
+
+  /* — Layout — */
+  --max-width: 1400px;
+  --gutter: clamp(1.5rem, 4vw, 4rem);
+
+  /* — Motion — */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 0.2s;
+  --duration-base: 0.4s;
+  --duration-slow: 0.8s;
+
+  /* — Z-Index — */
+  --z-nav: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+}
+
+/* ============================================
+   Reset & Base
+   ============================================ */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--size-base);
+  line-height: 1.6;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* ============================================
+   Typography
+   ============================================ */
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.heading-hero {
+  font-size: var(--size-hero);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+}
+
+.heading-lg {
+  font-size: var(--size-3xl);
+}
+
+.heading-md {
+  font-size: var(--size-2xl);
+}
+
+.heading-sm {
+  font-size: var(--size-xl);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-sm {
+  font-size: var(--size-sm);
+}
+
+.text-mono {
+  font-family: var(--font-mono);
+  font-size: var(--size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+/* ============================================
+   Layout Utilities
+   ============================================ */
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.section {
+  padding: var(--space-section) 0;
+}
+
+/* ============================================
+   Page transition overlay
+   ============================================ */
+
+.page-transition {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  z-index: var(--z-overlay);
+  transform: scaleY(1);
+  transform-origin: top;
+  pointer-events: none;
+}
+
+/* ============================================
+   Reveal animations (used with GSAP)
+   ============================================ */
+
+[data-animate] {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+[data-animate="fade-up"] {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+[data-animate="fade-in"] {
+  opacity: 0;
+}
+
+[data-animate="slide-left"] {
+  opacity: 0;
+  transform: translateX(60px);
+}
+
+[data-animate="slide-right"] {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+
+[data-animate="scale-in"] {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* ============================================
+   Selection
+   ============================================ */
+
+::selection {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+/* ============================================
+   Language Toggle
+   ============================================ */
+
+html[lang="en"] [lang="es"] { display: none !important; }
+html[lang="es"] [lang="en"] { display: none !important; }
+
+.nav__lang {
+  font-size: var(--size-sm);
+  color: var(--color-text);
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  position: relative;
+  z-index: 10;
+}
+
+.nav__lang:hover {
+  opacity: 1;
+}

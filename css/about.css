@@ -1,0 +1,125 @@
+/* ============================================
+   About Page
+   ============================================ */
+
+.about-hero {
+  padding: calc(var(--space-3xl) + 80px) var(--gutter) var(--space-2xl);
+}
+
+.about-hero__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2xl);
+  align-items: end;
+}
+
+.about-hero__title {
+  font-size: var(--size-3xl);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
+
+.about-hero__intro {
+  font-size: var(--size-md);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+/* — About Sections — */
+
+.about-section {
+  padding: var(--space-section) var(--gutter);
+  border-top: 1px solid var(--color-border);
+}
+
+.about-section__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--space-2xl);
+}
+
+.about-section__label {
+  font-family: var(--font-mono);
+  font-size: var(--size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+  padding-top: 4px;
+}
+
+.about-section__content {
+  max-width: 720px;
+}
+
+.about-section__text {
+  font-size: var(--size-base);
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-lg);
+}
+
+.about-section__text:last-child {
+  margin-bottom: 0;
+}
+
+/* — Skills / Services — */
+
+.about-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+.about-list__item {
+  font-size: var(--size-base);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* — Contact Section — */
+
+.about-contact {
+  padding: var(--space-3xl) var(--gutter);
+  text-align: center;
+}
+
+.about-contact__title {
+  font-size: var(--size-2xl);
+  font-weight: 300;
+  margin-bottom: var(--space-md);
+}
+
+.about-contact__email {
+  font-size: var(--size-lg);
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 4px;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
+}
+
+.about-contact__email:hover {
+  color: var(--color-text);
+  border-color: var(--color-text);
+}
+
+/* — Mobile — */
+
+@media (max-width: 768px) {
+  .about-hero__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  .about-section__inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .about-list {
+    grid-template-columns: 1fr;
+  }
+}

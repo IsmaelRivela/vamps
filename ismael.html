@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- <script>document.documentElement.lang=localStorage.getItem('site-lang')||'en'</script> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ismael Rivela — Creative</title>
+  <meta name="description" content="Portfolio creativo de Ismael Rivela. Dirección creativa, branding y experiencias visuales." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/layout.css" />
+  <link rel="stylesheet" href="/css/ismael.css" />
+</head>
+<body class="theme-ismael">
+
+  <!-- ASCII Background -->
+  <canvas class="ismael-ascii-bg"></canvas>
+
+  <!-- Glyph Cursor -->
+  <div class="ismael-cursor">
+    <img class="ismael-cursor__glyph" alt="" />
+  </div>
+
+  <div class="page-transition"></div>
+
+  <nav class="nav">
+    <a href="/" class="nav__logo">Home</a>
+    <div class="nav__links">
+      <a href="/vamps.html" class="nav__link">VAMPS</a>
+      <a href="/ismael.html" class="nav__link">Work</a>
+      <!-- <button class="nav__lang" id="langToggle">ES</button> -->
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="ismael-hero">
+    <span class="ismael-hero__greeting" data-animate="fade-up">Work Archive</span>
+    <h1 class="ismael-hero__title" data-animate="fade-up">
+      Ismael<br/>Rivela
+    </h1>
+    <p class="ismael-hero__subtitle" data-animate="fade-up">
+      <span lang="en">Concept, creative direction, and design. I develop ideas for brands, studios, and personal projects — collaborating with others to bring them to life.</span>
+      <span lang="es">Concepto, dirección creativa y diseño. Desarrollo ideas para marcas, estudios y proyectos propios — colaborando con otros para darles forma.</span>
+    </p>
+  </section>
+
+  <!-- Photo -->
+  <section class="ismael-photo" data-animate="fade-up">
+    <picture>
+      <source srcset="/assets/landing/ismael.webp" type="image/webp" />
+      <img 
+        src="/assets/landing/ismael.jpeg" 
+        alt="Ismael Rivela" 
+        class="ismael-photo__img"
+        loading="lazy"
+      />
+    </picture>
+  </section>
+
+  <div class="ismael-divider"></div>
+
+  <!-- Selected Work -->
+  <section class="ismael-section ismael-section--work">
+    <span class="ismael-section__label" data-animate="fade-up">Selected Work</span>
+    <div class="ismael-section__content">
+      <ul class="ismael-projects" data-animate-group>
+        <li class="ismael-project" data-animate="fade-up">
+          <a href="/work/tulipana-case.html" class="ismael-project__link">
+            <span class="ismael-project__name">La Tulipana</span>
+            <span class="ismael-project__type" lang="en">Concept & Content Management</span>
+            <span class="ismael-project__type" lang="es">Concepto & Gestión de Contenido</span>
+          </a>
+        </li>
+        <li class="ismael-project" data-animate="fade-up">
+          <a href="/work/copydad-case.html" class="ismael-project__link">
+            <span class="ismael-project__name">Copydad</span>
+            <span class="ismael-project__type" lang="en">Concept & Logo Direction</span>
+            <span class="ismael-project__type" lang="es">Concepto & Dirección de Logo</span>
+          </a>
+        </li>
+        <!-- Verbena oculto temporalmente -->
+        <li class="ismael-project" data-animate="fade-up">
+          <a href="/work/vamps-case.html" class="ismael-project__link">
+            <span class="ismael-project__name">VAMPS</span>
+            <span class="ismael-project__type" lang="en">Creative Director — Personal Project</span>
+            <span class="ismael-project__type" lang="es">Director Creativo — Proyecto Personal</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="ismael-divider"></div>
+
+  <!-- About -->
+  <section class="ismael-section ismael-section--about">
+    <div class="ismael-section__content">
+      <p class="ismael-section__text" data-animate="fade-up" lang="en">
+        My work starts with the idea. Understanding context, finding
+        the insight, and defining a direction before designing anything.
+        I collaborate with studios and specialists in identity, editorial,
+        and web — I bring concept, and together we shape it into a system.
+      </p>
+      <p class="ismael-section__text" data-animate="fade-up" lang="es">
+        Mi trabajo empieza en la idea. Entender el contexto, encontrar
+        el insight y definir una dirección antes de diseñar nada.
+        Colaboro con estudios y especialistas en identidad, editorial
+        y web — aporto concepto, y junto con el equipo adecuado
+        lo convertimos en sistema.
+      </p>
+      <p class="ismael-section__text" data-animate="fade-up" lang="en">
+        I'm not interested in decoration. I care that every piece has
+        a reason. Research, question, prototype, and arrive at something
+        that works — with the right people to execute it well.
+      </p>
+      <p class="ismael-section__text" data-animate="fade-up" lang="es">
+        No me interesa decorar. Me interesa que cada pieza tenga
+        una razón. Investigar, cuestionar, prototipar y llegar a
+        algo que funcione — con la gente adecuada para ejecutarlo
+        bien.
+      </p>
+      <p class="ismael-section__text" data-animate="fade-up" lang="en">
+        I also have personal projects where the only rule is honesty.
+        The goal is always the same: intentional work that lasts.
+      </p>
+      <p class="ismael-section__text" data-animate="fade-up" lang="es">
+        También tengo proyectos personales donde la única regla
+        es la honestidad. El objetivo es siempre el mismo:
+        piezas con intención que aguanten.
+      </p>
+    </div>
+  </section>
+
+  <div class="ismael-divider"></div>
+
+  <!-- Attention span -->
+  <section class="ismael-section">
+    <span class="ismael-section__label" data-animate="fade-up">TDA Attention Span Habilities</span>
+    <div class="ismael-section__content">
+      <ul class="ismael-values" data-animate-group>
+        <li data-animate="fade-up">Brand Identity</li>
+        <li data-animate="fade-up">Visual Design</li>
+        <li data-animate="fade-up">Art Direction</li>
+        <li data-animate="fade-up">Web Design</li>
+        <li data-animate="fade-up">Editorial Design</li>
+        <li data-animate="fade-up">Design Systems</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="ismael-divider"></div>
+
+  <!-- Contact -->
+  <section class="ismael-contact" data-animate="fade-up">
+    <h2 class="ismael-contact__title">Contact</h2>
+    <a href="mailto:hola@ismaelrivela.com" class="ismael-contact__email">hola@ismaelrivela.com</a>
+    <div class="ismael-contact__social">
+      <a href="https://www.instagram.com/ismaelrivela" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.linkedin.com/in/ismaelrivela" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="ismael-footer">
+    <a href="/" class="ismael-footer__back">← Back to home</a>
+    <span class="ismael-footer__brand">Ismael Rivela © 2026</span>
+  </footer>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

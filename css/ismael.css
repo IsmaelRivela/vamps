@@ -1,0 +1,581 @@
+/* ============================================
+   Ismael — Professional Portfolio Theme
+   Black & White only
+   Studio work, client projects
+   ============================================ */
+
+body.theme-ismael {
+  background: #f5f5f5;
+  color: #0a0a0a;
+  position: relative;
+  cursor: none;
+  font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+}
+
+/* — Glyph Cursor — */
+
+.ismael-cursor {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.ismael-cursor__glyph {
+  width: 120px;
+  height: 120px;
+  display: block;
+  filter: brightness(0);
+  transition: filter 0.2s ease;
+}
+
+.ismael-cursor--active .ismael-cursor__glyph {
+  filter: brightness(0) saturate(100%) invert(18%) sepia(95%) saturate(5000%) hue-rotate(355deg) brightness(90%) contrast(90%);
+}
+
+/* Hide default cursor on all interactive elements */
+.theme-ismael a,
+.theme-ismael button,
+.theme-ismael input,
+.theme-ismael .ismael-project {
+  cursor: none;
+}
+
+/* — ASCII Background Canvas — */
+
+.ismael-ascii-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* — All content above ASCII background — */
+
+.theme-ismael .nav,
+.theme-ismael .ismael-photo,
+.theme-ismael .ismael-section,
+.theme-ismael .ismael-divider,
+.theme-ismael .ismael-contact,
+.theme-ismael .ismael-footer,
+.theme-ismael .page-transition {
+  position: relative;
+  z-index: 1;
+  background: #f5f5f5;
+}
+
+.theme-ismael .ismael-hero {
+  position: relative;
+  z-index: 1;
+}
+
+/* — Nav override — */
+
+.theme-ismael .nav__logo {
+  color: #0a0a0a;
+}
+
+.theme-ismael .nav__link {
+  color: #555;
+}
+
+.theme-ismael .nav__link:hover,
+.theme-ismael .nav__link.active {
+  color: #0a0a0a;
+}
+
+.theme-ismael .nav__lang {
+  color: #555;
+}
+
+.theme-ismael .nav__lang:hover {
+  color: #0a0a0a;
+}
+
+/* — Hero — */
+
+.ismael-hero {
+  min-height: 20vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: var(--space-3xl) var(--gutter) var(--space-2xl);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.ismael-hero__greeting {
+  font-size: var(--size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #888;
+  margin-bottom: var(--space-md);
+}
+
+.ismael-hero__title {
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial Black', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #0a0a0a;
+}
+
+.ismael-hero__subtitle {
+  font-size: var(--size-lg);
+  font-weight: 300;
+  color: #555;
+  margin-top: var(--space-md);
+  max-width: 600px;
+}
+
+/* — Photo — */
+
+.ismael-photo {
+  padding: var(--space-2xl) var(--gutter);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.ismael-photo__img {
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  filter: grayscale(100%);
+  border-radius: 2px;
+}
+
+/* — Bio Sections — */
+
+.ismael-section {
+  padding: var(--space-2xl) var(--gutter);
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+.ismael-section__label {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(3rem, 10vw, 8rem);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #000;
+  width: 100%;
+  display: block;
+  line-height: 1;
+  padding-top: 0.3em;
+}
+
+.ismael-section__content {
+  max-width: 50%;
+  margin-left: auto;
+}
+
+.ismael-section__content:only-child {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: var(--space-md);
+  max-width: 100%;
+}
+
+/* Pixelated irregular border on the about section container
+   Two layers: ::before (black, slightly larger) + ::after (fill, slightly smaller)
+   Same clip-path on both = visible black border following the pixelated shape */
+.theme-ismael .ismael-section--about {
+  position: relative;
+  background: transparent;
+  overflow: visible;
+  padding: calc(var(--space-lg) + 30px) calc(var(--space-md) + 30px);
+}
+
+.ismael-section--about::before,
+.ismael-section--about::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  clip-path: polygon(
+    0% 0%,
+    40px 0%, 40px 20px, 140px 20px, 140px 0%,
+    220px 0%, 220px 24px, 300px 24px, 300px 0%,
+    420px 0%, 420px 20px, 540px 20px, 540px 0%,
+    calc(100% - 280px) 0%, calc(100% - 280px) 24px, calc(100% - 160px) 24px, calc(100% - 160px) 0%,
+    calc(100% - 80px) 0%, calc(100% - 80px) 20px, calc(100% - 20px) 20px, calc(100% - 20px) 0%,
+    100% 0%,
+    100% 40px, calc(100% - 20px) 40px, calc(100% - 20px) 120px, 100% 120px,
+    100% 200px, calc(100% - 24px) 200px, calc(100% - 24px) 300px, 100% 300px,
+    100% calc(100% - 200px), calc(100% - 20px) calc(100% - 200px), calc(100% - 20px) calc(100% - 120px), 100% calc(100% - 120px),
+    100% calc(100% - 40px), calc(100% - 24px) calc(100% - 40px), calc(100% - 24px) 100%,
+    100% 100%,
+    calc(100% - 60px) 100%, calc(100% - 60px) calc(100% - 20px), calc(100% - 180px) calc(100% - 20px), calc(100% - 180px) 100%,
+    calc(100% - 300px) 100%, calc(100% - 300px) calc(100% - 24px), calc(100% - 420px) calc(100% - 24px), calc(100% - 420px) 100%,
+    320px 100%, 320px calc(100% - 20px), 180px calc(100% - 20px), 180px 100%,
+    80px 100%, 80px calc(100% - 24px), 20px calc(100% - 24px), 20px 100%,
+    0% 100%,
+    0% calc(100% - 40px), 24px calc(100% - 40px), 24px calc(100% - 140px), 0% calc(100% - 140px),
+    0% calc(100% - 220px), 20px calc(100% - 220px), 20px calc(100% - 320px), 0% calc(100% - 320px),
+    0% 180px, 24px 180px, 24px 80px, 0% 80px,
+    0% 20px, 20px 20px, 20px 0px, 0% 0%
+  );
+}
+
+.ismael-section--about::before {
+  inset: -3px;
+  background: transparent;
+}
+
+.ismael-section--about::after {
+  inset: 0;
+  background: red;
+}
+
+.ismael-section--about > .ismael-section__content {
+  position: relative;
+  z-index: 1;
+}
+
+.ismael-section__text {
+  font-size: var(--size-md);
+  line-height: 1.7;
+  color: #000;
+  margin-bottom: var(--space-md);
+  font-weight: 400;
+  text-align: justify;
+}
+
+.ismael-section__text:last-child {
+  margin-bottom: 0;
+}
+
+/* — Divider — */
+
+.ismael-divider {
+  width: 40px;
+  height: 1px;
+  background: #ccc;
+  margin: var(--space-xl) auto;
+}
+
+/* — Values list — */
+
+.ismael-values {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ismael-values li {
+  font-size: var(--size-md);
+  font-weight: 300;
+  color: #333;
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.ismael-values li:last-child {
+  border-bottom: none;
+}
+
+/* — Projects list — */
+
+.ismael-section--work {
+  max-width: 100%;
+  padding: var(--space-3xl) 0;
+  display: block;
+  border-top: 5px solid #000;
+  border-bottom: 5px solid #000;
+}
+
+.ismael-section--work .ismael-section__label {
+  display: block;
+  margin-bottom: var(--space-2xl);
+}
+
+.ismael-section--work .ismael-section__content {
+  max-width: 100%;
+}
+
+.ismael-projects {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ismael-project {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.ismael-project:first-child {
+  border-top: 1px solid #e0e0e0;
+}
+
+.ismael-project__link {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: clamp(2rem, 4vw, 4rem) 0;
+  width: 100%;
+}
+
+.ismael-project__name {
+  font-family: 'Helvetica Neue', 'Helvetica', 'Arial Black', sans-serif;
+  font-size: clamp(1.5rem, 3.5vw, 3rem);
+  font-weight: 700;
+  color: #0a0a0a;
+  transition: color 0.3s ease;
+  text-transform: uppercase;
+}
+
+.ismael-project:hover .ismael-project__name {
+  color: #c22424;
+}
+
+.ismael-project__type {
+  font-size: clamp(0.75rem, 1.2vw, 1rem);
+  color: #888;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* — Contact — */
+
+.ismael-contact {
+  padding: var(--space-3xl) var(--gutter);
+  max-width: var(--max-width);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.ismael-contact__title {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 300;
+  color: #0a0a0a;
+  margin-bottom: var(--space-sm);
+}
+
+.ismael-contact__desc {
+  font-size: var(--size-md);
+  font-weight: 300;
+  color: #888;
+  margin-bottom: var(--space-lg);
+}
+
+.ismael-contact__email {
+  font-size: var(--size-lg);
+  color: #0a0a0a;
+  text-decoration: none;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
+  transition: border-color 0.3s ease;
+}
+
+.ismael-contact__email:hover {
+  border-color: #0a0a0a;
+}
+
+.ismael-contact__social {
+  display: flex;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+  justify-content: center;
+}
+
+.ismael-contact__social a {
+  font-size: var(--size-sm);
+  color: #888;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.ismael-contact__social a:hover {
+  color: #0a0a0a;
+}
+
+/* — Footer — */
+
+.ismael-footer {
+  border-top: 1px solid #e0e0e0;
+  padding: var(--space-xl) var(--gutter);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.ismael-footer__back {
+  font-size: var(--size-sm);
+  color: #888;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.ismael-footer__back:hover {
+  color: #0a0a0a;
+}
+
+.ismael-footer__brand {
+  font-size: var(--size-sm);
+  color: #888;
+}
+
+/* — Responsive — */
+
+@media (max-width: 768px) {
+  .ismael-section {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  .ismael-section__content {
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  body.theme-ismael {
+    cursor: auto;
+  }
+
+  .theme-ismael a,
+  .theme-ismael button,
+  .theme-ismael input,
+  .theme-ismael .ismael-project {
+    cursor: auto;
+  }
+
+  .ismael-cursor {
+    display: none;
+  }
+
+  .glyph-ctrl {
+    display: none;
+  }
+
+  .ismael-section--about::before,
+  .ismael-section--about::after {
+    clip-path: none;
+    inset: 0;
+  }
+
+  .ismael-hero__title {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+  }
+
+  .ismael-project__link {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .ismael-footer {
+    flex-direction: column;
+    gap: var(--space-md);
+    text-align: center;
+  }
+}
+
+/* — Glyph Controller — */
+
+.glyph-ctrl {
+  position: fixed;
+  top: 86px;
+  right: 16px;
+  z-index: 9998;
+  font-family: 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+  cursor: none;
+}
+
+.glyph-ctrl *,
+.glyph-ctrl *::before,
+.glyph-ctrl *::after {
+  cursor: none;
+}
+
+.glyph-ctrl__dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #c22424;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  z-index: 10000;
+}
+
+.glyph-ctrl__toggle {
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  border-radius: 0;
+  cursor: none;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-family: inherit;
+  color: #0a0a0a;
+  white-space: nowrap;
+  transition: border-color 0.2s ease;
+}
+
+.glyph-ctrl__toggle:hover {
+  border-color: #0a0a0a;
+}
+
+.glyph-ctrl__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  padding: 8px 12px;
+  min-width: 140px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.3s ease;
+}
+
+.glyph-ctrl--open .glyph-ctrl__panel {
+  max-height: 300px;
+  opacity: 1;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.glyph-ctrl__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #0a0a0a;
+  text-transform: capitalize;
+  cursor: none;
+  user-select: none;
+}
+
+.glyph-ctrl__item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #0a0a0a;
+  cursor: none;
+}
+
+.glyph-ctrl__divider {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 2px 0;
+}
