@@ -100,6 +100,11 @@
   user-select: none;
 }
 
+/* Static VAMPS logo — hidden on desktop, shown on mobile */
+.landing__vamps-logo {
+  display: none;
+}
+
 /* Center content in each visual half */
 .landing__side--vamps .landing__content {
   left: 0;
@@ -301,25 +306,46 @@
     font-size: 0.55rem;
   }
 
-  /* Hide desktop-only cursor elements + divider */
+  /* Hide desktop-only cursor elements + divider + canvas */
   .landing__cursor,
   .landing-glyph-cursor,
   .landing__divider {
     display: none !important;
   }
 
-  /* Show mobile enter buttons */
+  .landing__morph-canvas {
+    display: none !important;
+  }
+
+  .landing__vamps-logo {
+    display: block;
+    width: 80px;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: brightness(0) invert(1);
+  }
+
+  .landing__vamps-morph {
+    position: relative;
+  }
+
+  /* Show mobile enter buttons — positioned within each half */
   .landing__btn {
     opacity: 1;
     pointer-events: auto;
     font-size: 0.7rem;
     padding: 0.4em 1.2em;
+    z-index: 10;
   }
 
   .landing__btn--vamps {
     left: 50%;
     transform: translateX(-50%);
-    bottom: clamp(1.5rem, 4vh, 3rem);
+    bottom: auto;
+    top: calc(50% - 2.5rem);
   }
 
   .landing__btn--ismael {
@@ -327,24 +353,24 @@
     right: auto;
     transform: translateX(-50%);
     bottom: clamp(1.5rem, 4vh, 3rem);
+    top: auto;
   }
 
   .landing__enter {
     font-size: 0.55rem;
+    z-index: 10;
   }
 
   .landing__enter--vamps {
     left: 50%;
     transform: translateX(-50%);
+    bottom: auto;
+    top: calc(50% - 5rem);
   }
 
   .landing__enter--ismael {
     left: 50%;
     right: auto;
     transform: translateX(-50%);
-  }
-
-  .landing__morph-canvas {
-    opacity: 0.8;
   }
 }
