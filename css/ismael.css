@@ -482,6 +482,8 @@ body.theme-ismael {
   .ismael-photo {
     padding-top: var(--space-md);
     padding-bottom: var(--space-lg);
+    display: flex;
+    justify-content: flex-end;
   }
 
   .ismael-photo__img {
