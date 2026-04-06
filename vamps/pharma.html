@@ -656,6 +656,10 @@
         en: "Well, that's all there is. Take it or leave it — don't mess me around, I'm closing in 5 minutes.",
         es: 'Pues esto es lo que hay. Lo tomas o lo dejas, no me marees que cierro en 5 minutos.',
       },
+      endAsk: {
+        en: 'Want to go back to something?',
+        es: '¿Quieres volver a ver algo?',
+      },
       pickProducts: {
         en: ['Ring', 'Nails', 'Tee'],
         es: ['Anillo', 'Nails', 'Camiseta'],
@@ -753,6 +757,7 @@
     const choices     = document.getElementById('choices');
     const buyChoices  = document.getElementById('buyChoices');
     const sceneCta    = document.getElementById('sceneCta');
+    const productPick = document.getElementById('productPick');
     const scene       = document.getElementById('scene');
     const productPage = document.getElementById('productPage');
     const productBack = document.getElementById('productBack');
@@ -819,6 +824,7 @@
     function hideAllChoices() {
       choices.classList.remove('is-visible');
       buyChoices.style.display = 'none';
+      productPick.classList.remove('is-visible');
       waitingForChoice = false;
     }
 
@@ -871,17 +877,29 @@
       tick();
     }
 
+    function showProductPick() {
+      dialogHint.style.visibility = 'hidden';
+      productPick.classList.add('is-visible');
+      waitingForChoice = true;
+    }
+
+    function hideProductPick() {
+      productPick.classList.remove('is-visible');
+      waitingForChoice = false;
+    }
+
     function goToEnd() {
       if (declinedAll) {
         // Said no to everything → dismissive line first
         phase = 'dismissEnd';
         typeLine(t('endDismiss'), () => {
-          dialogHint.style.visibility = 'visible';
+          showProductPick();
         });
       } else {
-        phase = 'end';
-        dialogBox.style.display = 'none';
-        sceneCta.classList.add('is-visible');
+        phase = 'endAsk';
+        typeLine(t('endAsk'), () => {
+          showProductPick();
+        });
       }
     }
 
@@ -982,10 +1000,9 @@
         });
       } else if (phase === 'skipWait') {
         askNextProduct();
-      } else if (phase === 'dismissEnd') {
-        phase = 'end';
-        dialogBox.style.display = 'none';
-        sceneCta.classList.add('is-visible');
+      } else if (phase === 'dismissEnd' || phase === 'endAsk') {
+        // clicking the background does nothing here, user must pick a product
+        return;
       }
     });
 
@@ -1003,6 +1020,15 @@
       if (!btn) return;
       e.stopPropagation();
       handleBuy(btn.dataset.buy);
+    });
+
+    /* Product pick buttons (end of dialog) */
+    productPick.addEventListener('click', (e) => {
+      const btn = e.target.closest('.scene__product-pick-btn');
+      if (!btn) return;
+      e.stopPropagation();
+      hideProductPick();
+      openProduct(parseInt(btn.dataset.product, 10));
     });
 
     /* Init UI text & start */
