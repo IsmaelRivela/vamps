@@ -2,6 +2,12 @@
    Slot Machine — VAMPOT!!!
    ============================================ */
 
+// Resolve glyph SVG URLs through Vite so hashed filenames work in production
+const glyphModules = import.meta.glob('/assets/glifos/*.svg', { eager: true, query: '?url', import: 'default' })
+function glyphUrl(name) {
+  return glyphModules[`/assets/glifos/${name}.svg`] || `/assets/glifos/${name}.svg`
+}
+
 const SYMBOLS = ['vamps1','vamps3','vamps4','vamps5','vamps6','vamps7','vamps8']
 const JACKPOT = 'vamps3'
 const BET = 10
@@ -43,7 +49,7 @@ export function initSlot() {
     for (let j = 0; j < totalItems; j++) {
       const img = document.createElement('img')
       const sym = shuffled[j]
-      img.src = `/assets/glifos/${sym}.svg`
+      img.src = glyphUrl(sym)
       img.alt = sym
       img.dataset.symbol = sym
       strip.appendChild(img)
@@ -85,7 +91,7 @@ export function initSlot() {
         for (let j = 0; j < SYMBOLS.length; j++) {
           const img = document.createElement('img')
           const sym = SYMBOLS[j % SYMBOLS.length]
-          img.src = `/assets/glifos/${sym}.svg`
+          img.src = glyphUrl(sym)
           img.alt = sym
           img.dataset.symbol = sym
           strip.appendChild(img)
@@ -93,7 +99,7 @@ export function initSlot() {
       }
 
       const allImgs = strip.querySelectorAll('img')
-      allImgs[landIndex].src = `/assets/glifos/${targetSymbol}.svg`
+      allImgs[landIndex].src = glyphUrl(targetSymbol)
       allImgs[landIndex].dataset.symbol = targetSymbol
 
       const itemH = reelH

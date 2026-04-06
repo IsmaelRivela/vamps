@@ -15,9 +15,15 @@ import { initAsciiConverter } from './ascii-converter.js'
 import { initAsciiLoupe } from './ascii-loupe.js'
 // import { initLangToggle } from './lang-toggle.js'
 
+// Resolve glyph URLs through Vite
+const glyphModules = import.meta.glob('/assets/glifos/*.svg', { eager: true, query: '?url', import: 'default' })
+function glyphUrl(name) {
+  return glyphModules[`/assets/glifos/${name}.svg`] || `/assets/glifos/${name}.svg`
+}
+
 // Cursor SVG per project (keyed by pathname substring)
 const PROJECT_CURSORS = {
-  copydad:  '/assets/glifos/copydad3.svg',
+  copydad:  glyphUrl('copydad3'),
   // tulipana: '/assets/glifos/tulipana1.svg',
   // vamps:    '/assets/glifos/vamps1.svg',
   // verbena:  '...'

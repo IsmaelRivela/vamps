@@ -5,6 +5,9 @@
    Positioned in left half (VAMPS side)
    ============================================ */
 
+import logoSvgUrl from '/assets/vamps/logovamps.svg?url'
+import titleSvgUrl from '/assets/vamps/vampstitle.svg?url'
+
 const IS_MOBILE = window.matchMedia('(max-width: 768px)').matches
 const LOGO_PARTICLES = IS_MOBILE ? 800 : 3000
 const TITLE_PARTICLES = IS_MOBILE ? 5000 : 20000
@@ -225,8 +228,8 @@ export function initVampsMorph() {
   })
 
   Promise.all([
-    loadSvgPoints('/assets/vamps/logovamps.svg', LOGO_PARTICLES),
-    loadSvgPoints('/assets/vamps/vampstitle.svg', TITLE_PARTICLES),
+    loadSvgPoints(logoSvgUrl, LOGO_PARTICLES),
+    loadSvgPoints(titleSvgUrl, TITLE_PARTICLES),
   ]).then(([logoPoints, titlePoints]) => {
     createParticles(logoPoints, titlePoints)
     requestAnimationFrame(loop)

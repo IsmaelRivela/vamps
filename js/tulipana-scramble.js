@@ -4,6 +4,9 @@
    glyphs over the hero SVG — scramble effect
    ============================================ */
 
+// Resolve glyph URLs through Vite
+const glyphModules = import.meta.glob('/assets/glifos/tulipana*.svg', { eager: true, query: '?url', import: 'default' })
+
 const GLYPH_COUNT = 9
 const CELL_SIZE   = 32
 const RADIUS      = 160
@@ -28,7 +31,7 @@ export function initTulipanaScramble() {
 
   for (let i = 1; i <= GLYPH_COUNT; i++) {
     const img = new Image()
-    img.src = `/assets/glifos/tulipana${i}.svg`
+    img.src = glyphModules[`/assets/glifos/tulipana${i}.svg`] || `/assets/glifos/tulipana${i}.svg`
     img.onload = () => { loadedCount++ }
     glyphImgs.push(img)
   }

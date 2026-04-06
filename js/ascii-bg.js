@@ -177,7 +177,7 @@ function loadGlyphs() {
       img.onload = () => resolve(true)
       img.onerror = () => resolve(false)
     })
-    img.src = `/assets/glifos/${name}.svg`
+    img.src = glyphModules[`/assets/glifos/${name}.svg`] || `/assets/glifos/${name}.svg`
     imageMap[name] = img
     ready.push(promise)
   }

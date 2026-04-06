@@ -3,6 +3,12 @@
    Turns red on clickable elements
    ============================================ */
 
+// Resolve glyph URLs through Vite
+const glyphModules = import.meta.glob('/assets/glifos/*.svg', { eager: true, query: '?url', import: 'default' })
+function glyphUrl(name) {
+  return glyphModules[`/assets/glifos/${name}.svg`] || `/assets/glifos/${name}.svg`
+}
+
 const GLYPH_PATHS = [
   'copydad1', 'copydad2', 'copydad3',
   'tulipana1', 'tulipana2', 'tulipana3', 'tulipana4', 'tulipana5',
@@ -21,7 +27,7 @@ export function initGlyphCursor() {
   if (!glyphEl) return
 
   // Load glyph SVGs as image URLs
-  const glyphSrcs = GLYPH_PATHS.map(name => `/assets/glifos/${name}.svg`)
+  const glyphSrcs = GLYPH_PATHS.map(name => glyphUrl(name))
 
   let currentIndex = 0
   let isOverClickable = false
