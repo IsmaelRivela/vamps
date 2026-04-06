@@ -189,8 +189,7 @@ function loadGlyphs() {
 export function initAsciiBg(selector) {
   const canvas = document.querySelector(selector || '.landing__ascii')
   if (!canvas) return
-  // Skip on mobile only for landing (heavy + not useful); keep for ismael page
-  if (!selector && window.matchMedia('(max-width: 768px)').matches) return
+  // ASCII bg runs on all viewports including mobile
 
   const ctx = canvas.getContext('2d')
   const parent = canvas.parentElement

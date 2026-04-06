@@ -339,13 +339,14 @@
     font-size: 0.7rem;
     padding: 0.4em 1.2em;
     z-index: 10;
+    border: none;
   }
 
   .landing__btn--vamps {
     left: 50%;
     transform: translateX(-50%);
-    bottom: auto;
-    top: calc(50% - 2.5rem);
+    bottom: clamp(1.5rem, 4vh, 3rem);
+    top: auto;
   }
 
   .landing__btn--ismael {
