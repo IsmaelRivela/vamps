@@ -693,6 +693,12 @@
     grid-template-columns: 1fr;
   }
 
+  .proj__grid-2 img,
+  .proj__grid-3 img {
+    height: auto;
+    object-fit: contain;
+  }
+
   .proj__split {
     grid-template-columns: 1fr;
   }
