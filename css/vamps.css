@@ -574,9 +574,16 @@ body.theme-vamps {
     aspect-ratio: 16 / 10;
   }
 
-  /* Scale down image overflow from parallax */
+  /* Reset scale on mobile — iOS Safari clips scaled content */
   .vamps-page__img img {
-    scale: 1.1;
+    scale: 1;
+  }
+
+  .vamps-page__img--transparent img {
+    scale: 1;
+    width: 60%;
+    margin: 0 auto;
+    display: block;
   }
 
   /* Slot: full width with padding */
