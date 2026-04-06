@@ -582,8 +582,27 @@ body.theme-vamps {
   .vamps-page__img--transparent img {
     scale: 1;
     width: 60%;
-    margin: 0 auto;
     display: block;
+  }
+
+  /* pharma2: always right-aligned */
+  .vamps-page__img--right-sm.vamps-page__img--transparent {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .vamps-page__img--right-sm.vamps-page__img--transparent img {
+    margin: 0;
+  }
+
+  /* Disable expensive animations on mobile */
+  .vamps-page__img--flicker img {
+    animation: none !important;
+    filter: drop-shadow(0 0 15px rgba(194, 36, 36, 0.6));
+  }
+
+  .vamps-page__img img {
+    will-change: auto;
   }
 
   /* Slot: full width with padding */
@@ -595,6 +614,12 @@ body.theme-vamps {
   .sticker {
     width: 120px;
     height: 120px;
+    will-change: auto;
+  }
+
+  /* Reduce repaints: disable hero keyframe cycling on mobile */
+  .vamps-hero__img {
+    animation: none;
   }
 
   /* Hero title */

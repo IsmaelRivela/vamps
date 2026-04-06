@@ -31,10 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
       scrub: true,
     },
   })
-  tl.fromTo(heroImg,
-    { filter: 'grayscale(0)' },
-    { filter: 'grayscale(1)', ease: 'none' }
-  )
+  // Skip grayscale filter animation on mobile (expensive)
+  if (!isMobile) {
+    tl.fromTo(heroImg,
+      { filter: 'grayscale(0)' },
+      { filter: 'grayscale(1)', ease: 'none' }
+    )
+  }
 
   // --- Fit huge titles to full width ---
   function fitHugeTitles() {
@@ -61,27 +64,121 @@ document.addEventListener('DOMContentLoaded', () => {
   const isMobile = window.innerWidth <= 768
   const pxScale = isMobile ? 0.35 : 1 // tame parallax on small screens
 
-  // Images — heavy parallax + slight scale
-  document.querySelectorAll('.vamps-content .vamps-page__img img').forEach((img, i) => {
-    const dir = i % 2 === 0 ? 1 : -1
-    const dist = 200 * pxScale
-    gsap.fromTo(img,
-      { y: -dist * dir, scale: isMobile ? 1.04 : 1.08 },
-      {
-        y: dist * dir,
-        scale: 1,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: img.parentElement,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    )
-  })
+  // --- On mobile, skip most parallax for performance ---
+  if (!isMobile) {
+    // Images — heavy parallax + slight scale
+    document.querySelectorAll('.vamps-content .vamps-page__img img').forEach((img, i) => {
+      const dir = i % 2 === 0 ? 1 : -1
+      const dist = 200
+      gsap.fromTo(img,
+        { y: -dist * dir, scale: 1.08 },
+        {
+          y: dist * dir,
+          scale: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: img.parentElement,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      )
+    })
 
-  // Huge titles — slow rise, feels heavy
+    // Text blocks — subtle drift opposite to images
+    document.querySelectorAll('.vamps-page__text').forEach((el, i) => {
+      const base = i % 2 === 0 ? -80 : 100
+      gsap.fromTo(el,
+        { y: base * 0.6 },
+        {
+          y: -base * 0.6,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      )
+    })
+
+    // Big text (EXPERIMENTAL DESIGN LAB, etc) — fast, exaggerated
+    document.querySelectorAll('.vamps-page__bigtext').forEach((el, i) => {
+      const dir = i % 2 === 0 ? 250 : -250
+      gsap.fromTo(el,
+        { y: dir },
+        {
+          y: -dir,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      )
+    })
+
+    // Red band — slower, heavier feel
+    const band = document.querySelector('.vamps-page__band')
+    if (band) {
+      gsap.fromTo(band,
+        { y: 100 },
+        {
+          y: -100,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: band,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      )
+    }
+
+    // Stickers — very fast parallax, they fly past
+    document.querySelectorAll('.vamps-content .sticker').forEach((el, i) => {
+      const speeds = [300, -350, 280]
+      const dir = speeds[i % speeds.length]
+      gsap.fromTo(el,
+        { y: dir },
+        {
+          y: -dir,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      )
+    })
+
+    // Slot section — gentle float
+    const slotSection = document.querySelector('.vamps-page__slot')
+    if (slotSection) {
+      gsap.fromTo(slotSection,
+        { y: 60 },
+        {
+          y: -60,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: slotSection,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        }
+      )
+    }
+  }
+
+  // Huge titles — keep on both (lightweight, visually important)
   document.querySelectorAll('.vamps-page__huge').forEach((el, i) => {
     const base = i % 2 === 0 ? 150 : -120
     const dir = base * pxScale
@@ -99,98 +196,4 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     )
   })
-
-  // Text blocks — subtle drift opposite to images
-  document.querySelectorAll('.vamps-page__text').forEach((el, i) => {
-    const base = i % 2 === 0 ? -80 : 100
-    const dir = base * pxScale
-    gsap.fromTo(el,
-      { y: dir * 0.6 },
-      {
-        y: -dir * 0.6,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: el,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    )
-  })
-
-  // Big text (EXPERIMENTAL DESIGN LAB, etc) — fast, exaggerated
-  document.querySelectorAll('.vamps-page__bigtext').forEach((el, i) => {
-    const dir = (i % 2 === 0 ? 250 : -250) * pxScale
-    gsap.fromTo(el,
-      { y: dir },
-      {
-        y: -dir,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: el,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    )
-  })
-
-  // Red band — slower, heavier feel
-  const band = document.querySelector('.vamps-page__band')
-  if (band) {
-    const bandDist = 100 * pxScale
-    gsap.fromTo(band,
-      { y: bandDist },
-      {
-        y: -bandDist,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: band,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    )
-  }
-
-  // Stickers — very fast parallax, they fly past
-  document.querySelectorAll('.vamps-content .sticker').forEach((el, i) => {
-    const speeds = [300, -350, 280]
-    const dir = speeds[i % speeds.length] * pxScale
-    gsap.fromTo(el,
-      { y: dir },
-      {
-        y: -dir,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: el,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    )
-  })
-
-  // Slot section — gentle float
-  const slotSection = document.querySelector('.vamps-page__slot')
-  if (slotSection) {
-    const slotDist = 60 * pxScale
-    gsap.fromTo(slotSection,
-      { y: slotDist },
-      {
-        y: -slotDist,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: slotSection,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      }
-    )
-  }
 })
