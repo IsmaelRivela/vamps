@@ -17,6 +17,7 @@
     "three": "^0.183.2"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "sharp": "^0.34.5",
     "svgo": "^4.0.1",
     "vite": "^6.4.1"
