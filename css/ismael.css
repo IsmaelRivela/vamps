@@ -470,6 +470,24 @@ body.theme-ismael {
     font-size: clamp(2rem, 8vw, 3.5rem);
   }
 
+  .ismael-hero__subtitle {
+    margin-top: var(--space-sm);
+    font-size: var(--size-base);
+  }
+
+  .ismael-hero {
+    padding-bottom: var(--space-lg);
+  }
+
+  .ismael-photo {
+    padding-top: var(--space-md);
+    padding-bottom: var(--space-lg);
+  }
+
+  .ismael-photo__img {
+    max-width: 250px;
+  }
+
   .ismael-project__link {
     flex-direction: column;
     gap: var(--space-xs);
