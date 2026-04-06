@@ -376,9 +376,9 @@ export function initFluidDivider() {
 
   landing.addEventListener('click', (e) => {
     if (e.clientX < centerX) {
-      window.location.href = '/vamps.html'
+      window.location.href = '/vamps/'
     } else {
-      window.location.href = '/ismael.html'
+      window.location.href = '/ismael/'
     }
   })
 
