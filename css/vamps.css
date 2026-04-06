@@ -617,11 +617,6 @@ body.theme-vamps {
     will-change: auto;
   }
 
-  /* Reduce repaints: disable hero keyframe cycling on mobile */
-  .vamps-hero__img {
-    animation: none;
-  }
-
   /* Hero title */
   .vamps-hero__title {
     font-size: clamp(4rem, 20vw, 8rem);
