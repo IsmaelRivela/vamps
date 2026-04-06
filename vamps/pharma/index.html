@@ -457,18 +457,22 @@
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--ph-black);
-      background: var(--ph-red);
-      border: none;
+      color: var(--ph-muted);
+      background: transparent;
+      border: 1px solid var(--ph-muted);
       padding: 1rem 2.5rem;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: not-allowed;
+      opacity: 0.6;
       align-self: flex-start;
     }
 
-    .product-page__buy-btn:hover {
-      transform: scale(1.04);
-      box-shadow: 0 0 30px rgba(194,36,36,0.5);
+    .product-page__stock-msg {
+      font-family: var(--ph-mono);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--ph-muted);
+      margin-top: 0.25rem;
     }
 
     /* Prev / Next nav */
@@ -614,7 +618,8 @@
       <div class="product-page__buy">
         <div class="product-page__price" id="productPrice"></div>
         <p class="product-page__desc" id="productDesc"></p>
-        <button class="product-page__buy-btn" id="productBuyBtn">Buy</button>
+        <button class="product-page__buy-btn" id="productBuyBtn" disabled>Sold Out</button>
+        <div class="product-page__stock-msg" id="productStockMsg">Currently no stock available</div>
       </div>
       <div class="product-page__nav">
         <button class="product-page__nav-btn" id="productPrev">← Previous</button>
@@ -646,7 +651,8 @@
       no: { en: 'No', es: 'No' },
       buyIt: { en: 'Buy it', es: 'Comprarlo' },
       seeAnother: { en: 'See another', es: 'Ver otro' },
-      buyBtn: { en: 'Buy', es: 'Comprar' },
+      buyBtn: { en: 'Sold Out', es: 'Agotado' },
+      stockMsg: { en: 'Currently no stock available', es: 'Sin stock disponible actualmente' },
       backBtn: { en: '← Back', es: '← Volver' },
       prevBtn: { en: '← Previous', es: '← Anterior' },
       nextBtn: { en: 'Next →', es: 'Siguiente →' },
@@ -745,6 +751,7 @@
       document.getElementById('productPrev').textContent = t('prevBtn');
       document.getElementById('productNext').textContent = t('nextBtn');
       document.getElementById('productBuyBtn').textContent = t('buyBtn');
+      document.getElementById('productStockMsg').textContent = t('stockMsg');
     }
 
     pharmaLangBtn.addEventListener('click', () => {
