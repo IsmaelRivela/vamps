@@ -742,7 +742,7 @@ body.theme-ismael {
   flex-direction: column;
   position: relative;
   z-index: 1;
-  padding: 0;
+  padding: 0 clamp(1.5rem, 4vw, 4rem);
 }
 
 .ismael-screen2__header {
@@ -1009,4 +1009,166 @@ body.theme-ismael {
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+
+/* ============================================
+   3-Screen Layout — Responsive Mobile
+   ============================================ */
+
+@media (max-width: 768px) {
+
+  /* ── Screen 1 ── */
+  .ismael-screen1 {
+    height: 100dvh;
+  }
+
+  .ismael-screen1__card {
+    transform: none;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .ismael-screen1__photo {
+    width: 160px;
+    height: 200px;
+  }
+
+  .ismael-screen1__meta {
+    width: 160px;
+  }
+
+  /* ── Screen 2 ── */
+  .ismael-screen2 {
+    height: 100dvh;
+    padding: 0 1.25rem;
+  }
+
+  .ismael-screen2__header {
+    padding: 1rem 0;
+  }
+
+  .ismael-screen2 .ismael-project__name {
+    font-size: clamp(1.6rem, 10vw, 5rem);
+    letter-spacing: -0.03em;
+  }
+
+  .ismael-screen2 .ismael-project__link {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.15rem;
+  }
+
+  .ismael-screen2 .ismael-project__type {
+    font-size: 0.6rem;
+  }
+
+  /* ── Bento: 2 columnas ── */
+  .ismael-bento {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto auto;
+    gap: 10px;
+    padding: 10px;
+    min-height: unset;
+  }
+
+  .ismael-bento__cell {
+    padding: 1.25rem;
+    border-radius: 10px;
+  }
+
+  /* bio: fila completa */
+  .ismael-bento__cell--bio {
+    grid-column: 1 / 3;
+    grid-row: 1;
+  }
+
+  .ismael-bento__bio-text {
+    font-size: 0.875rem;
+    line-height: 1.65;
+    max-width: 100%;
+  }
+
+  /* foto: col izquierda, abarca filas 2-3 */
+  .ismael-bento__cell--photo {
+    grid-column: 1;
+    grid-row: 2 / 4;
+    border-radius: 10px;
+    min-height: 220px;
+  }
+
+  /* contacto: col derecha fila 2 */
+  .ismael-bento__cell--contact {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .ismael-bento__email {
+    font-size: 0.8rem;
+    word-break: break-all;
+  }
+
+  /* skills: col derecha fila 3 */
+  .ismael-bento__cell--skills {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .ismael-bento__skills-list li {
+    font-size: 0.8rem;
+    padding: 0.25rem 0;
+  }
+
+  /* intereses: fila completa */
+  .ismael-bento__cell--interests {
+    grid-column: 1 / 3;
+    grid-row: 4;
+  }
+
+  /* status: fila completa */
+  .ismael-bento__cell--status {
+    grid-column: 1 / 3;
+    grid-row: 5;
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+
+/* ── Móviles pequeños (< 480px): bento 1 columna ── */
+@media (max-width: 480px) {
+
+  .ismael-screen1__photo {
+    width: 140px;
+    height: 175px;
+  }
+
+  .ismael-screen1__meta {
+    width: 140px;
+  }
+
+  .ismael-screen1__name {
+    font-size: 0.75rem;
+  }
+
+  .ismael-bento {
+    grid-template-columns: 1fr;
+  }
+
+  .ismael-bento__cell--bio,
+  .ismael-bento__cell--contact,
+  .ismael-bento__cell--skills,
+  .ismael-bento__cell--interests,
+  .ismael-bento__cell--status {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  /* foto en una sola columna, formato paisaje */
+  .ismael-bento__cell--photo {
+    grid-column: 1;
+    grid-row: auto;
+    aspect-ratio: 4 / 3;
+    min-height: unset;
+  }
 }
