@@ -75,8 +75,7 @@ export function initFluidDivider() {
 
   const visibleLine = document.createElementNS(svgNS, 'path')
   visibleLine.setAttribute('fill', 'none')
-  visibleLine.setAttribute('stroke', '#000000')
-  visibleLine.setAttribute('stroke-width', '5')
+  visibleLine.setAttribute('stroke', 'none')
   svgEl.appendChild(visibleLine)
 
   // ─── State ──────────────────────────────
@@ -121,6 +120,11 @@ export function initFluidDivider() {
         gsap.to(cursorEl, { scale: 1, duration: 0.3, ease: 'back.out(2)' })
       }
     }
+    if (cursorTextEl) {
+      cursorTextEl.style.left = e.clientX + 'px'
+      cursorTextEl.style.top  = e.clientY + 'px'
+      cursorTextEl.classList.add('landing__cursor-text--active')
+    }
   })
 
   landing.addEventListener('mouseleave', () => {
@@ -129,6 +133,7 @@ export function initFluidDivider() {
       gsap.to(cursorEl, { scale: 0, duration: 0.3, ease: 'power2.in' })
       cursorEl.classList.remove('landing__cursor--active')
     }
+    if (cursorTextEl) cursorTextEl.classList.remove('landing__cursor-text--active')
   })
 
   let resizeTimer
@@ -194,11 +199,6 @@ export function initFluidDivider() {
     const cScale = 1 + nearFactor * (cursorGrowth - 1)
     const R = baseCursorR * cScale
     const R2 = R * R
-
-    // Update cursor visual size to match collision radius
-    if (cursorEl && isMouseInside) {
-      gsap.set(cursorEl, { width: R * 2, height: R * 2 })
-    }
 
     // ════════════════════════════════════════
     // PHASE 1: Collision detection & push
@@ -386,8 +386,8 @@ export function initFluidDivider() {
 
   const enterVamps  = document.querySelector('.landing__enter--vamps')
   const enterIsmael = document.querySelector('.landing__enter--ismael')
-  const btnVamps  = document.querySelector('.landing__btn--vamps')
-  const btnIsmael = document.querySelector('.landing__btn--ismael')
+  const cursorTextEl = document.querySelector('.landing__cursor-text')
+  const cursorTextSvgText = document.querySelector('.landing__cursor-text-el')
 
   landing.addEventListener('mousemove', () => {
     if (!cursorEl) return
@@ -398,11 +398,15 @@ export function initFluidDivider() {
     // t goes from 0 (fully vamps) to 1 (fully ismael)
     const t = Math.max(0, Math.min(1, (distFromCenter + transitionZone) / (transitionZone * 2)))
 
-    // Fade the vamps image inside the cursor circle
-    const cursorImg = cursorEl.querySelector('.landing__cursor-img')
-    if (cursorImg) {
-      cursorImg.style.opacity = 1 - t
-    }
+    // Cursor dot color: white on vamps side, red on ismael side
+    const r = Math.round(255 + (194 - 255) * t)
+    const g = Math.round(255 + (36 - 255) * t)
+    const b = Math.round(255 + (36 - 255) * t)
+    const color = `rgb(${r},${g},${b})`
+    cursorEl.style.background = color
+
+    // Circular text matches cursor color
+    if (cursorTextSvgText) cursorTextSvgText.style.fill = color
 
     // Share transition value for glyph cursor
     cursorEl.dataset.transitionT = t
@@ -410,13 +414,9 @@ export function initFluidDivider() {
     if (t < 0.5) {
       if (enterVamps) enterVamps.style.opacity = '1'
       if (enterIsmael) enterIsmael.style.opacity = '0'
-      if (btnVamps) { btnVamps.style.opacity = '1'; btnVamps.style.pointerEvents = 'auto' }
-      if (btnIsmael) { btnIsmael.style.opacity = '0'; btnIsmael.style.pointerEvents = 'none' }
     } else {
       if (enterVamps) enterVamps.style.opacity = '0'
       if (enterIsmael) enterIsmael.style.opacity = '1'
-      if (btnVamps) { btnVamps.style.opacity = '0'; btnVamps.style.pointerEvents = 'none' }
-      if (btnIsmael) { btnIsmael.style.opacity = '1'; btnIsmael.style.pointerEvents = 'auto' }
     }
   })
 }

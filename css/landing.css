@@ -13,24 +13,14 @@
 
 .landing__cursor {
   position: fixed;
-  width: 175px;
-  height: 175px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9;
   transform: translate(-50%, -50%) scale(0);
-  background: #c22424;
-  border: 5px solid #000;
-  transition: none;
-  overflow: hidden;
-}
-
-.landing__cursor-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: opacity 0.15s ease;
+  background: #fff;
+  transition: background 0.2s ease;
 }
 
 .landing__cursor--active {
@@ -70,8 +60,27 @@
 }
 
 .landing__side--vamps {
-  background: #c8102e;
+  background-color: #c8102e;
   z-index: 1;
+  overflow: hidden;
+}
+
+.landing__side--vamps::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/landing/cursorvamps.jpg');
+  background-size: cover;
+  background-position: center;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transform: translateX(-25%);
+  z-index: 0;
+}
+
+.landing__side--vamps:hover::before {
+  opacity: 1;
 }
 
 .landing__side--ismael {
@@ -100,9 +109,36 @@
   user-select: none;
 }
 
-/* Static VAMPS logo — hidden on desktop, shown on mobile */
+/* Static VAMPS logo — centered in left half */
+.landing__vamps-logo,
+.landing__vamps-title {
+  position: absolute;
+  left: 25%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 2;
+}
+
 .landing__vamps-logo {
-  display: none;
+  width: clamp(80px, 10vw, 140px);
+  opacity: 1;
+  filter: brightness(0) invert(1);
+}
+
+.landing__vamps-title {
+  width: clamp(220px, 30vw, 460px);
+  opacity: 0;
+  filter: brightness(0) invert(1);
+}
+
+.landing__side--vamps:hover .landing__vamps-logo {
+  opacity: 0;
+}
+
+.landing__side--vamps:hover .landing__vamps-title {
+  opacity: 1;
 }
 
 /* Center content in each visual half */
@@ -124,6 +160,7 @@
 .landing__vamps-morph {
   width: 100%;
   height: 100%;
+  position: relative;
 }
 
 .landing__morph-canvas {
@@ -145,6 +182,11 @@
   height: 100%;
   object-fit: cover;
   filter: grayscale(100%);
+  transition: filter 0.4s ease;
+}
+
+.landing__side--ismael:hover .landing__image {
+  filter: grayscale(0%);
 }
 
 .landing__title-ismael {
@@ -178,6 +220,38 @@
   pointer-events: none;
 }
 
+/* — Circular cursor text — */
+
+.landing__cursor-text {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.landing__cursor-text--active {
+  opacity: 1;
+}
+
+.landing__cursor-text-svg {
+  display: block;
+  animation: cursor-text-spin 7s linear infinite;
+}
+
+@keyframes cursor-text-spin {
+  to { transform: rotate(360deg); }
+}
+
+.landing__cursor-text-el {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 5px;
+  fill: #fff;
+  text-transform: uppercase;
+}
+
 /* — Enter labels — */
 
 .landing__enter {
@@ -203,51 +277,6 @@
   right: 25%;
   transform: translateX(50%);
   color: rgba(0, 0, 0, 0.4);
-}
-
-/* — Enter buttons — */
-
-.landing__btn {
-  position: absolute;
-  bottom: clamp(8rem, 18vh, 12rem);
-  font-family: var(--font-mono);
-  font-size: 1.125rem;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  text-decoration: none;
-  padding: 0.6em 2em;
-  border: 3px solid;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease, background 0.3s ease, color 0.3s ease;
-  z-index: 5;
-  cursor: pointer;
-}
-
-.landing__btn--vamps {
-  left: 25%;
-  transform: translateX(-50%);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.5);
-  background: transparent;
-}
-
-.landing__btn--vamps:hover {
-  background: #fff;
-  color: #c22424;
-}
-
-.landing__btn--ismael {
-  right: 25%;
-  transform: translateX(50%);
-  color: #1a1a1a;
-  border-color: #1a1a1a;
-  background: transparent;
-}
-
-.landing__btn--ismael:hover {
-  background: #1a1a1a;
-  color: #f5f5f5;
 }
 
 /* — Mobile — */
@@ -306,57 +335,35 @@
     font-size: 0.55rem;
   }
 
-  /* Hide desktop-only cursor elements + divider + canvas */
+  /* Hide desktop-only cursor elements + divider */
   .landing__cursor,
-  .landing-glyph-cursor,
   .landing__divider {
     display: none !important;
   }
 
-  .landing__morph-canvas {
-    display: none !important;
+  .landing__vamps-bg-img {
+    display: none;
   }
 
   .landing__vamps-logo {
-    display: block;
     width: 80px;
-    height: auto;
-    position: absolute;
-    top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
-    filter: brightness(0) invert(1);
+    top: 50%;
+  }
+
+  .landing__vamps-title {
+    display: none;
   }
 
   .landing__vamps-morph {
     position: relative;
   }
 
-  /* Show mobile enter buttons — positioned within each half */
-  .landing__btn {
-    opacity: 1 !important;
-    pointer-events: auto;
-    font-size: 0.7rem;
-    padding: 0.4em 1.2em;
-    z-index: 10;
-    border-width: 1px;
+  .landing__cursor-text {
+    display: none;
   }
 
-  .landing__btn--vamps {
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: auto;
-    top: 40%;
-  }
-
-  .landing__btn--ismael {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    bottom: auto;
-    top: 90%;
-  }
-
+  /* Show mobile enter labels */
   .landing__enter {
     font-size: 0.55rem;
     z-index: 10;

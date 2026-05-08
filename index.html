@@ -22,16 +22,18 @@
   <div class="landing">
 
     <!-- Custom Cursor -->
-    <div class="landing__cursor">
-      <picture>
-        <source srcset="/assets/landing/cursorvamps.webp" type="image/webp" />
-        <img class="landing__cursor-img" src="/assets/landing/cursorvamps.jpg" alt="" fetchpriority="high" decoding="async" />
-      </picture>
-    </div>
+    <div class="landing__cursor"></div>
 
-    <!-- Glyph Cursor (creative side) -->
-    <div class="landing-glyph-cursor">
-      <img class="landing-glyph-cursor__img" alt="" />
+    <!-- Circular cursor text -->
+    <div class="landing__cursor-text">
+      <svg class="landing__cursor-text-svg" viewBox="0 0 140 140" width="140" height="140">
+        <defs>
+          <path id="landing-circle-path" d="M 70,70 m -56,0 a 56,56 0 1,1 112,0 a 56,56 0 1,1 -112,0" />
+        </defs>
+        <text class="landing__cursor-text-el">
+          <textPath href="#landing-circle-path">ENTER  ENTER  ENTER  ENTER  ENTER  ENTER  </textPath>
+        </text>
+      </svg>
     </div>
 
     <!-- SVG Fluid Divider -->
@@ -41,8 +43,8 @@
     <div class="landing__side landing__side--vamps">
       <div class="landing__content">
         <div class="landing__vamps-morph">
-          <canvas class="landing__morph-canvas"></canvas>
-          <img class="landing__vamps-logo" src="/assets/vamps/logovamps.svg" alt="VAMPS" fetchpriority="high" />
+          <img class="landing__vamps-logo" src="/assets/vamps/logovamps.svg" alt="VAMPS" />
+          <img class="landing__vamps-title" src="/assets/vamps/vampstitle.svg" alt="VAMPS" />
         </div>
       </div>
     </div>
@@ -52,15 +54,12 @@
       <canvas class="landing__ascii"></canvas>
       <div class="landing__content">
         <div class="landing__image-wrapper">
-          <picture>
-            <source srcset="/assets/landing/ismael.webp" type="image/webp" />
-            <img 
-              src="/assets/landing/ismael.jpeg" 
-              alt="Ismael Rivela" 
-              class="landing__image"
-              loading="lazy"
-            />
-          </picture>
+          <img 
+            src="/assets/landing/isma.png" 
+            alt="Ismael Rivela" 
+            class="landing__image"
+            loading="lazy"
+          />
         </div>
         <h2 class="landing__title-ismael">
           Ismael Rivela
@@ -72,10 +71,6 @@
     <!-- Enter labels -->
     <div class="landing__enter landing__enter--vamps">vamps project</div>
     <div class="landing__enter landing__enter--ismael">work</div>
-
-    <!-- Enter buttons -->
-    <a href="/vamps/" class="landing__btn landing__btn--vamps">Enter</a>
-    <a href="/ismael/" class="landing__btn landing__btn--ismael">Enter</a>
 
   </div>
 

@@ -5,16 +5,12 @@
 import gsap from 'gsap'
 import { initFluidDivider } from './fluid.js'
 import { initAsciiBg } from './ascii-bg.js'
-import { initVampsMorph } from './vamps-morph.js'
-import { initLandingGlyphCursor } from './landing-glyph-cursor.js'
 // import { initLangToggle } from './lang-toggle.js'
 
 document.addEventListener('DOMContentLoaded', () => {
   // initLangToggle()
   initFluidDivider()
   initAsciiBg()
-  initVampsMorph()
-  initLandingGlyphCursor()
   initLandingTransitions()
 })
 
