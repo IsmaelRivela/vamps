@@ -16,6 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initLandingTransitions() {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+
+  // Mobile two-tap on VAMPS side: first tap = show hover state, second tap = navigate
+  if (isTouchDevice) {
+    const vampsSide = document.querySelector('.landing__side--vamps')
+    if (vampsSide) {
+      vampsSide.addEventListener('click', (e) => {
+        if (!vampsSide.classList.contains('landing__side--vamps--tapped')) {
+          e.preventDefault()
+          vampsSide.classList.add('landing__side--vamps--tapped')
+          return
+        }
+        // Second tap — let the normal transition handle it
+      })
+    }
+  }
 
   document.querySelectorAll('a[href]').forEach(link => {
     const href = link.getAttribute('href')

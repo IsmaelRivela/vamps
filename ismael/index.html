@@ -8,7 +8,6 @@
   <meta name="apple-mobile-web-app-title" content="levamps" />
   <link rel="manifest" href="/site.webmanifest" />
   <meta charset="UTF-8" />
-  <!-- <script>document.documentElement.lang=localStorage.getItem('site-lang')||'en'</script> -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ismael Rivela — Creative</title>
   <meta name="description" content="Portfolio creativo de Ismael Rivela. Dirección creativa, branding y experiencias visuales." />
@@ -38,152 +37,117 @@
     <div class="nav__links">
       <a href="/vamps/" class="nav__link">VAMPS</a>
       <a href="/ismael/" class="nav__link">Work</a>
-      <!-- <button class="nav__lang" id="langToggle">ES</button> -->
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="ismael-hero">
-    <span class="ismael-hero__greeting" data-animate="fade-up">Work Archive</span>
-    <h1 class="ismael-hero__title" data-animate="fade-up">
-      Ismael<br/>Rivela
-    </h1>
-    <p class="ismael-hero__subtitle" data-animate="fade-up">
-      <span lang="en">Concept-driven creative work — from brand identity and art direction to interactive experiences.</span>
-      <span lang="es">Trabajo creativo desde el concepto — de identidad de marca y dirección de arte a experiencias interactivas.</span>
-    </p>
+  <!-- PANTALLA 1: Foto centrada -->
+  <section class="ismael-screen1">
+    <div class="ismael-screen1__card">
+      <div class="ismael-screen1__photo">
+        <picture>
+          <source srcset="/assets/landing/ismael.webp" type="image/webp" />
+          <img src="/assets/landing/ismael.jpeg" alt="Ismael Rivela Jelliti" />
+        </picture>
+      </div>
+      <div class="ismael-screen1__meta">
+        <span class="ismael-screen1__name">ISMAEL RIVELA JELLITI</span>
+        <span class="ismael-screen1__role">Creative Direction — Brand — Web</span>
+      </div>
+    </div>
   </section>
 
-  <!-- Photo -->
-  <section class="ismael-photo" data-animate="fade-up">
-    <picture>
-      <source srcset="/assets/landing/ismael.webp" type="image/webp" />
-      <img 
-        src="/assets/landing/ismael.jpeg" 
-        alt="Ismael Rivela" 
-        class="ismael-photo__img"
-        loading="lazy"
-      />
-    </picture>
+  <!-- PANTALLA 2: Selected Work -->
+  <section class="ismael-screen2">
+    <div class="ismael-screen2__header">
+      <h2 class="ismael-screen2__title">Selected Work</h2>
+      <span class="ismael-screen2__count">3 Proyectos</span>
+    </div>
+
+    <ul class="ismael-projects" data-animate-group>
+      <li class="ismael-project ismael-project--tulipana" data-animate="fade-up">
+        <a href="/work/tulipana-case/" class="ismael-project__link">
+          <span class="ismael-project__name">La Tulipana</span>
+          <span class="ismael-project__type" lang="en">Concept, Project & Content Management</span>
+        </a>
+      </li>
+      <li class="ismael-project ismael-project--copydad" data-animate="fade-up">
+        <a href="/work/copydad-case/" class="ismael-project__link">
+          <span class="ismael-project__name">Copydad</span>
+          <span class="ismael-project__type" lang="en">Concept & Content Branding</span>
+        </a>
+      </li>
+      <li class="ismael-project ismael-project--vamps" data-animate="fade-up">
+        <a href="/work/vamps-case/" class="ismael-project__link">
+          <span class="ismael-project__name">VAMPS</span>
+          <span class="ismael-project__type" lang="en">Creative Director</span>
+        </a>
+      </li>
+    </ul>
   </section>
 
-  <div class="ismael-divider"></div>
+  <!-- PANTALLA 3: Bento -->
+  <section class="ismael-bento">
 
-  <!-- Selected Work -->
-  <section class="ismael-section ismael-section--work">
-    <span class="ismael-section__label" data-animate="fade-up">Selected Work</span>
-    <div class="ismael-section__content">
-      <ul class="ismael-projects" data-animate-group>
-        <li class="ismael-project" data-animate="fade-up">
-          <a href="/work/tulipana-case/" class="ismael-project__link">
-            <span class="ismael-project__name">La Tulipana</span>
-              <span class="ismael-project__type" lang="en">Concept, Project & Content Management</span>
-              <span class="ismael-project__type" lang="es">Concepto, Proyecto & Gestión de Contenido</span>
-          </a>
-        </li>
-        <li class="ismael-project" data-animate="fade-up">
-          <a href="/work/copydad-case/" class="ismael-project__link">
-            <span class="ismael-project__name">Copydad</span>
-              <span class="ismael-project__type" lang="en">Concept & Content Branding</span>
-              <span class="ismael-project__type" lang="es">Concepto & Content Branding</span>
-          </a>
-        </li>
-        <!-- Verbena oculto temporalmente -->
-        <li class="ismael-project" data-animate="fade-up">
-          <a href="/work/vamps-case/" class="ismael-project__link">
-            <span class="ismael-project__name">VAMPS</span>
-            <span class="ismael-project__type" lang="en">Creative Director</span>
-            <span class="ismael-project__type" lang="es">Director Creativo</span>
-          </a>
-        </li>
+    <!-- Bio -->
+    <div class="ismael-bento__cell ismael-bento__cell--bio">
+      <span class="ismael-bento__label">About</span>
+      <p class="ismael-bento__bio-text">Mi trabajo empieza en la idea. Entender el contexto, encontrar el insight y definir una dirección antes de diseñar nada. Colaboro con estudios y especialistas en identidad, editorial y web — aporto concepto, y junto con el equipo adecuado lo convertimos en sistema.</p>
+    </div>
+
+    <!-- Foto -->
+    <div class="ismael-bento__cell ismael-bento__cell--photo">
+      <picture>
+        <source srcset="/assets/landing/ismael.webp" type="image/webp" />
+        <img src="/assets/landing/ismael.jpeg" alt="Ismael Rivela" />
+      </picture>
+    </div>
+
+    <!-- Skills -->
+    <div class="ismael-bento__cell ismael-bento__cell--skills">
+      <span class="ismael-bento__label">Skills</span>
+      <ul class="ismael-bento__skills-list">
+        <li>Concept Direction</li>
+        <li>Brand Identity</li>
+        <li>Creative Direction</li>
+        <li>Editorial Design</li>
+        <li>Web Design</li>
+        <li>Art Direction</li>
       </ul>
     </div>
-  </section>
 
-  <div class="ismael-divider"></div>
-
-  <!-- About -->
-  <section class="ismael-section ismael-section--about">
-    <div class="ismael-section__content">
-      <p class="ismael-section__text" data-animate="fade-up" lang="en">
-        My work starts with the idea. Understanding context, finding
-        the insight, and defining a direction before designing anything.
-        I collaborate with studios and specialists in identity, editorial,
-        and web — I bring concept, and together we shape it into a system.
-      </p>
-      <p class="ismael-section__text" data-animate="fade-up" lang="es">
-        Mi trabajo empieza en la idea. Entender el contexto, encontrar
-        el insight y definir una dirección antes de diseñar nada.
-        Colaboro con estudios y especialistas en identidad, editorial
-        y web — aporto concepto, y junto con el equipo adecuado
-        lo convertimos en sistema.
-      </p>
-      <p class="ismael-section__text" data-animate="fade-up" lang="en">
-        I'm not interested in decoration. I care that every piece has
-        a reason. Research, question, prototype, and arrive at something
-        that works — with the right people to execute it well. I can be
-        chaotic sometimes, and that's exactly what I like most about how
-        I approach projects.
-      </p>
-      <p class="ismael-section__text" data-animate="fade-up" lang="es">
-        No me interesa decorar. Me interesa que cada pieza tenga
-        una razón. Investigar, cuestionar, prototipar y llegar a
-        algo que funcione — con la gente adecuada para ejecutarlo
-        bien. A veces soy caótico, y justamente eso es lo que más
-        me gusta de cómo afronto los proyectos.
-      </p>
-      <p class="ismael-section__text" data-animate="fade-up" lang="en">
-        What excites me most professionally is working with people from
-        completely different fields and learning from them. Every
-        collaboration is a chance to see things from an angle I wouldn't
-        reach on my own. That's how I keep growing and discovering new
-        ways to approach future projects.
-      </p>
-      <p class="ismael-section__text" data-animate="fade-up" lang="es">
-        Lo que más ilusión me hace a nivel profesional es trabajar con
-        gente de todas las ramas diferentes posibles y aprender de ellos.
-        Cada colaboración es una oportunidad de ver las cosas desde un
-        ángulo al que no llegaría solo. Siento que así es como voy
-        creciendo y viendo nuevas posibilidades sobre las que afrontar
-        futuros proyectos.
-      </p>
+    <!-- Intereses -->
+    <div class="ismael-bento__cell ismael-bento__cell--interests">
+      <span class="ismael-bento__label">Interests</span>
+      <div class="ismael-bento__tags">
+        <span>Art Direction</span>
+        <span>Branding</span>
+        <span>Editorial</span>
+        <span>Web</span>
+        <span>Photography</span>
+        <span>Music</span>
+        <span>Film</span>
+        <span>Typography</span>
+      </div>
     </div>
-  </section>
 
-  <div class="ismael-divider"></div>
-
-  <!-- Attention span -->
-  <section class="ismael-section">
-    <span class="ismael-section__label" data-animate="fade-up">Hyperfocus Triggers</span>
-    <div class="ismael-section__content">
-      <ul class="ismael-values" data-animate-group>
-        <li data-animate="fade-up">Brand Identity</li>
-        <li data-animate="fade-up">Art Direction</li>
-        <li data-animate="fade-up">Visual Design</li>
-        <li data-animate="fade-up">Web Design</li>
-        <li data-animate="fade-up">Content Strategy</li>
-        <li data-animate="fade-up">Creative Direction</li>
-      </ul>
+    <!-- Contacto -->
+    <div class="ismael-bento__cell ismael-bento__cell--contact">
+      <span class="ismael-bento__label">Contact</span>
+      <a href="mailto:hola@ismaelrivela.com" class="ismael-bento__email">hola@ismaelrivela.com</a>
+      <div class="ismael-bento__socials">
+        <a href="https://instagram.com/ismaelrivela" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://behance.net/ismaelrivela" target="_blank" rel="noopener">Behance</a>
+        <a href="https://linkedin.com/in/ismaelrivela" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
     </div>
-  </section>
 
-  <div class="ismael-divider"></div>
-
-  <!-- Contact -->
-  <section class="ismael-contact" data-animate="fade-up">
-    <h2 class="ismael-contact__title">Contact</h2>
-    <a href="mailto:hola@ismaelrivela.com" class="ismael-contact__email">hola@ismaelrivela.com</a>
-    <div class="ismael-contact__social">
-      <a href="https://www.instagram.com/ismaelrivela" target="_blank" rel="noopener">Instagram</a>
-      <a href="https://www.linkedin.com/in/ismaelrivela" target="_blank" rel="noopener">LinkedIn</a>
+    <!-- Status -->
+    <div class="ismael-bento__cell ismael-bento__cell--status">
+      <span class="ismael-bento__status-dot"></span>
+      <span class="ismael-bento__status-text">Available for projects</span>
     </div>
-  </section>
 
-  <!-- Footer -->
-  <footer class="ismael-footer">
-    <a href="/" class="ismael-footer__back">← Back to home</a>
-    <span class="ismael-footer__brand">Ismael Rivela © 2026</span>
-  </footer>
+  </section>
 
   <script type="module" src="/js/app.js"></script>
 </body>

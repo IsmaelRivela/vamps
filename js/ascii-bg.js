@@ -199,7 +199,7 @@ export function initAsciiBg(selector) {
 
   const isMobile = window.innerWidth <= 768
 
-  const CELL = isMobile ? 90 : 70  // larger cells = fewer calcs on mobile
+  const CELL = isMobile ? 38 : 28  // larger cells = fewer calcs on mobile
   const NOISE_SCALE = 0.06  // bigger scale → bigger blobs with more space
   const TIME_SPEED = 0.0004 // animation speed
   const CHAR_FLIP = 0.06    // probability of char changing per frame

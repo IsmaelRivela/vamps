@@ -43,7 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // ASCII background on ismael page
   if (document.querySelector('.ismael-ascii-bg')) {
     initAsciiBg('.ismael-ascii-bg')
-    initGlyphController()
+    // initGlyphController() // deshabilitado temporalmente
+    initGlyphCursor()
+  }
+
+  // ASCII background on work page
+  if (document.querySelector('.work-ascii-bg')) {
+    initAsciiBg('.work-ascii-bg')
   }
 
   // Glyph cursor on ismael page

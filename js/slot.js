@@ -26,9 +26,8 @@ export function initSlot() {
   let lastDirected = null
 
   const creditsEl = document.getElementById('credits')
-  const msgEl = document.getElementById('msg')
   const spinBtn = document.getElementById('spin')
-  if (!creditsEl || !msgEl || !spinBtn) return
+  if (!creditsEl || !spinBtn) return
 
   const reels = [0, 1, 2].map(i => {
     const reel = document.getElementById('reel' + i)
@@ -120,8 +119,6 @@ export function initSlot() {
   async function spin() {
     if (spinning) return
     if (credits < BET) {
-      msgEl.textContent = 'No credits left!'
-      msgEl.className = 'slot__msg'
       return
     }
 
@@ -129,8 +126,6 @@ export function initSlot() {
     spinBtn.disabled = true
     credits -= BET
     creditsEl.textContent = credits
-    msgEl.textContent = '...'
-    msgEl.className = 'slot__msg'
 
     const results = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()]
 
@@ -163,13 +158,9 @@ export function initSlot() {
       if (directedTarget === 'pharma') {
         credits += 100
         creditsEl.textContent = credits
-        msgEl.textContent = 'PHARMA!!! +100'
-        msgEl.className = 'slot__msg slot__msg--jackpot'
       } else {
         credits += 100
         creditsEl.textContent = credits
-        msgEl.textContent = 'SCHOOL DAY!!! +100'
-        msgEl.className = 'slot__msg slot__msg--jackpot'
       }
       if (targetEl) {
         setTimeout(() => {
@@ -179,21 +170,12 @@ export function initSlot() {
     } else if (results[0] === JACKPOT && results[1] === JACKPOT && results[2] === JACKPOT) {
       credits += 500
       creditsEl.textContent = credits
-      msgEl.textContent = 'VAMPOT!!! +500'
-      msgEl.className = 'slot__msg slot__msg--jackpot'
     } else if (results[0] === results[1] && results[1] === results[2]) {
       credits += 100
       creditsEl.textContent = credits
-      msgEl.textContent = 'Three of a kind! +100'
-      msgEl.className = 'slot__msg slot__msg--win'
     } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
       credits += 20
       creditsEl.textContent = credits
-      msgEl.textContent = 'Pair! +20'
-      msgEl.className = 'slot__msg slot__msg--win'
-    } else {
-      msgEl.textContent = 'Try again...'
-      msgEl.className = 'slot__msg'
     }
 
     spinning = false

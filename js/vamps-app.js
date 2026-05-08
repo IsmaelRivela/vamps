@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scrollTrigger: {
       trigger: '.vamps-hero',
       start: 'top top',
-      endTrigger: '.vamps-footer',
+      endTrigger: '.vamps-bento',
       end: 'bottom bottom',
       pin: true,
       pinSpacing: false,

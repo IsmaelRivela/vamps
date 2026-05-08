@@ -38,62 +38,63 @@
       <div class="vamps-hero__img" aria-label="VAMPS"></div>
     </section>
 
-    <!-- Slot row — transparent, over pinned hero -->
-    <section class="vamps-page__slot">
-      <div class="slot">
-        <img class="slot__frame" src="/assets/vamps/jackpot.png" alt="" loading="lazy" />
-        <div class="slot__reel slot__reel--0" id="reel0"><div class="slot__strip"></div></div>
-        <div class="slot__reel slot__reel--1" id="reel1"><div class="slot__strip"></div></div>
-        <div class="slot__reel slot__reel--2" id="reel2"><div class="slot__strip"></div></div>
-      </div>
-      <div class="slot__controls">
-        <div class="slot__credits">
-          <div>Credits: <span id="credits">100</span></div>
-          <div>Bet: <span>10</span></div>
+    <!-- ═══ BENTO — segunda pantalla ═══ -->
+    <section class="vamps-bento vamps-page__full">
+
+      <!-- Slot — celda cuadrada -->
+      <div class="vamps-bento__cell vamps-bento__cell--slot">
+        <div class="slot">
+          <img class="slot__frame" src="/assets/vamps/jackpot.png" alt="" loading="lazy" />
+          <div class="slot__reel slot__reel--0" id="reel0"><div class="slot__strip"></div></div>
+          <div class="slot__reel slot__reel--1" id="reel1"><div class="slot__strip"></div></div>
+          <div class="slot__reel slot__reel--2" id="reel2"><div class="slot__strip"></div></div>
         </div>
-        <button class="slot__btn" id="spin">
-          <span class="slot__btn-label">Insert Coin</span>
-          <img class="slot__btn-coin" src="/assets/vamps/coinvamp-pix.png" alt="Insert coin" loading="lazy" />
-        </button>
-        <div class="slot__msg" id="msg"></div>
+        <div class="slot__controls">
+          <button class="slot__btn" id="spin">SPIN</button>
+          <span id="credits" style="display:none">100</span>
+        </div>
       </div>
+
+      <!-- Pharma -->
+      <a href="/vamps/pharma/" class="vamps-bento__cell vamps-bento__cell--pharma">
+        <img src="/assets/vamps/pharma/glifo-pharma.svg" alt="VAMPS Pharma" loading="lazy" />
+        <div class="vamps-bento__cell-label">
+          <span>VAMPS PHARMA</span>
+          <span class="vamps-bento__cell-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Back2School -->
+      <a href="/vamps/back2school/" class="vamps-bento__cell vamps-bento__cell--school">
+        <img src="/assets/vamps/portada-vamps-abajo.webp" alt="Back2School" loading="lazy" />
+        <div class="vamps-bento__cell-label">
+          <span>BACK2SCHOOL</span>
+          <span class="vamps-bento__cell-arrow">→</span>
+        </div>
+      </a>
+
+      <!-- Visual video -->
+      <div class="vamps-bento__cell vamps-bento__cell--visual">
+        <video src="/assets/vamps/vamps-texto.mp4" autoplay loop muted playsinline></video>
+      </div>
+
+      <!-- Extra -->
+      <div class="vamps-bento__cell vamps-bento__cell--extra"></div>
+
+      <!-- Camiseta -->
+      <div class="vamps-bento__cell vamps-bento__cell--extra2">
+        <img src="/assets/vamps/pharma/camiseta.webp" alt="" loading="lazy" />
+      </div>
+
+      <!-- Marquee -->
+      <div class="vamps-bento__cell vamps-bento__cell--marquee">
+        <div class="vamps-bento__marquee-track">
+          <span>VAMPS OF THE WORLD &nbsp;—&nbsp; CONCEPT BRAND &nbsp;—&nbsp; 2026 &nbsp;—&nbsp; ISMAEL RIVELA &nbsp;—&nbsp; </span>
+          <span>VAMPS OF THE WORLD &nbsp;—&nbsp; CONCEPT BRAND &nbsp;—&nbsp; 2026 &nbsp;—&nbsp; ISMAEL RIVELA &nbsp;—&nbsp; </span>
+        </div>
+      </div>
+
     </section>
-
-    <!-- Content wrapper — scrolls over hero, black bg -->
-    <div class="vamps-content vamps-page__full">
-
-    <!-- Huge word — full width -->
-    <div class="vamps-page__huge vamps-page__full">
-      <span lang="en">COLLECTIONS</span>
-      <span lang="es">COLECCIONES</span>
-    </div>
-
-    <!-- Huge word right -->
-    <a href="/vamps/pharma/" id="pharma-link" class="vamps-page__huge vamps-page__huge--right vamps-page__huge--link">
-      <span>VAMPS PHARMA</span>
-    </a>
-
-    <!-- Image pharma2 — right with glow -->
-    <div class="vamps-page__img vamps-page__img--right-sm vamps-page__img--flicker vamps-page__img--transparent">
-      <img src="/assets/vamps/pharma/vamps-image-asset-pharma2.png" alt="" loading="lazy" />
-    </div>
-
-    <!-- Huge word — full -->
-    <a href="/vamps/back2school/" id="school-link" class="vamps-page__huge vamps-page__full vamps-page__huge--link">
-      <span>BACK2SCHOOL</span>
-    </a>
-
-    <!-- Draggable stickers -->
-    <img class="sticker" src="/assets/vamps/sticker3.svg" alt="" loading="lazy" style="top: 80%; left: 5%; transform: scaleX(-1);" />
-
-    <!-- /Content wrapper -->
-    </div>
-
-    <!-- Footer — full width -->
-    <footer class="vamps-footer vamps-page__full">
-      <a href="/" class="vamps-footer__back">← Back to home</a>
-      <span class="vamps-footer__brand">VAMPS © 2026</span>
-    </footer>
 
   </main>
 

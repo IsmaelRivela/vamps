@@ -139,17 +139,18 @@ body.theme-vamps {
   height: var(--reel-h);
   object-fit: contain;
   padding: 15%;
-  filter: brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(6000%) hue-rotate(360deg) brightness(95%)
-         drop-shadow(0 0 6px rgba(255, 0, 0, 0.8))
-         drop-shadow(0 0 20px rgba(255, 0, 0, 0.4));
+  filter: brightness(0) invert(1)
+         drop-shadow(0 0 6px rgba(255, 0, 0, 0.9))
+         drop-shadow(0 0 18px rgba(255, 0, 0, 0.4));
   flex-shrink: 0;
 }
 
 .slot__controls {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1.2rem;
+  gap: 0.5rem;
   position: relative;
 }
 
@@ -172,58 +173,38 @@ body.theme-vamps {
 
 .slot__btn {
   position: relative;
-  background: none;
+  background: var(--vamps-red);
   border: none;
   cursor: pointer;
-  padding: 0;
-  animation: coinPulse 1.5s ease-in-out infinite;
-}
-
-.slot__btn-coin {
-  width: 80px;
-  height: auto;
-  display: block;
-  filter: drop-shadow(0 0 10px rgba(194, 36, 36, 0.5));
-}
-
-.slot__btn-label {
-  position: absolute;
-  bottom: -1.4rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.6rem;
+  padding: 0.6rem 2rem;
+  font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.15em;
-  color: var(--vamps-red);
-  white-space: nowrap;
-  pointer-events: none;
+  color: #fff;
+  border-radius: 4px;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
+
+.slot__btn-coin { display: none; }
+.slot__btn-label { display: none; }
 
 .slot__btn:hover {
-  animation: none;
-  transform: scale(1.1);
+  background: #a01c1c;
+  transform: scale(1.04);
 }
 
-.slot__btn:active { transform: scale(0.95); }
+.slot__btn:active { transform: scale(0.96); }
 
 .slot__btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  animation: none;
   transform: none;
 }
 
-@keyframes coinPulse {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.08); }
-}
-
 .slot__msg {
-  font-size: 0.85rem;
-  min-height: 1.4em;
-  text-align: center;
-  color: #666;
+  display: none;
 }
 
 .slot__msg--jackpot {
@@ -629,4 +610,196 @@ body.theme-vamps {
     gap: var(--space-sm);
     text-align: center;
   }
+}
+
+/* ═══════════════════════════════════════════
+   BENTO — Segunda pantalla
+   ═══════════════════════════════════════════ */
+
+.vamps-bento {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr 1fr 56px;
+  gap: 16px;
+  padding: 16px;
+  box-sizing: border-box;
+  background: var(--vamps-black);
+  position: relative;
+  z-index: 1;
+}
+
+/* — Slot cell position — */
+.vamps-bento__cell--slot {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  background-color: #0a0a0a;
+  padding: 16px;
+}
+
+/* casino bg removed */
+
+.vamps-bento__cell--slot .slot {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.vamps-bento__cell--slot .slot__controls {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* — Cells — */
+
+.vamps-bento__cell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #111;
+  text-decoration: none;
+  color: var(--vamps-white);
+  display: block;
+}
+
+.vamps-bento__cell img,
+.vamps-bento__cell video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: scale 0.5s ease;
+}
+
+/* Excluir imágenes del slot de la regla anterior */
+.vamps-bento__cell--slot img {
+  position: static;
+  inset: auto;
+  width: 100%;
+  height: var(--reel-h);
+  object-fit: contain;
+  transition: none;
+  scale: 1 !important;
+}
+
+.vamps-bento__cell--pharma img { object-fit: contain; object-position: center; background: #0a0a0a; }
+.vamps-bento__cell--school img { object-fit: cover; object-position: top; }
+
+.vamps-bento__cell:hover img { scale: 1.05; }
+.vamps-bento__cell--slot:hover img { scale: 1; }
+
+/* Slot cell flex centering — after .vamps-bento__cell to override display:block */
+.vamps-bento__cell--slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Grid positions */
+.vamps-bento__cell--pharma  { grid-column: 2; grid-row: 1; background: #0a0a0a; }
+.vamps-bento__cell--school  { grid-column: 3; grid-row: 1; }
+.vamps-bento__cell--visual  { grid-column: 2; grid-row: 2; border-radius: 0; }
+.vamps-bento__cell--visual video { object-fit: cover; scale: 1.30; }
+.vamps-bento__cell--extra   { grid-column: 3; grid-row: 2; background: #000; }
+.vamps-bento__cell--extra2  { display: none; }
+
+/* Marquee — full width bottom bar */
+.vamps-bento__cell--marquee {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  background: var(--vamps-red);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* — Cell labels — */
+
+.vamps-bento__cell-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  font-size: clamp(0.65rem, 1.2vw, 0.9rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #fff;
+  pointer-events: none;
+}
+
+.vamps-bento__cell-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.25s ease;
+}
+
+.vamps-bento__cell:hover .vamps-bento__cell-arrow {
+  transform: translateX(4px);
+}
+
+/* — Marquee — */
+
+.vamps-bento__marquee-track {
+  display: flex;
+  white-space: nowrap;
+  animation: bento-marquee 18s linear infinite;
+  font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  font-size: clamp(0.6rem, 1.1vw, 0.85rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--vamps-black);
+}
+
+.vamps-bento__marquee-track span {
+  padding-right: 0;
+  flex-shrink: 0;
+}
+
+@keyframes bento-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* — Mobile bento — */
+
+@media (max-width: 768px) {
+  .vamps-bento {
+    height: auto;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto 44px;
+    min-height: 100vh;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .vamps-bento__cell--slot {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    min-height: 60vw;
+  }
+
+  .vamps-bento__cell--pharma  { grid-column: 1; grid-row: 2; min-height: 180px; }
+  .vamps-bento__cell--school  { grid-column: 2; grid-row: 2; min-height: 180px; }
+  .vamps-bento__cell--visual  { grid-column: 1; grid-row: 3; min-height: 150px; }
+  .vamps-bento__cell--extra   { grid-column: 2; grid-row: 3; min-height: 150px; }
+  .vamps-bento__cell--marquee { grid-column: 1 / -1; grid-row: 4; }
 }
