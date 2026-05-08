@@ -1,5 +1,8 @@
 gsap.registerPlugin(ScrollTrigger);
 
+// Normaliza el scroll en mobile/iOS (evita que Safari bloquee el scroll)
+ScrollTrigger.normalizeScroll(true);
+
 const container = document.getElementById('tunnel-scroll');
 const world     = document.getElementById('world');
 const slides    = Array.from(document.querySelectorAll('.slide'));
