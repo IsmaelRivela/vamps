@@ -36,7 +36,7 @@
     <section class="proj__hero vamps-hero" id="vampsHero">
       <div class="proj__hero-inner">
         <span class="proj__category"><span lang="en">Concept Brand — Case Study</span><span lang="es">Concept Brand — Case Study</span></span>
-        <img class="vamps-hero__title-img" src="/assets/vamps/vampstitle.svg" alt="VAMPS" />
+        <h1 class="proj__title">VAMPS</h1>
       </div>
     </section>
 
@@ -74,13 +74,14 @@
     </div>
 
     <!-- Logo Construction -->
-    <div class="proj__img proj__img--full">
-      <img src="/assets/projects/vamps-brand/logo-construction.jpg" alt="VAMPS logo design y construcción" loading="lazy" />
+    <div class="proj__img proj__img--full" style="background:#fff; display:grid; grid-template-columns:1fr 1fr; padding:var(--space-3xl) 0 0 0;">
+      <img src="/assets/projects/vamps-brand/logocontruction1.svg" alt="VAMPS logo construcción 1" loading="lazy" style="width:35%; height:auto; object-fit:contain; justify-self:center;" />
+      <img src="/assets/projects/vamps-brand/logocontruction2.svg" alt="VAMPS logo construcción 2" loading="lazy" style="width:35%; height:auto; object-fit:contain; justify-self:center;" />
     </div>
 
     <!-- Logo Clear Spaces -->
-    <div class="proj__img proj__img--full">
-      <img src="/assets/projects/vamps-brand/logo-design-clear-spaces-security.jpg" alt="VAMPS logo clear spaces y seguridad" loading="lazy" />
+    <div class="proj__img proj__img--full" style="background:#fff; display:flex; justify-content:center; align-items:center; padding:0 0 var(--space-3xl) 0;">
+      <img src="/assets/projects/vamps-brand/logo-design-clear-spaces-security.svg" alt="VAMPS logo clear spaces y seguridad" loading="lazy" style="width:22%; height:auto;" />
     </div>
 
     <!-- Full-width Logo — blurry pixel -->
@@ -94,8 +95,8 @@
     </div>
 
     <!-- Isotype Designs -->
-    <div class="proj__img proj__img--full">
-      <img src="/assets/projects/vamps-brand/iso-designs.jpg" alt="VAMPS isotype designs — lil vamps" loading="lazy" />
+    <div class="proj__img proj__img--full" style="background:#fff; display:flex; justify-content:center; align-items:center; padding:var(--space-2xl);">
+      <img src="/assets/projects/vamps-brand/isodesigns.svg" alt="VAMPS isotype designs — lil vamps" loading="lazy" style="width:75%; height:auto;" />
     </div>
 
     <!-- Full-width Iso close-up -->
@@ -117,9 +118,9 @@
         </div>
       </div>
       <div class="color-palette__swatch">
-        <div class="color-palette__fill" style="background: #C22424;"></div>
+        <div class="color-palette__fill" style="background: #ea352a;"></div>
         <div class="color-palette__info">
-          <span class="color-palette__name">Rojo VAMPS</span>
+          <span class="color-palette__name">Rojo</span>
           <span class="color-palette__code">#C22424</span>
         </div>
       </div>
@@ -138,8 +139,15 @@
     </div>
 
     <!-- Typography Image -->
-    <div class="proj__img proj__img--full">
-      <img src="/assets/projects/vamps-brand/typography.jpg" alt="VAMPS tipografía — Helvética Bold y Luke Variable" loading="lazy" />
+    <div class="proj__img proj__img--full" style="background:#fff; display:grid; grid-template-columns:1fr 1fr; align-items:end; color:#000000;">
+      <div style="display:flex; flex-direction:column; align-items:flex-start; padding:var(--space-2xl);">
+        <img src="/assets/projects/vamps-brand/helveticavampsbasefont.svg" alt="VAMPS tipografía — Helvetica base" loading="lazy" style="width:85%; height:auto; object-fit:contain;" />
+        <span style="font-family:var(--font-mono); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--color-text-muted); margin-top:var(--space-sm);">Helvética Bold / Main Typography</span>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-start; padding:var(--space-2xl);">
+        <img src="/assets/projects/vamps-brand/ lukevariablefontvamps.svg" alt="VAMPS tipografía — Luke Variable" loading="lazy" style="width:100%; height:auto; object-fit:contain;" />
+        <span style="font-family:var(--font-mono); font-size:0.65rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--color-text-muted); margin-top:var(--space-sm);">Luke Variable / Secondary Use Typography</span>
+      </div>
     </div>
 
     <!-- Details / Closeups -->
@@ -189,18 +197,13 @@
   <style>
     /* — VAMPS Hero — */
     .vamps-hero {
-      background: #fff;
-      position: relative;
-      z-index: 1;
+      background: #fff url('/assets/glifos/vamps6.svg') center center / 20% auto no-repeat;
     }
     .vamps-hero .proj__category {
-      color: #c22020;
+      color: #ea352a;
     }
-    .vamps-hero__title-img {
-      display: block;
-      width: 55%;
-      max-width: 560px;
-      margin: var(--space-lg) 0 0;
+    .vamps-hero .proj__title {
+      color: #ea352a;
     }
   </style>
 
