@@ -125,11 +125,14 @@
     <div class="ismael-bento__cell ismael-bento__cell--interests">
       <span class="ismael-bento__label">Recently played</span>
       <div class="ismael-lastfm" id="lastfm-widget">
-        <div class="ismael-lastfm__track ismael-lastfm__skeleton"></div>
-        <div class="ismael-lastfm__track ismael-lastfm__skeleton"></div>
-        <div class="ismael-lastfm__track ismael-lastfm__skeleton"></div>
+        <div class="ismael-lastfm__single ismael-lastfm__skeleton"></div>
+        <div class="ismael-lastfm__single ismael-lastfm__skeleton"></div>
+        <div class="ismael-lastfm__single ismael-lastfm__skeleton"></div>
       </div>
     </div>
+
+    <!-- Vacío -->
+    <div class="ismael-bento__cell ismael-bento__cell--empty"></div>
 
     <!-- Contacto -->
     <div class="ismael-bento__cell ismael-bento__cell--contact">
@@ -140,12 +143,6 @@
         <a href="https://behance.net/ismaelrivela" target="_blank" rel="noopener">Behance</a>
         <a href="https://linkedin.com/in/ismaelrivela" target="_blank" rel="noopener">LinkedIn</a>
       </div>
-    </div>
-
-    <!-- Status -->
-    <div class="ismael-bento__cell ismael-bento__cell--status">
-      <span class="ismael-bento__status-dot"></span>
-      <span class="ismael-bento__status-text">Available for projects</span>
     </div>
 
   </section>
@@ -169,28 +166,77 @@
       const KEY  = 'e3724b3c0543dd7ab22dfc394ffd4afc'
       const widget = document.getElementById('lastfm-widget')
 
-      fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${KEY}&format=json&limit=5`)
-        .then(r => r.json())
-        .then(data => {
+      const getLastFmArt = (images) => {
+        if (!images) return ''
+        const PLACEHOLDER = '2a96cbd8b46e442fc41c2b86b821562f'
+        for (const size of ['extralarge', 'large', 'medium', 'small']) {
+          const url = images.find(img => img.size === size)?.['#text']
+          if (url && !url.includes(PLACEHOLDER)) return url
+        }
+        return ''
+      }
+
+      const getItunesArt = async (artist, track) => {
+        try {
+          const q = encodeURIComponent(`${artist} ${track}`)
+          const r = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=1`)
+          const d = await r.json()
+          const url = d.results?.[0]?.artworkUrl100
+          return url ? url.replace('100x100', '600x600') : ''
+        } catch { return '' }
+      }
+
+      const renderTrack = async (t) => {
+        const name   = t.name || ''
+        const artist = t.artist?.['#text'] || ''
+        const now    = t['@attr']?.nowplaying === 'true'
+        let art = getLastFmArt(t.image)
+        if (!art) art = await getItunesArt(artist, name)
+        return `<div class="ismael-lastfm__single${now ? ' ismael-lastfm__single--now' : ''}">
+          ${art
+            ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" loading="lazy" />`
+            : '<div class="ismael-lastfm__cover ismael-lastfm__cover--empty"></div>'
+          }
+          <div class="ismael-lastfm__info">
+            <span class="ismael-lastfm__name">${name}</span>
+            <span class="ismael-lastfm__artist">${artist}</span>
+          </div>
+          ${now ? '<span class="ismael-lastfm__now-dot"></span>' : ''}
+        </div>`
+      }
+
+      let lastKeys = ''
+
+      const update = async () => {
+        try {
+          const r = await fetch(
+            `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${KEY}&format=json&limit=10&_=${Date.now()}`,
+            { cache: 'no-store' }
+          )
+          const data = await r.json()
           const tracks = data.recenttracks?.track || []
-          widget.innerHTML = tracks.slice(0, 5).map((t, i) => {
-            const art    = t.image?.find(img => img.size === 'medium')?.['#text'] || ''
-            const name   = t.name || ''
-            const artist = t.artist?.['#text'] || ''
-            const now    = t['@attr']?.nowplaying === 'true'
-            return `<div class="ismael-lastfm__track${now ? ' ismael-lastfm__track--now' : ''}">
-              ${art ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" loading="lazy" />` : '<div class="ismael-lastfm__cover ismael-lastfm__cover--empty"></div>'}
-              <div class="ismael-lastfm__info">
-                <span class="ismael-lastfm__name">${name}</span>
-                <span class="ismael-lastfm__artist">${artist}</span>
-              </div>
-              ${now ? '<span class="ismael-lastfm__now-dot"></span>' : ''}
-            </div>`
-          }).join('')
-        })
-        .catch(() => {
-          widget.innerHTML = '<span class="ismael-lastfm__error">—</span>'
-        })
+          const all = Array.isArray(tracks) ? tracks : [tracks]
+
+          const seen = new Set()
+          const list = []
+          for (const t of all) {
+            const key = `${t.artist?.['#text']}§${t.name}`.toLowerCase()
+            if (!seen.has(key)) { seen.add(key); list.push(t) }
+            if (list.length === 3) break
+          }
+
+          // solo rerenderizar si cambiaron los tracks
+          const newKeys = list.map(t => `${t.artist?.['#text']}§${t.name}`).join('|')
+          if (newKeys === lastKeys) return
+          lastKeys = newKeys
+
+          const htmls = await Promise.all(list.map(renderTrack))
+          widget.innerHTML = htmls.join('')
+        } catch {}
+      }
+
+      update()
+      setInterval(update, 30000) // polling cada 30 segundos
     })()
   </script>
 </body>
