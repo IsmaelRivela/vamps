@@ -877,7 +877,7 @@ body.theme-ismael {
   grid-row: 1 / 3;
   padding: 0;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 0;
   position: relative;
 }
 
@@ -895,7 +895,6 @@ body.theme-ismael {
   object-position: center top;
   display: block;
   opacity: 0;
-  transition: opacity 0.5s ease;
 }
 
 .ismael-bento__slide--active {
@@ -1107,8 +1106,10 @@ body.theme-ismael {
   .ismael-bento__cell--photo {
     grid-column: 1;
     grid-row: 2 / 4;
-    border-radius: 10px;
-    min-height: 220px;
+    border-radius: 0;
+    min-height: unset;
+    aspect-ratio: 2 / 3;
+    align-self: stretch;
   }
 
   /* contacto: col derecha fila 2 */
@@ -1177,11 +1178,12 @@ body.theme-ismael {
     grid-row: auto;
   }
 
-  /* foto en una sola columna, formato paisaje */
+  /* foto en una sola columna, formato vertical */
   .ismael-bento__cell--photo {
     grid-column: 1;
     grid-row: auto;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 2 / 3;
     min-height: unset;
+    border-radius: 0;
   }
 }
