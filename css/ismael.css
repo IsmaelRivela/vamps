@@ -884,14 +884,7 @@ body.theme-ismael {
   position: relative;
 }
 
-.ismael-bento__slideshow {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.ismael-bento__slide {
+.ismael-bento__poster-gif {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -899,11 +892,6 @@ body.theme-ismael {
   object-fit: cover;
   object-position: center top;
   display: block;
-  opacity: 0;
-}
-
-.ismael-bento__slide--active {
-  opacity: 1;
 }
 
 /* Skills: col 1 row 2 */
