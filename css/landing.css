@@ -9,6 +9,12 @@
   cursor: none;
 }
 
+.landing *,
+.landing *::before,
+.landing *::after {
+  cursor: none;
+}
+
 /* — Custom Cursor — */
 
 .landing__cursor {
