@@ -884,6 +884,8 @@ body.theme-ismael {
 .ismael-bento__slideshow {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .ismael-bento__slide {
@@ -1109,7 +1111,8 @@ body.theme-ismael {
     border-radius: 0;
     min-height: unset;
     aspect-ratio: 2 / 3;
-    align-self: stretch;
+    width: 100%;
+    align-self: start;
   }
 
   /* contacto: col derecha fila 2 */
