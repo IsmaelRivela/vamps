@@ -785,7 +785,7 @@ body.theme-vamps {
   .vamps-bento {
     height: auto;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto 44px;
+    grid-template-rows: auto auto auto auto 44px;
     min-height: 100vh;
     gap: 16px;
     padding: 16px;
@@ -797,9 +797,21 @@ body.theme-vamps {
     min-height: 60vw;
   }
 
-  .vamps-bento__cell--pharma  { grid-column: 1; grid-row: 2; min-height: 180px; }
-  .vamps-bento__cell--school  { grid-column: 2; grid-row: 2; min-height: 180px; }
-  .vamps-bento__cell--visual  { grid-column: 1; grid-row: 3; min-height: 150px; }
-  .vamps-bento__cell--extra   { grid-column: 2; grid-row: 3; min-height: 150px; }
-  .vamps-bento__cell--marquee { grid-column: 1 / -1; grid-row: 4; }
+  .vamps-bento__cell--school  {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: unset;
+    aspect-ratio: 4 / 3;
+  }
+  .vamps-bento__cell--school img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .vamps-bento__cell--pharma  { grid-column: 1; grid-row: 3; min-height: 180px; }
+  .vamps-bento__cell--visual  { grid-column: 2; grid-row: 3; min-height: 180px; }
+  .vamps-bento__cell--extra   { grid-column: 1 / -1; grid-row: 4; min-height: 80px; }
+  .vamps-bento__cell--marquee { grid-column: 1 / -1; grid-row: 5; }
 }

@@ -269,6 +269,7 @@ body.theme-work .nav__link {
   align-items: center;
   gap: 0.4rem;
   text-align: center;
+  width: clamp(220px, 28vw, 420px);
 }
 
 .work-intro__name {

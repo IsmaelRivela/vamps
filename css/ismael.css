@@ -714,18 +714,21 @@ body.theme-ismael {
   flex-direction: column;
   gap: 4px;
   width: 240px;
+  align-items: center;
+  text-align: center;
 }
 
 .ismael-screen1__name {
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   color: #0a0a0a;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .ismael-screen1__role {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #555;
@@ -933,20 +936,93 @@ body.theme-ismael {
   grid-row: 3;
 }
 
-.ismael-bento__tags {
+/* ── Last.fm widget ── */
+.ismael-lastfm {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
+  margin-top: 0.25rem;
 }
 
-.ismael-bento__tags span {
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  padding: 0.35rem 0.75rem;
-  border: 1px solid #333;
-  border-radius: 100px;
+.ismael-lastfm__track {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  opacity: 0.85;
+}
+
+.ismael-lastfm__track--now {
+  opacity: 1;
+}
+
+.ismael-lastfm__cover {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  background: #222;
+}
+
+.ismael-lastfm__cover--empty {
+  background: #222;
+}
+
+.ismael-lastfm__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  overflow: hidden;
+}
+
+.ismael-lastfm__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #f0f0f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ismael-lastfm__artist {
+  font-size: 0.7rem;
   color: #888;
-  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ismael-lastfm__now-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ed5b51;
+  flex-shrink: 0;
+  margin-left: auto;
+  animation: lfm-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes lfm-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.ismael-lastfm__skeleton {
+  height: 36px;
+  background: linear-gradient(90deg, #1a1a1a 25%, #252525 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: lfm-shimmer 1.4s infinite;
+  border-radius: 3px;
+}
+
+@keyframes lfm-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.ismael-lastfm__error {
+  color: #555;
+  font-size: 0.75rem;
 }
 
 /* Contacto: col 2 row 2 (antes era interests) */
@@ -1162,10 +1238,6 @@ body.theme-ismael {
 
   .ismael-screen1__meta {
     width: 140px;
-  }
-
-  .ismael-screen1__name {
-    font-size: 0.75rem;
   }
 
   .ismael-bento {

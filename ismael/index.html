@@ -51,7 +51,7 @@
       </div>
       <div class="ismael-screen1__meta">
         <span class="ismael-screen1__name">ISMAEL RIVELA JELLITI</span>
-        <span class="ismael-screen1__role">Creative Direction — Brand — Web</span>
+        <span class="ismael-screen1__role">Creative Designer w. <br>Graph &amp; Web D. BG.</span>
       </div>
     </div>
   </section>
@@ -123,16 +123,11 @@
 
     <!-- Intereses -->
     <div class="ismael-bento__cell ismael-bento__cell--interests">
-      <span class="ismael-bento__label">Interests</span>
-      <div class="ismael-bento__tags">
-        <span>Art Direction</span>
-        <span>Branding</span>
-        <span>Editorial</span>
-        <span>Web</span>
-        <span>Photography</span>
-        <span>Music</span>
-        <span>Film</span>
-        <span>Typography</span>
+      <span class="ismael-bento__label">Recently played</span>
+      <div class="ismael-lastfm" id="lastfm-widget">
+        <div class="ismael-lastfm__track ismael-lastfm__skeleton"></div>
+        <div class="ismael-lastfm__track ismael-lastfm__skeleton"></div>
+        <div class="ismael-lastfm__track ismael-lastfm__skeleton"></div>
       </div>
     </div>
 
@@ -165,6 +160,37 @@
         current = (current + 1) % slides.length
         slides[current].classList.add('ismael-bento__slide--active')
       }, 400)
+    })()
+  </script>
+
+  <script>
+    (() => {
+      const USER = 'ismaelrivela'
+      const KEY  = 'e3724b3c0543dd7ab22dfc394ffd4afc'
+      const widget = document.getElementById('lastfm-widget')
+
+      fetch(`https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${USER}&api_key=${KEY}&format=json&limit=5`)
+        .then(r => r.json())
+        .then(data => {
+          const tracks = data.recenttracks?.track || []
+          widget.innerHTML = tracks.slice(0, 5).map((t, i) => {
+            const art    = t.image?.find(img => img.size === 'medium')?.['#text'] || ''
+            const name   = t.name || ''
+            const artist = t.artist?.['#text'] || ''
+            const now    = t['@attr']?.nowplaying === 'true'
+            return `<div class="ismael-lastfm__track${now ? ' ismael-lastfm__track--now' : ''}">
+              ${art ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" loading="lazy" />` : '<div class="ismael-lastfm__cover ismael-lastfm__cover--empty"></div>'}
+              <div class="ismael-lastfm__info">
+                <span class="ismael-lastfm__name">${name}</span>
+                <span class="ismael-lastfm__artist">${artist}</span>
+              </div>
+              ${now ? '<span class="ismael-lastfm__now-dot"></span>' : ''}
+            </div>`
+          }).join('')
+        })
+        .catch(() => {
+          widget.innerHTML = '<span class="ismael-lastfm__error">—</span>'
+        })
     })()
   </script>
 </body>
