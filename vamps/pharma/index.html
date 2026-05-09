@@ -1173,6 +1173,11 @@
               model.rotation.x = -Math.PI * 0.15;
             }
 
+            if (i === 2) {
+              /* T-shirt: start from back face where the design is */
+              pivot.rotation.y = Math.PI;
+            }
+
             pivot.add(model);
             pivot.visible = false;
             scene3d.add(pivot);
@@ -1310,6 +1315,9 @@
           model.scale.multiplyScalar(0.5);
           model.rotation.z = -Math.PI * 0.5;
           model.rotation.x = -Math.PI * 0.15;
+        }
+        if (i === 2) {
+          pivot.rotation.y = Math.PI;
         }
         pivot.add(model);
         pivot.visible = false;
