@@ -739,13 +739,7 @@
     height: 140px;
   }
 
-  .color-palette {
-    flex-wrap: wrap;
-  }
 
-  .color-palette__swatch {
-    flex: 1 1 50%;
-  }
 
   .ascii-converter {
     position: relative;
