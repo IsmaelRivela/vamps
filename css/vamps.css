@@ -723,6 +723,7 @@ body.theme-vamps {
   align-items: center;
   overflow: hidden;
   border-radius: 16px;
+  padding: 0;
 }
 
 /* — Cell labels — */
@@ -759,14 +760,20 @@ body.theme-vamps {
 
 .vamps-bento__marquee-track {
   display: flex;
+  flex-shrink: 0;
   white-space: nowrap;
-  animation: bento-marquee 18s linear infinite;
+  animation: bento-marquee 55s linear infinite;
+  will-change: transform;
   font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
   font-size: clamp(0.6rem, 1.1vw, 0.85rem);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--vamps-black);
+}
+
+.vamps-bento__marquee-track span {
+  flex-shrink: 0;
 }
 
 .vamps-bento__marquee-track span {
