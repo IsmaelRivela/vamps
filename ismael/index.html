@@ -94,12 +94,18 @@
       <p class="ismael-bento__bio-text">Mi trabajo empieza en la idea. Entender el contexto, encontrar el insight y definir una dirección antes de diseñar nada. Colaboro con estudios y especialistas en identidad, editorial y web — aporto concepto, y junto con el equipo adecuado lo convertimos en sistema.</p>
     </div>
 
-    <!-- Foto -->
+    <!-- Foto (slideshow posters) -->
     <div class="ismael-bento__cell ismael-bento__cell--photo">
-      <picture>
-        <source srcset="/assets/landing/ismael.webp" type="image/webp" />
-        <img src="/assets/landing/ismael.jpeg" alt="Ismael Rivela" />
-      </picture>
+      <div class="ismael-bento__slideshow">
+        <img class="ismael-bento__slide ismael-bento__slide--active" src="/assets/projects/school/poster1.webp" alt="Poster 1" />
+        <img class="ismael-bento__slide" src="/assets/projects/school/poster2.webp" alt="Poster 2" />
+        <img class="ismael-bento__slide" src="/assets/projects/school/poster3.webp" alt="Poster 3" />
+        <img class="ismael-bento__slide" src="/assets/projects/school/poster4.webp" alt="Poster 4" />
+        <img class="ismael-bento__slide" src="/assets/projects/school/poster5.webp" alt="Poster 5" />
+        <img class="ismael-bento__slide" src="/assets/projects/school/poster6.webp" alt="Poster 6" />
+        <img class="ismael-bento__slide" src="/assets/projects/school/poster7.webp" alt="Poster 7" />
+        <img class="ismael-bento__slide" src="/assets/projects/school/poster8.webp" alt="Poster 8" />
+      </div>
     </div>
 
     <!-- Skills -->
@@ -150,5 +156,16 @@
   </section>
 
   <script type="module" src="/js/app.js"></script>
+  <script>
+    (() => {
+      const slides = Array.from(document.querySelectorAll('.ismael-bento__slide'))
+      let current = 0
+      setInterval(() => {
+        slides[current].classList.remove('ismael-bento__slide--active')
+        current = (current + 1) % slides.length
+        slides[current].classList.add('ismael-bento__slide--active')
+      }, 900)
+    })()
+  </script>
 </body>
 </html>
