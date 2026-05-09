@@ -1238,6 +1238,11 @@ body.theme-ismael {
     grid-row: 4;
   }
 
+  /* vacío: ocultar en mobile */
+  .ismael-bento__cell--empty {
+    display: none;
+  }
+
   .ismael-screen1__photo {
     width: 180px;
     height: 225px;
@@ -1280,6 +1285,7 @@ body.theme-ismael {
   .ismael-bento__cell--contact,
   .ismael-bento__cell--skills,
   .ismael-bento__cell--interests,
+  .ismael-bento__cell--empty,
   .ismael-bento__cell--status {
     grid-column: 1;
     grid-row: auto;
