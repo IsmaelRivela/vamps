@@ -151,7 +151,7 @@
         const PLACEHOLDER = '2a96cbd8b46e442fc41c2b86b821562f'
         for (const size of ['extralarge', 'large', 'medium', 'small']) {
           const url = images.find(img => img.size === size)?.['#text']
-          if (url && !url.includes(PLACEHOLDER)) return url
+          if (url && !url.includes(PLACEHOLDER)) return url.replace('http://', 'https://')
         }
         return ''
       }
@@ -174,7 +174,7 @@
         if (!art) art = await getItunesArt(artist, name)
         return `<div class="ismael-lastfm__single${now ? ' ismael-lastfm__single--now' : ''}">
           ${art
-            ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" loading="lazy" />`
+            ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" />`
             : '<div class="ismael-lastfm__cover ismael-lastfm__cover--empty"></div>'
           }
           <div class="ismael-lastfm__info">
