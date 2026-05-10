@@ -162,7 +162,8 @@
           const r = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=1`)
           const d = await r.json()
           const url = d.results?.[0]?.artworkUrl100
-          return url ? url.replace('100x100', '600x600') : ''
+          // artworkUrl100 usa formato "100x100bb.jpg" — reemplazar a 300x300bb
+          return url ? url.replace('100x100bb', '300x300bb') : ''
         } catch { return '' }
       }
 
@@ -174,7 +175,7 @@
         if (!art) art = await getItunesArt(artist, name)
         return `<div class="ismael-lastfm__single${now ? ' ismael-lastfm__single--now' : ''}">
           ${art
-            ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" />`
+            ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" onerror="this.style.display='none'" />`
             : '<div class="ismael-lastfm__cover ismael-lastfm__cover--empty"></div>'
           }
           <div class="ismael-lastfm__info">
