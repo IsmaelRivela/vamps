@@ -159,11 +159,13 @@
       const getItunesArt = async (artist, track) => {
         try {
           const q = encodeURIComponent(`${artist} ${track}`)
-          const r = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&limit=1`)
+          const r = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&entity=song&limit=5`)
           const d = await r.json()
-          const url = d.results?.[0]?.artworkUrl100
-          // artworkUrl100 usa formato "100x100bb.jpg" — reemplazar a 300x300bb
-          return url ? url.replace('100x100bb', '300x300bb') : ''
+          // Buscar match por nombre de pista
+          const trackLower = track.toLowerCase()
+          const match = d.results?.find(x => x.trackName?.toLowerCase().includes(trackLower)) || d.results?.[0]
+          // artworkUrl600 devuelve 600x600 sin manipulación de string
+          return match?.artworkUrl600 || match?.artworkUrl100 || ''
         } catch { return '' }
       }
 
