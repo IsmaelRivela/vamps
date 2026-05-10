@@ -390,6 +390,8 @@ body.theme-work .nav__link {
   gap: 16px;
   min-height: 100vh;
   box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
 }
 
 .work-bento__cell {
@@ -587,7 +589,9 @@ body.theme-work .nav__link {
   .work-bento__cell--skills,
   .work-bento__cell--interests,
   .work-bento__cell--contact,
-  .work-bento__cell--status { grid-column: 1; grid-row: auto; }
+  .work-bento__cell--status { grid-column: 1 !important; grid-row: auto !important; }
   .work-bento__cell--photo { aspect-ratio: 4/3; }
   .work-bento__cell--contact { flex-direction: column; align-items: flex-start; }
+  .work-bento__email { font-size: 0.85rem; word-break: break-all; }
+  .work-bento__cell { padding: 1.25rem; }
 }
