@@ -156,20 +156,18 @@
         return ''
       }
 
-      const getAlbumArt = async (artist, album) => {
+      const getAlbumArt = async (artist, track) => {
         try {
-          const PLACEHOLDER = '2a96cbd8b46e442fc41c2b86b821562f'
-          const q = encodeURIComponent(album || artist)
-          const r = await fetch(`https://ws.audioscrobbler.com/2.0/?method=album.search&album=${q}&api_key=${KEY}&format=json&limit=5`)
+          const a = encodeURIComponent(artist)
+          const t = encodeURIComponent(track)
+          const r = await fetch(`https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=${KEY}&artist=${a}&track=${t}&format=json`)
           const d = await r.json()
-          const albums = d.results?.albummatches?.album || []
-          const artistLower = artist.toLowerCase()
-          const match = albums.find(a => a.artist?.toLowerCase().includes(artistLower)) || albums[0]
-          if (!match) return ''
-          const images = match.image
+          const PLACEHOLDER = '2a96cbd8b46e442fc41c2b86b821562f'
+          const images = d.track?.album?.image
+          if (!images) return ''
           for (const size of ['extralarge', 'large', 'medium']) {
-            const url = images?.find(i => i.size === size)?.['#text']
-            if (url && !url.includes(PLACEHOLDER) && url.trim() !== '') return url.replace('http://', 'https://')
+            const url = images.find(i => i.size === size)?.['#text']
+            if (url && !url.includes(PLACEHOLDER) && url.trim() !== '') return url
           }
           return ''
         } catch { return '' }
@@ -180,7 +178,7 @@
         const artist = t.artist?.['#text'] || ''
         const now    = t['@attr']?.nowplaying === 'true'
         let art = getLastFmArt(t.image)
-        if (!art) art = await getAlbumArt(artist, t.album?.['#text'] || name)
+        if (!art) art = await getAlbumArt(artist, name)
         return `<div class="ismael-lastfm__single${now ? ' ismael-lastfm__single--now' : ''}">
           ${art
             ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" onerror="this.style.display='none'" />`
