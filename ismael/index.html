@@ -156,20 +156,11 @@
         return ''
       }
 
-      const getAlbumArt = async (artist, track) => {
+      const getItunesArt = async (artist, track) => {
         try {
-          const a = encodeURIComponent(artist)
-          const t = encodeURIComponent(track)
-          const r = await fetch(`https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=${KEY}&artist=${a}&track=${t}&format=json`)
+          const r = await fetch(`https://vamps-artwork-api.vercel.app/api/artwork?artist=${encodeURIComponent(artist)}&track=${encodeURIComponent(track)}`)
           const d = await r.json()
-          const PLACEHOLDER = '2a96cbd8b46e442fc41c2b86b821562f'
-          const images = d.track?.album?.image
-          if (!images) return ''
-          for (const size of ['extralarge', 'large', 'medium']) {
-            const url = images.find(i => i.size === size)?.['#text']
-            if (url && !url.includes(PLACEHOLDER) && url.trim() !== '') return url
-          }
-          return ''
+          return d.url || ''
         } catch { return '' }
       }
 
@@ -178,7 +169,7 @@
         const artist = t.artist?.['#text'] || ''
         const now    = t['@attr']?.nowplaying === 'true'
         let art = getLastFmArt(t.image)
-        if (!art) art = await getAlbumArt(artist, name)
+        if (!art) art = await getItunesArt(artist, name)
         return `<div class="ismael-lastfm__single${now ? ' ismael-lastfm__single--now' : ''}">
           ${art
             ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" onerror="this.style.display='none'" />`
