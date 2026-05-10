@@ -151,21 +151,27 @@
         const PLACEHOLDER = '2a96cbd8b46e442fc41c2b86b821562f'
         for (const size of ['extralarge', 'large', 'medium', 'small']) {
           const url = images.find(img => img.size === size)?.['#text']
-          if (url && !url.includes(PLACEHOLDER)) return url.replace('http://', 'https://')
+          if (url && !url.includes(PLACEHOLDER) && url.trim() !== '') return url.replace('http://', 'https://')
         }
         return ''
       }
 
-      const getItunesArt = async (artist, track) => {
+      const getAlbumArt = async (artist, album) => {
         try {
-          const q = encodeURIComponent(`${artist} ${track}`)
-          const r = await fetch(`https://itunes.apple.com/search?term=${q}&media=music&entity=song&limit=5`)
+          const PLACEHOLDER = '2a96cbd8b46e442fc41c2b86b821562f'
+          const q = encodeURIComponent(album || artist)
+          const r = await fetch(`https://ws.audioscrobbler.com/2.0/?method=album.search&album=${q}&api_key=${KEY}&format=json&limit=5`)
           const d = await r.json()
-          const trackLower = track.toLowerCase()
-          const match = d.results?.find(x => x.trackName?.toLowerCase().includes(trackLower)) || d.results?.[0]
-          const url = match?.artworkUrl100
-          // 100x100bb.jpg → 600x600bb.jpg (formato real de la API)
-          return url ? url.replace('100x100bb', '600x600bb') : ''
+          const albums = d.results?.albummatches?.album || []
+          const artistLower = artist.toLowerCase()
+          const match = albums.find(a => a.artist?.toLowerCase().includes(artistLower)) || albums[0]
+          if (!match) return ''
+          const images = match.image
+          for (const size of ['extralarge', 'large', 'medium']) {
+            const url = images?.find(i => i.size === size)?.['#text']
+            if (url && !url.includes(PLACEHOLDER) && url.trim() !== '') return url.replace('http://', 'https://')
+          }
+          return ''
         } catch { return '' }
       }
 
@@ -174,7 +180,7 @@
         const artist = t.artist?.['#text'] || ''
         const now    = t['@attr']?.nowplaying === 'true'
         let art = getLastFmArt(t.image)
-        if (!art) art = await getItunesArt(artist, name)
+        if (!art) art = await getAlbumArt(artist, t.album?.['#text'] || name)
         return `<div class="ismael-lastfm__single${now ? ' ismael-lastfm__single--now' : ''}">
           ${art
             ? `<img class="ismael-lastfm__cover" src="${art}" alt="${name}" onerror="this.style.display='none'" />`
