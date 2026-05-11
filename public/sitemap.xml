@@ -11,7 +11,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/ismael/</loc>
+    <loc>https://vamps.studio/creative/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -26,17 +26,17 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/work/vamps-case/</loc>
+    <loc>https://vamps.studio/creative/vamps-case/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/work/tulipana-case/</loc>
+    <loc>https://vamps.studio/creative/tulipana-case/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/work/copydad-case/</loc>
+    <loc>https://vamps.studio/creative/copydad-case/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>

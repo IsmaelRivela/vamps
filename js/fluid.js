@@ -378,7 +378,7 @@ export function initFluidDivider() {
     if (e.clientX < centerX) {
       window.location.href = '/vamps/'
     } else {
-      window.location.href = '/ismael/'
+      window.location.href = '/creative/'
     }
   })
 
