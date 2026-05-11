@@ -206,9 +206,27 @@
           const tracks = data.recenttracks?.track || []
           const all = Array.isArray(tracks) ? tracks : [tracks]
 
+          const isYouTube = (t) => {
+            const artist = (t.artist?.['#text'] || '').toLowerCase()
+            const album  = (t.album?.['#text'] || '').toLowerCase()
+            // Last.fm scrobbles de YouTube suelen tener artist vacío,
+            // album con "- topic" o vienen del scrobbler "YouTube Music"
+            if (!artist || artist === 'youtube') return true
+            if (album.includes('- topic') || album.includes('auto-generated')) return true
+            // Tracks sin ninguna imagen suelen ser videos
+            const imgs = t.image || []
+            const hasArt = imgs.some(img => {
+              const url = img['#text'] || ''
+              return url && !url.includes('2a96cbd8b46e442fc41c2b86b821562f')
+            })
+            if (!hasArt) return true
+            return false
+          }
+
           const seen = new Set()
           const list = []
           for (const t of all) {
+            if (isYouTube(t)) continue
             const key = `${t.artist?.['#text']}§${t.name}`.toLowerCase()
             if (!seen.has(key)) { seen.add(key); list.push(t) }
             if (list.length === 3) break

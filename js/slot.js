@@ -58,16 +58,18 @@ export function initSlot() {
   })
 
   function setReelH() {
+    // Compute from slot width × aspect-ratio × reel% so it's always exact
+    const slotW = slotEl.offsetWidth
+    const slotH = slotW * (3090 / 2568)
+    const reelH = Math.round(slotH * 0.105)
     reels.forEach(({ reel }) => {
-      reel.style.setProperty('--reel-h', reel.offsetHeight + 'px')
+      reel.style.setProperty('--reel-h', reelH + 'px')
     })
   }
   setReelH()
-  let reelTimer
-  window.addEventListener('resize', () => {
-    clearTimeout(reelTimer)
-    reelTimer = setTimeout(setReelH, 150)
-  })
+  // ResizeObserver catches all layout changes (viewport, bento reflow, etc.)
+  const ro = new ResizeObserver(setReelH)
+  ro.observe(slotEl)
 
   function getRandomSymbol() {
     return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]

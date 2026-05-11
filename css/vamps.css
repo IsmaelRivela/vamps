@@ -103,7 +103,7 @@ body.theme-vamps {
 .slot {
   position: relative;
   width: 100%;
-  aspect-ratio: 1200 / 1185;
+  aspect-ratio: 2568 / 3090;
 }
 
 .slot__frame {
@@ -121,9 +121,9 @@ body.theme-vamps {
   z-index: 1;
 }
 
-.slot__reel--0 { left: 24.42%; top: 67.17%; width: 15.58%; height: 21.35%; }
-.slot__reel--1 { left: 42.25%; top: 67.17%; width: 15.58%; height: 21.35%; }
-.slot__reel--2 { left: 60.08%; top: 67.17%; width: 15.58%; height: 21.35%; }
+.slot__reel--0 { left: 14.4%; top: 57.3%; width: 9.4%; height: 10.5%; }
+.slot__reel--1 { left: 25.5%; top: 57.3%; width: 9.3%; height: 10.5%; }
+.slot__reel--2 { left: 36.8%; top: 57.3%; width: 9.2%; height: 10.5%; }
 
 .slot__strip {
   position: absolute;
@@ -138,7 +138,7 @@ body.theme-vamps {
   width: 100%;
   height: var(--reel-h);
   object-fit: contain;
-  padding: 15%;
+  padding: 0;
   filter: brightness(0) invert(1)
          drop-shadow(0 0 6px rgba(255, 0, 0, 0.9))
          drop-shadow(0 0 18px rgba(255, 0, 0, 0.4));
@@ -633,7 +633,6 @@ body.theme-vamps {
 .vamps-bento__cell--slot {
   grid-column: 1;
   grid-row: 1 / 3;
-  background-color: #0a0a0a;
   padding: 16px;
 }
 
@@ -642,14 +641,14 @@ body.theme-vamps {
 .vamps-bento__cell--slot .slot {
   position: relative;
   width: 100%;
-  max-width: 320px;
+  max-width: 600px;
   flex-shrink: 0;
   z-index: 1;
 }
 
 .vamps-bento__cell--slot .slot__controls {
   width: 100%;
-  max-width: 320px;
+  max-width: 600px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -691,6 +690,15 @@ body.theme-vamps {
   scale: 1 !important;
 }
 
+/* Frame vampot — sobreescribir la regla anterior */
+.vamps-bento__cell--slot .slot__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
 .vamps-bento__cell--pharma img { object-fit: contain; object-position: center; background: #0a0a0a; }
 .vamps-bento__cell--school img { object-fit: cover; object-position: top; }
 
@@ -704,6 +712,7 @@ body.theme-vamps {
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  background: url('/assets/vamps/vampot/infierno_fuego_animado.gif') center / cover no-repeat;
 }
 
 /* Grid positions */
