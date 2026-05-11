@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { initSlot } from './slot.js'
 import { initStickers } from './stickers.js'
 import { initPageTransitions } from './animations.js'
+import { initSpriteCursor } from './vamps-sprite-cursor.js'
 // import { initLangToggle } from './lang-toggle.js'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -22,6 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Mobile detection (before any use) ---
   const isMobile = window.innerWidth <= 768
   const pxScale = isMobile ? 0.35 : 1
+
+  // Sprite cursor (keyboard-controlled, desktop only)
+  if (!isMobile) {
+    initSpriteCursor()
+  }
 
   // Pin the hero and desaturate as user scrolls
   const tl = gsap.timeline({

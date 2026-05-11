@@ -699,11 +699,12 @@ body.theme-vamps {
   object-fit: fill;
 }
 
-.vamps-bento__cell--pharma img { object-fit: contain; object-position: center; background: #0a0a0a; }
-.vamps-bento__cell--school img { object-fit: cover; object-position: top; }
+.vamps-bento__cell--pharma img { object-fit: contain; object-position: center; background: #c0392b; }
+.vamps-bento__cell--school img { object-fit: cover; object-position: right; }
 
 .vamps-bento__cell:hover img { scale: 1.05; }
 .vamps-bento__cell--slot:hover img { scale: 1; }
+.vamps-bento__cell--pharma:hover img { scale: 1; content: url('/assets/vamps/pharma/guinho-pharma-pix.png'); }
 
 /* Slot cell flex centering — after .vamps-bento__cell to override display:block */
 .vamps-bento__cell--slot {
@@ -716,8 +717,9 @@ body.theme-vamps {
 }
 
 /* Grid positions */
-.vamps-bento__cell--pharma  { grid-column: 2; grid-row: 1; background: #0a0a0a; }
+.vamps-bento__cell--pharma  { grid-column: 2; grid-row: 1; background: #c0392b; }
 .vamps-bento__cell--school  { grid-column: 3; grid-row: 1; }
+.vamps-bento__cell--school .vamps-bento__cell-label { color: #c0392b; }
 .vamps-bento__cell--visual  { grid-column: 2; grid-row: 2; border-radius: 0; }
 .vamps-bento__cell--visual video { object-fit: cover; scale: 1.30; }
 .vamps-bento__cell--extra   { grid-column: 3; grid-row: 2; background: #000; }
@@ -743,7 +745,7 @@ body.theme-vamps {
   left: 0;
   right: 0;
   padding: 0.75rem 1rem;
-  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  background: transparent;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
