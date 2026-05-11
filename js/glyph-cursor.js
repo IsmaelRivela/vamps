@@ -102,14 +102,4 @@ export function initGlyphCursor() {
     cursor.style.opacity = '0'
   })
 
-  // Ocultar en la nav
-  const nav = document.querySelector('.nav, header')
-  if (nav) {
-    nav.addEventListener('mouseenter', () => {
-      cursor.style.opacity = '0'
-    })
-    nav.addEventListener('mouseleave', () => {
-      cursor.style.opacity = '1'
-    })
-  }
 }

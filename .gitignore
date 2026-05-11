@@ -3,9 +3,13 @@ dist
 .DS_Store
 *.DS_Store
 .venv
+.venv-1
 chat.json
 *.log
 .env
 .env.*
 Thumbs.db
+.agent/
+FULL-AUDIT-REPORT.md
+ACTION-PLAN.md
 reducir/

@@ -44,6 +44,14 @@
       inset: 0;
       transform-style: preserve-3d;
     }
+    /* ── Cover blanco que se quita cuando el logo aterriza ── */
+    #tunnel-cover {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      z-index: 1000;
+      pointer-events: none;
+    }
 
     /* ── Cada slide: centrada en el escenario ── */
     .slide {
@@ -81,6 +89,55 @@
       z-index: 999;
       display: block;
     }
+    /* ── XP Loader ── */
+    #xp-loader {
+      position: fixed;
+      inset: 0;
+      background: #fff;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.4s ease;
+    }
+    #xp-logo {
+      width: clamp(180px, 21vw, 300px);
+      display: block;
+      margin-bottom: 12px;
+    }
+    #xp-loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #xp-loader-text {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 13px;
+      color: #000;
+      letter-spacing: 0.5px;
+    }
+    #xp-bar-outer {
+      width: 220px;
+      height: 16px;
+      border: 1px solid #7a9fc7;
+      background: #000f2b;
+      border-radius: 3px;
+      overflow: hidden;
+      padding: 2px;
+    }
+    #xp-bar-track {
+      display: flex;
+      gap: 2px;
+      height: 100%;
+    }
+    .xp-chunk {
+      width: 12px;
+      height: 100%;
+      background: linear-gradient(to bottom, #4fa3e8 0%, #1e5fa8 40%, #2b7ad4 60%, #6ab0f0 100%);
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -88,6 +145,14 @@
   <a href="/vamps/"><img id="logo-vamps" src="/assets/vamps/back2school/b2s-logovamps.svg" alt="VAMPS" /></a>
   <img id="logo-b2s" src="/assets/vamps/back2school/b2s-logo.png" alt="Back2School" />
 
+  <!-- XP Loader -->
+  <div id="xp-loader">
+    <img id="xp-logo" src="/assets/vamps/back2school/b2s-logo.png" alt="Back2School" />
+    <div id="xp-bar-outer"><div id="xp-bar-track"></div></div>
+    <div id="xp-loader-text">Loading...</div>
+  </div>
+
+  <div id="tunnel-cover"></div>
   <div id="tunnel-scroll">
     <div id="tunnel-sticky">
       <div id="world">
@@ -103,6 +168,80 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+
+  <script>
+    // XP loader — animates chunks, hides when all images load
+    const loader   = document.getElementById('xp-loader')
+    const track    = document.getElementById('xp-bar-track')
+    const text     = document.getElementById('xp-loader-text')
+    const imgs     = [...document.querySelectorAll('.slide img')]
+    const CHUNKS   = 14
+    let filled     = 0
+    let animFrame
+
+    // build chunks
+    for (let i = 0; i < CHUNKS; i++) {
+      const c = document.createElement('div')
+      c.className = 'xp-chunk'
+      c.style.opacity = '0'
+      track.appendChild(c)
+    }
+    const chunks = [...track.querySelectorAll('.xp-chunk')]
+
+    // marching animation — fills from left, loops
+    let head = 0
+    const VISIBLE = 5
+    function march() {
+      chunks.forEach((c, i) => {
+        const rel = (i - head + CHUNKS) % CHUNKS
+        c.style.opacity = rel < VISIBLE ? '1' : '0'
+      })
+      head = (head + 1) % CHUNKS
+      animFrame = requestAnimationFrame(() => setTimeout(march, 60))
+    }
+    march()
+
+    // track real load progress
+    let loaded = 0
+    let imagesReady = false
+    const startTime = Date.now()
+    const MIN_MS = 2000
+
+    function onLoad() {
+      loaded++
+      const pct = loaded / imgs.length
+      text.textContent = `Loading... ${Math.round(pct * 100)}%`
+      if (loaded >= imgs.length) {
+        imagesReady = true
+        const elapsed = Date.now() - startTime
+        const wait = Math.max(0, MIN_MS - elapsed)
+        setTimeout(done, wait)
+      }
+    }
+    imgs.forEach(img => {
+      if (img.complete) onLoad()
+      else { img.addEventListener('load', onLoad); img.addEventListener('error', onLoad) }
+    })
+
+    function done() {
+      cancelAnimationFrame(animFrame)
+      chunks.forEach(c => c.style.opacity = '1')
+      text.textContent = 'Loading... 100%'
+
+      setTimeout(() => {
+        // fade out loader
+        loader.classList.add('hidden')
+        setTimeout(() => loader.remove(), 400)
+
+        // reveal tunnel + logo (logo-b2s appears naturally under the cover)
+        gsap.to(document.getElementById('tunnel-cover'), { autoAlpha: 0, duration: 0.7, ease: 'power2.out' })
+      }, 300)
+    }
+
+    // safety: hide after 6s regardless
+    setTimeout(done, 6000)
+  </script>
+
   <script src="/js/back2school.js"></script>
 </body>
 </html>

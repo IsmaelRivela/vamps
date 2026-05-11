@@ -16,11 +16,18 @@ body.theme-ismael {
 .theme-ismael .nav {
   mix-blend-mode: normal;
   background: #f5f5f5;
+  cursor: none;
+}
+
+.theme-ismael .nav *,
+.theme-ismael .nav a,
+.theme-ismael .nav button {
+  cursor: none !important;
 }
 
 .ismael-cursor {
   position: fixed;
-  z-index: 9999;
+  z-index: 10000;
   pointer-events: none;
   width: 120px;
   height: 120px;
