@@ -37,6 +37,32 @@
       overflow: hidden;
     }
 
+    /* ——— MARCOS DE ESQUINA sobre el panel 3D ——— */
+    .pharma-panel { position: relative; }
+
+    .panel__marco {
+      position: absolute;
+      width: clamp(160px, 36%, 320px);
+      height: auto;
+      pointer-events: none;
+      z-index: 10;
+      display: none;
+    }
+
+    @media (min-width: 769px) {
+      .panel__marco { display: block; }
+    }
+
+    .panel__marco--tl {
+      top: 35px;
+      left: 35px;
+    }
+
+    .panel__marco--br {
+      bottom: 35px;
+      right: 35px;
+    }
+
     /* ——— PAGE LAYOUT ———
        Desktop: empty left panel + scene right
        Mobile:  scene full-screen
@@ -563,6 +589,8 @@
     <!-- LEFT PANEL — 3D Canvas -->
     <div class="pharma-panel" id="panel">
       <canvas id="three-canvas"></canvas>
+      <img class="panel__marco panel__marco--tl" src="/assets/vamps/pharma/marco_arriba.png" alt="" />
+      <img class="panel__marco panel__marco--br" src="/assets/vamps/pharma/marco abajo.png" alt="" />
     </div>
 
     <!-- SCENE — Visual Novel -->
