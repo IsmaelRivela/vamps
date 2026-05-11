@@ -61,6 +61,7 @@ export function initSpriteCursor() {
     image-rendering: crisp-edges;
     transform-origin: center;
     will-change: transform, background-position;
+    clip-path: inset(3px);
   `
   bentoMount.appendChild(el)
 
