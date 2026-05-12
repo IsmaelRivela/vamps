@@ -395,7 +395,7 @@
     #shop-info {
       pointer-events: auto;
       width: 260px;
-      padding: 12.5rem 1.6rem 2rem;
+      padding: 1.8rem 1.6rem 2rem;
       background: #fff;
       border-right: 1px solid #e8e8e8;
       height: 100%;
@@ -498,9 +498,22 @@
       text-transform: uppercase;
     }
 
-    /* Shop info thumbnail (oculto en desktop, visible en mobile) */
+    /* Shop info thumbnail */
     #shop-info-thumb {
-      display: none;
+      display: block;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      min-height: 180px;
+      overflow: hidden;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    #shop-info-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
     }
 
     /* Botón */
