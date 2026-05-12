@@ -320,6 +320,17 @@
     color: rgba(0, 0, 0, 1);
   }
 
+  /* Logo siempre visible en mobile — cancela el efecto tapped */
+  .landing__side--vamps--tapped .landing__vamps-logo,
+  .landing__side--vamps:hover .landing__vamps-logo {
+    opacity: 1;
+  }
+
+  .landing__side--vamps--tapped .landing__vamps-title,
+  .landing__side--vamps:hover .landing__vamps-title {
+    opacity: 0;
+  }
+
   .landing {
     position: fixed;
     inset: 0;
