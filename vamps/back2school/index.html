@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
   <link rel="shortcut icon" href="/favicon.ico" />
   <meta charset="UTF-8" />
@@ -595,10 +596,10 @@
       <div id="world">
         <div class="slide"><img src="/assets/vamps/back2school/b2s-6.webp" /></div>
         <div class="slide"><img src="/assets/vamps/back2school/b2s-5.webp" /></div>
-        <div class="slide"><img src="/assets/vamps/back2school/b2s-4.webp" /></div>
-        <div class="slide"><img src="/assets/vamps/back2school/b2s-3.webp" /></div>
-        <div class="slide"><img src="/assets/vamps/back2school/b2s-2.webp" /></div>
-        <div class="slide"><img src="/assets/vamps/back2school/b2s-1.webp" /></div>
+        <div class="slide"><img src="/assets/vamps/back2school/b2s-4.webp" loading="lazy" /></div>
+        <div class="slide"><img src="/assets/vamps/back2school/b2s-3.webp" loading="lazy" /></div>
+        <div class="slide"><img src="/assets/vamps/back2school/b2s-2.webp" loading="lazy" /></div>
+        <div class="slide"><img src="/assets/vamps/back2school/b2s-1.webp" loading="lazy" /></div>
       </div>
       <canvas id="b2s-three-canvas"></canvas>
     </div>
@@ -664,6 +665,9 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
 
   <script>
+    // Scroll al inicio en cada carga/recarga
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
     // XP loader — animates chunks, hides when all images load
     const loader   = document.getElementById('xp-loader')
     const track    = document.getElementById('xp-bar-track')
@@ -887,6 +891,18 @@
       scene.add(shirtPivot);
     }
   }, undefined, err => console.error('[b2s3d] error caja:', err));
+  } // fin loadGLB
+
+  // Disparar carga del GLB cuando scroll supera el 60%
+  window.addEventListener('scroll', function glbTrigger() {
+    const p = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
+    if (p >= 0.6) {
+      loadGLB();
+      window.removeEventListener('scroll', glbTrigger);
+    }
+  }, { passive: true });
+  // Fallback: cargar tras 4s por si el usuario no scrollea
+  setTimeout(loadGLB, 4000);
 
   // ── Umbral de disparo (scroll%) ──────────────────────────────────────────
   const TRIGGER_IN  = 0.85;  // a partir de aquí se dispara la animación
@@ -997,6 +1013,10 @@
       boxPivot.visible = true;
     }
     renderer.render(scene, camera);
+    // Cursor pizza en el mismo RAF
+    px += (cx - px) * 0.18;
+    py += (cy - py) * 0.18;
+    pizzaCursor.style.transform = `translate(${px}px, ${py}px)`;
   }
   requestAnimationFrame(t => { lastRaf = t; animate(t); });
 
@@ -1258,19 +1278,5 @@
     renderCart();
     setTimeout(() => cartDrawer.classList.add('open'), 600);
   };
-
-  // ── Cursor pizza ──────────────────────────────────────────────────────────
-  const pizzaCursor = document.getElementById('pizza-cursor');
-  let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-  let px = cx, py = cy;
-
-  window.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
-
-  (function moveCursor() {
-    px += (cx - px) * 0.18;
-    py += (cy - py) * 0.18;
-    pizzaCursor.style.transform = `translate(${px}px, ${py}px)`;
-    requestAnimationFrame(moveCursor);
-  })();
   </script>
 </html>
