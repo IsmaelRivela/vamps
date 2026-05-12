@@ -882,6 +882,65 @@ body.theme-ismael {
   font-weight: 400;
 }
 
+/* Experience: col 3 row 1 */
+.ismael-bento__cell--experience {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.ismael-bento__exp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.ismael-bento__exp-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.ismael-bento__exp-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ismael-bento__exp-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ismael-bento__exp-role {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f5f5f5;
+}
+
+.ismael-bento__exp-year {
+  font-size: 0.72rem;
+  color: #444;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.ismael-bento__exp-company {
+  font-size: 0.8rem;
+  color: #555;
+  font-weight: 400;
+}
+
+.ismael-bento__exp-desc {
+  font-size: 0.78rem;
+  color: #3a3a3a;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
 /* Foto: col 3 row 2-3 */
 .ismael-bento__cell--photo {
   grid-column: 3;
