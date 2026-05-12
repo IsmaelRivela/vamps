@@ -1313,7 +1313,7 @@ body.theme-ismael {
   /* ── Bento: 2 columnas ── */
   .ismael-bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: auto auto auto auto auto;
+    grid-template-rows: auto auto auto auto auto auto;
     gap: 10px;
     padding: 10px;
     min-height: unset;
@@ -1369,10 +1369,16 @@ body.theme-ismael {
     padding: 0.25rem 0;
   }
 
+  /* experience: fila completa */
+  .ismael-bento__cell--experience {
+    grid-column: 1 / 3;
+    grid-row: 4;
+  }
+
   /* intereses: fila completa */
   .ismael-bento__cell--interests {
     grid-column: 1 / 3;
-    grid-row: 4;
+    grid-row: 5;
   }
 
   /* vacío: ocultar en mobile */
@@ -1396,7 +1402,7 @@ body.theme-ismael {
   /* status: fila completa */
   .ismael-bento__cell--status {
     grid-column: 1 / 3;
-    grid-row: 5;
+    grid-row: 6;
     flex-direction: row;
     justify-content: center;
   }
@@ -1421,6 +1427,7 @@ body.theme-ismael {
   .ismael-bento__cell--bio,
   .ismael-bento__cell--contact,
   .ismael-bento__cell--skills,
+  .ismael-bento__cell--experience,
   .ismael-bento__cell--interests,
   .ismael-bento__cell--empty,
   .ismael-bento__cell--status {
