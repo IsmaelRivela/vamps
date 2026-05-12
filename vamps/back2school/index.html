@@ -1136,7 +1136,8 @@
   // ── Grab-to-explore: rotar camiseta en Y al arrastrar + manchar al tocar ──
   let isGrabbing   = false;
   let grabLastX    = 0;
-  let grabStarted  = false; // si ha habido movimiento real durante el grab
+  let grabStarted  = false;
+  let grabDist     = 0; // px acumulados desde el último splat
   const b2sCanvas  = document.getElementById('b2s-three-canvas');
 
   window.addEventListener('mousedown', e => {
@@ -1151,6 +1152,7 @@
       isGrabbing  = true;
       grabLastX   = e.clientX;
       grabStarted = false;
+      grabDist    = 0;
     }
   });
 
@@ -1161,6 +1163,16 @@
     shirtSpinAngle += dx * 0.015;
     shirtPivot.rotation.y = shirtSpinAngle;
     grabStarted = true;
+    grabDist += Math.abs(dx);
+    if (grabDist >= 60) {
+      grabDist = 0;
+      const rect = b2sCanvas.getBoundingClientRect();
+      splatMouse.x = ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
+      splatMouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+      splatRaycaster.setFromCamera(splatMouse, camera);
+      const hits = splatRaycaster.intersectObject(shirtPivot, true);
+      if (hits.length > 0) addSplat(hits[0]);
+    }
   });
 
   window.addEventListener('mouseup', e => {
