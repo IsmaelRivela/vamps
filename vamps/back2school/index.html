@@ -216,6 +216,7 @@
       font-weight: 700;
       color: #111;
       letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
     .cart-item-meta {
       font-family: 'Trebuchet MS', Tahoma, sans-serif;
@@ -223,12 +224,14 @@
       color: #aaa;
       letter-spacing: 0.06em;
       margin-top: 2px;
+      text-transform: uppercase;
     }
     .cart-item-price {
       font-family: 'Trebuchet MS', Tahoma, sans-serif;
       font-size: 11px;
       color: #111;
       white-space: nowrap;
+      text-transform: uppercase;
     }
     .cart-item-remove {
       background: none;
@@ -419,18 +422,21 @@
       font-weight: 700;
       letter-spacing: 0.04em;
       color: #111;
+      text-transform: uppercase;
     }
     #shop-info .si-price {
       font-family: 'Trebuchet MS', Tahoma, sans-serif;
       font-size: 20px;
       font-weight: 600;
       color: #111;
+      text-transform: uppercase;
     }
     #shop-info .si-desc {
       font-family: 'Trebuchet MS', Tahoma, sans-serif;
       font-size: 11px;
       line-height: 1.65;
       color: #444;
+      text-transform: uppercase;
     }
     #shop-info .si-details {
       list-style: none;
@@ -444,6 +450,7 @@
       display: flex;
       align-items: center;
       gap: 0.4rem;
+      text-transform: uppercase;
     }
     #shop-info .si-details li::before {
       content: '—';
@@ -488,6 +495,7 @@
       font-family: 'Trebuchet MS', Tahoma, sans-serif;
       font-size: 11px;
       color: #222;
+      text-transform: uppercase;
     }
 
     /* Shop info thumbnail (oculto en desktop, visible en mobile) */
@@ -556,7 +564,8 @@
       #logo-b2s { width: clamp(130px, 42vw, 200px); }
 
       /* Float labels */
-      #label-clickme, #label-ups {
+      #label-clickme { display: none; }
+      #label-ups {
         top: auto;
         bottom: 62%;
         font-size: 11px;
@@ -579,11 +588,14 @@
         max-height: 60vh;
         padding: 1.8rem 1.4rem 2.5rem;
         border-right: none;
-        border-top: 1px solid #e8e8e8;
+        border-top: 1px solid rgba(232,232,232,0.5);
         border-radius: 16px 16px 0 0;
         box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
         transform: translateY(100%);
         overflow-y: auto;
+        background: rgba(255,255,255,0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
       }
       #shop-info.visible { transform: translateY(0); }
 
@@ -593,21 +605,28 @@
       /* Thumbnail en shop-info */
       #shop-info-thumb {
         display: block;
-        width: calc(100% + 2.8rem);
-        margin: -1.8rem -1.4rem 1.2rem;
+        width: 100%;
         aspect-ratio: 3 / 4;
         overflow: hidden;
-        border-radius: 16px 16px 0 0;
+        border-radius: 10px;
       }
       #shop-info-thumb img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        object-position: center top;
         display: block;
       }
 
       /* Cart drawer: ancho completo */
-      #cart-drawer { width: 100%; border-left: none; border-top: 1px solid #e8e8e8; }
+      #cart-drawer {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid rgba(232,232,232,0.5);
+        background: rgba(255,255,255,0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
 
       /* Cart thumb móvil: franja horizontal compacta */
       #cart-thumb { aspect-ratio: unset; height: 140px; }
@@ -679,13 +698,13 @@
   <div id="shop-overlay">
     <!-- Info izquierda -->
     <div id="shop-info">
-      <!-- Thumbnail solo visible en móvil -->
-      <div id="shop-info-thumb">
-        <img src="/assets/vamps/back2school/thumbnaild-camiseta.jpg" alt="VAMPBOY Tee" />
-      </div>
       <div class="si-row">
         <span class="si-label">Name</span>
         <span class="si-name">VAMPBOY Tee</span>
+      </div>
+      <!-- Thumbnail solo visible en móvil -->
+      <div id="shop-info-thumb">
+        <img src="/assets/vamps/back2school/thumbnaild-camiseta.jpg" alt="VAMPBOY Tee" />
       </div>
       <div class="si-row">
         <span class="si-label">Price</span>
