@@ -875,13 +875,13 @@ body.theme-ismael {
 }
 
 .ismael-bento__bio-text {
-  font-size: 0.62rem;
-  line-height: 1.6;
+  font-size: 0.68rem;
+  line-height: 1.65;
   color: #bbb;
-  max-width: 60ch;
+  max-width: 100%;
   font-weight: 400;
   text-transform: uppercase;
-  padding-right: 3rem;
+  padding-right: 1rem;
 }
 
 /* Experience: col 3 row 1 */
