@@ -980,12 +980,11 @@ body.theme-ismael {
 
 .ismael-bento__skills-list {
   list-style: none;
-  padding: 0;
+  padding: 0.6rem 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: 0;
+  justify-content: space-between;
   flex: 1;
 }
 
