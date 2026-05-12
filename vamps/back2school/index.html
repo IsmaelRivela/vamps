@@ -1139,9 +1139,10 @@
   let grabStarted  = false; // si ha habido movimiento real durante el grab
   const b2sCanvas  = document.getElementById('b2s-three-canvas');
 
-  b2sCanvas.addEventListener('mousedown', e => {
+  window.addEventListener('mousedown', e => {
     if (!shirtPivot || !shirtPivot.visible) return;
     const rect = b2sCanvas.getBoundingClientRect();
+    if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) return;
     splatMouse.x = ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
     splatMouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
     splatRaycaster.setFromCamera(splatMouse, camera);
@@ -1150,7 +1151,6 @@
       isGrabbing  = true;
       grabLastX   = e.clientX;
       grabStarted = false;
-      b2sCanvas.style.cursor = 'grabbing';
     }
   });
 
@@ -1166,7 +1166,6 @@
   window.addEventListener('mouseup', e => {
     if (!isGrabbing) return;
     isGrabbing = false;
-    b2sCanvas.style.cursor = '';
     // Si no hubo movimiento: tratar como click y manchar
     if (!grabStarted && shirtPivot && shirtPivot.visible) {
       const rect = b2sCanvas.getBoundingClientRect();
