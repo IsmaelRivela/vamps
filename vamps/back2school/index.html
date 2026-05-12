@@ -580,7 +580,7 @@
     </div>
   </div>
 
-  <span id="label-clickme" class="float-label">click to feed pizza</span>
+  <span id="label-clickme" class="float-label">grab to explore</span>
   <span id="label-ups"     class="float-label">you... ruined it... now you pay for it &gt;:(</span>
 
   <!-- XP Loader -->
@@ -1013,8 +1013,8 @@
       // Panel de producto: aparece cuando la camiseta ha terminado de subir
       if (seqTime >= T_SHIRT_OUT[1] && window._b2sShowShop) window._b2sShowShop();
 
-      // Spin continuo de la camiseta al final
-      if (shirtPivot && seqTime > T_SHIRT_OUT[1]) {
+      // Spin continuo de la camiseta al final (pausado durante grab)
+      if (shirtPivot && seqTime > T_SHIRT_OUT[1] && !isGrabbing) {
         shirtSpinAngle += dt * 1.2;
         shirtPivot.rotation.y = shirtSpinAngle;
       }
@@ -1133,14 +1133,48 @@
     }
   }
 
-  window.addEventListener('click', e => {
+  // ── Grab-to-explore: rotar camiseta en Y al arrastrar + manchar al tocar ──
+  let isGrabbing   = false;
+  let grabLastX    = 0;
+  let grabStarted  = false; // si ha habido movimiento real durante el grab
+
+  b2sCanvas.addEventListener('mousedown', e => {
     if (!shirtPivot || !shirtPivot.visible) return;
     const rect = b2sCanvas.getBoundingClientRect();
     splatMouse.x = ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
     splatMouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
     splatRaycaster.setFromCamera(splatMouse, camera);
     const hits = splatRaycaster.intersectObject(shirtPivot, true);
-    if (hits.length > 0) addSplat(hits[0]);
+    if (hits.length > 0) {
+      isGrabbing  = true;
+      grabLastX   = e.clientX;
+      grabStarted = false;
+      b2sCanvas.style.cursor = 'grabbing';
+    }
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!isGrabbing || !shirtPivot) return;
+    const dx = e.clientX - grabLastX;
+    grabLastX = e.clientX;
+    shirtSpinAngle += dx * 0.015;
+    shirtPivot.rotation.y = shirtSpinAngle;
+    grabStarted = true;
+  });
+
+  window.addEventListener('mouseup', e => {
+    if (!isGrabbing) return;
+    isGrabbing = false;
+    b2sCanvas.style.cursor = '';
+    // Si no hubo movimiento: tratar como click y manchar
+    if (!grabStarted && shirtPivot && shirtPivot.visible) {
+      const rect = b2sCanvas.getBoundingClientRect();
+      splatMouse.x = ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
+      splatMouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+      splatRaycaster.setFromCamera(splatMouse, camera);
+      const hits = splatRaycaster.intersectObject(shirtPivot, true);
+      if (hits.length > 0) addSplat(hits[0]);
+    }
   });
 
   // ── Scroll handler: solo detecta disparo/reset ────────────────────────────
