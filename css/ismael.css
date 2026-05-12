@@ -710,9 +710,8 @@ body.theme-ismael {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top center;
+  object-position: center center;
   display: block;
-  filter: grayscale(100%);
 }
 
 /* Texto alineado al ancho de la foto */
@@ -1046,9 +1045,10 @@ body.theme-ismael {
   grid-column: 2;
   grid-row: 3;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: nowrap;
   gap: 1rem;
+  padding-top: 2rem;
 }
 
 .ismael-bento__email {
@@ -1057,7 +1057,6 @@ body.theme-ismael {
   letter-spacing: -0.01em;
   color: #f5f5f5;
   text-decoration: none;
-  border-bottom: 1px solid #333;
   padding-bottom: 2px;
   transition: color 0.2s ease;
 }
@@ -1068,9 +1067,11 @@ body.theme-ismael {
 
 .ismael-bento__socials {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-direction: row;
+  gap: 3.5rem;
   margin-left: 0;
+  justify-content: center;
+  margin-top: 1.5rem;
 }
 
 .ismael-bento__socials a {
@@ -1085,6 +1086,52 @@ body.theme-ismael {
 
 .ismael-bento__socials a:hover {
   color: #f5f5f5;
+}
+
+.ismael-bento__social-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ismael-bento__social-profile img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center center;
+  flex-shrink: 0;
+  filter: grayscale(100%);
+  transition: filter 0.2s ease;
+}
+
+/* LinkedIn: la foto tiene fondo oscuro, escalar para recortar el fondo */
+.ismael-social-clip {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  filter: grayscale(100%);
+  transition: filter 0.2s ease;
+}
+
+.ismael-bento__social-profile:hover .ismael-social-clip {
+  filter: grayscale(0%);
+}
+
+.ismael-bento__social-profile-img--linkedin {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  transform: scale(1.5);
+  display: block;
+}
+
+.ismael-bento__social-profile:hover img {
+  filter: grayscale(0%);
 }
 
 /* Status: col 3 row 3 */

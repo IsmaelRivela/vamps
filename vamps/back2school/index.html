@@ -138,6 +138,18 @@
       border-radius: 1px;
       flex-shrink: 0;
     }
+
+    /* ── Canvas Three.js al final del túnel ── */
+    #b2s-three-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 2;
+      transition: opacity 0.6s ease;
+    }
   </style>
 </head>
 <body>
@@ -163,6 +175,7 @@
         <div class="slide"><img src="/assets/vamps/back2school/b2s-2.webp" /></div>
         <div class="slide"><img src="/assets/vamps/back2school/b2s-1.webp" /></div>
       </div>
+      <canvas id="b2s-three-canvas"></canvas>
     </div>
   </div>
 
@@ -243,5 +256,216 @@
   </script>
 
   <script src="/js/back2school.js"></script>
-</body>
+
+  <script type="module">
+  import * as THREE from 'three';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+  import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+
+  const canvas = document.getElementById('b2s-three-canvas');
+  const sticky = document.getElementById('tunnel-sticky');
+
+  // ── Renderer ──────────────────────────────────────────────────────────────
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping      = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+  camera.position.set(0, 0.3, 9.0);
+
+  function resize() {
+    const w = sticky.clientWidth, h = sticky.clientHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── Entorno y luces ───────────────────────────────────────────────────────
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+  pmrem.dispose();
+
+  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+  const dir = new THREE.DirectionalLight(0xffffff, 2.5);
+  dir.position.set(3, 5, 5);
+  scene.add(dir);
+  const back = new THREE.DirectionalLight(0xffffff, 0.8);
+  back.position.set(-3, -2, -3);
+  scene.add(back);
+
+  // ── Cargadores ───────────────────────────────────────────────────────────
+  const draco = new DRACOLoader();
+  draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+  const gltfLoader = new GLTFLoader();
+  gltfLoader.setDRACOLoader(draco);
+
+  // ── Estado ───────────────────────────────────────────────────────────────
+  let boxPivot = null, tapaNode = null, shirtPivot = null;
+  let shirtSpinAngle = 0;
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+  function easeOut(t)   { return 1 - Math.pow(1 - Math.min(t, 1), 3); }
+  function easeInOut(t) { t = Math.min(t, 1); return t >= 0.5 ? 1 - Math.pow(-2*t+2, 3)/2 : 4*t*t*t; }
+  function remap(v, a, b) { return Math.max(0, Math.min(1, (v - a) / (b - a))); }
+
+  function fitToView(obj, size = 2) {
+    obj.traverse(c => {
+      if (c.isMesh && c.geometry && !c.geometry.attributes.normal)
+        c.geometry.computeVertexNormals();
+    });
+    obj.position.set(0, 0, 0);
+    obj.scale.setScalar(1);
+    obj.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(obj);
+    const s   = box.getSize(new THREE.Vector3());
+    const m   = Math.max(s.x, s.y, s.z);
+    if (!m) return;
+    obj.scale.setScalar(size / m);
+    obj.updateMatrixWorld(true);
+    const c2 = new THREE.Box3().setFromObject(obj).getCenter(new THREE.Vector3());
+    obj.position.sub(c2);
+  }
+
+  // ── Carga caja de pizza + camiseta (mismo GLB) ───────────────────────────
+  gltfLoader.load('/assets/vamps/pharma/3d/cajapizza3.glb', gltf => {
+    const root = gltf.scene;
+
+    // Localizar nodos por nombre
+    let shirtNode = null;
+    root.traverse(n => {
+      if (n.name === 'Object_2') shirtNode = n;
+      if (n.name === 'tapa')     tapaNode  = n;
+    });
+    console.log('[b2s3d] tapa:', tapaNode?.name ?? 'NO', '| shirt:', shirtNode?.name ?? 'NO');
+
+    // Extraer camiseta del árbol de la caja
+    if (shirtNode) shirtNode.parent && shirtNode.parent.remove(shirtNode);
+
+    // Escalar ANTES para tener coordenadas reales al calcular el hinge
+    fitToView(root, 2.2);
+    root.updateMatrixWorld(true);
+
+    // ── Hinge pivot: reparentar tapa con bisagra en el borde correcto ───────
+    // tapaNode es hijo directo de root con position=(0,0,0) y sin translation en GLB.
+    // Calculamos el borde bisagra en world space y lo convertimos a root-local.
+    if (tapaNode) {
+      const lb = new THREE.Box3().setFromObject(tapaNode); // world space
+      // Bisagra = borde trasero-inferior de la tapa (min.z, min.y)
+      const hingeWorld = new THREE.Vector3(
+        (lb.min.x + lb.max.x) / 2,
+        lb.min.y,
+        lb.min.z
+      );
+      // A root-local: deshace el fitToView (escala uniforme + traslación)
+      const s = root.scale.x;
+      const hingeLocal = new THREE.Vector3(
+        (hingeWorld.x - root.position.x) / s,
+        (hingeWorld.y - root.position.y) / s,
+        (hingeWorld.z - root.position.z) / s
+      );
+      // Crear grupo pivot en root-local y mover tapa dentro
+      const hinge = new THREE.Group();
+      hinge.position.copy(hingeLocal);
+      // tapa estaba en (0,0,0) local de root → offset dentro de hinge = -hingeLocal
+      tapaNode.position.set(-hingeLocal.x, -hingeLocal.y, -hingeLocal.z);
+      root.remove(tapaNode);
+      root.add(hinge);
+      hinge.add(tapaNode);
+      tapaNode = hinge;
+      console.log('[b2s3d] hinge local:', hingeLocal.x.toFixed(2), hingeLocal.y.toFixed(2), hingeLocal.z.toFixed(2));
+    }
+
+    boxPivot = new THREE.Group();
+    boxPivot.add(root);
+    boxPivot.visible = false;
+    scene.add(boxPivot);
+
+    // Inicializar estado según scroll actual
+    const initP = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
+    updateByScroll(initP);
+
+    // Camiseta
+    if (shirtNode) {
+      shirtPivot = new THREE.Group();
+      shirtPivot.add(shirtNode);
+      fitToView(shirtPivot, 1.5);
+      shirtPivot.visible = false;
+      scene.add(shirtPivot);
+    }
+  }, undefined, err => console.error('[b2s3d] error caja:', err));
+
+  // ── Rangos de scroll para cada fase ──────────────────────────────────────
+  const S_BOX_IN    = [0.75, 0.83];
+  const S_BOX_ROT   = [0.80, 0.96];
+  const S_LID_OPEN  = [0.84, 0.96];  // tapa se abre durante el giro
+  const S_SHIRT_OUT = [0.93, 1.00];
+
+  // ── Actualizar escena según progreso de scroll ────────────────────────────
+  function updateByScroll(p) {
+    const visible = p >= S_BOX_IN[0];
+
+    // ── Caja ──────────────────────────────────────────────────────────────
+    if (boxPivot) {
+      boxPivot.visible = visible;
+      canvas.style.opacity = visible ? '1' : '0';
+
+      // Scale in
+      const scaleP = easeOut(remap(p, ...S_BOX_IN));
+      boxPivot.scale.setScalar(scaleP);
+
+      // Rotación 360°
+      const rotP = easeInOut(remap(p, ...S_BOX_ROT));
+      boxPivot.rotation.y = Math.PI * 2 * rotP;
+
+      // Baja cuando sale la camiseta
+      const shirtP = easeOut(remap(p, ...S_SHIRT_OUT));
+      boxPivot.position.y = -1.2 * shirtP;
+    }
+
+    // ── Tapa ──────────────────────────────────────────────────────────────
+    // rotation.x = +PI*0.85 → cerrada (sobre la base)
+    // rotation.x = 0        → pose default del GLB (abierta = último frame)
+    if (tapaNode) {
+      const lidP = easeOut(remap(p, ...S_LID_OPEN));
+      tapaNode.rotation.x = Math.PI * 0.47 * (1 - lidP);
+    }
+
+    // ── Camiseta ──────────────────────────────────────────────────────────
+    if (shirtPivot) {
+      const shirtP = easeOut(remap(p, ...S_SHIRT_OUT));
+      shirtPivot.visible = shirtP > 0;
+      shirtPivot.scale.setScalar(shirtP);
+      shirtPivot.position.y = -1.0 + 1.8 * shirtP;
+    }
+  }
+
+  // ── Loop de render ────────────────────────────────────────────────────────
+  // La camiseta sigue girando con rAF cuando está completamente fuera
+  let lastRaf = 0;
+  function animate(time) {
+    requestAnimationFrame(animate);
+    const p = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
+    // Spin continuo de la camiseta solo al final
+    if (shirtPivot && p > 0.97) {
+      const dt = Math.min((time - lastRaf) / 1000, 0.05);
+      shirtSpinAngle += dt * 1.2;
+      shirtPivot.rotation.y = shirtSpinAngle;
+    }
+    lastRaf = time;
+    renderer.render(scene, camera);
+  }
+  requestAnimationFrame(t => { lastRaf = t; animate(t); });
+
+  // ── Scroll handler ────────────────────────────────────────────────────────
+  window.addEventListener('scroll', () => {
+    const p = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
+    updateByScroll(p);
+  }, { passive: true });
+  </script>
 </html>
