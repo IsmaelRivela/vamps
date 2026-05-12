@@ -27,9 +27,11 @@ const FLIPS = [false, false, false, true, false, false];
 // ─── Posicionar imágenes fijas en el escenario 3D ────────────────────────
 slides.forEach((s, i) => {
   const z  = -(N - i) * SPACING + START_OFFSET;
-  const x  = SIDES[i] * SIDE_OFFSET;
-  const ry = -SIDES[i] * ROTATE_Y;                        // giro hacia centro
-  gsap.set(s, { z, x, rotateY: ry });
+  const x  = isMobile ? 0 : SIDES[i] * SIDE_OFFSET;
+  const y  = isMobile ? SIDES[i] * SIDE_OFFSET : 0;
+  const ry = isMobile ? 0 : -SIDES[i] * ROTATE_Y;
+  const rx = isMobile ? -SIDES[i] * ROTATE_Y : 0;
+  gsap.set(s, { z, x, y, rotateY: ry, rotateX: rx });
   if (FLIPS[i]) s.querySelector('img').style.transform = 'scaleX(-1)';
   s._worldZ = z;
 });

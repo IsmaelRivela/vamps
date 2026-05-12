@@ -539,8 +539,54 @@
     .sg-img img:hover { filter: grayscale(0%); }
 
     @media (max-width: 768px) {
-      #shop-info  { width: 200px; padding: 4.5rem 1.1rem 1.4rem; }
-      #shop-gallery { width: 160px; }
+      /* Cursor: ocultar en móvil */
+      * { cursor: auto !important; }
+      #pizza-cursor { display: none !important; }
+
+      /* Tunnel */
+      #tunnel-sticky { perspective: 380px; }
+      .slide img { width: min(92vw, 92vh); height: min(92vw, 92vh); }
+
+      /* Logos */
+      #logo-b2s { width: clamp(130px, 42vw, 200px); }
+
+      /* Float labels */
+      #label-clickme, #label-ups {
+        top: auto;
+        bottom: 62%;
+        font-size: 11px;
+        white-space: normal;
+        text-align: center;
+        width: 80vw;
+      }
+
+      /* Shop overlay: columna, contenido al fondo */
+      #shop-overlay {
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: stretch;
+      }
+
+      /* Shop info: bottom sheet */
+      #shop-info {
+        width: 100%;
+        height: auto;
+        max-height: 60vh;
+        padding: 1.8rem 1.4rem 2.5rem;
+        border-right: none;
+        border-top: 1px solid #e8e8e8;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
+        transform: translateY(100%);
+        overflow-y: auto;
+      }
+      #shop-info.visible { transform: translateY(0); }
+
+      /* Galeria: oculta en móvil */
+      #shop-gallery { display: none; }
+
+      /* Cart drawer: ancho completo */
+      #cart-drawer { width: 100%; border-left: none; border-top: 1px solid #e8e8e8; }
     }
   </style>
 </head>
@@ -1014,7 +1060,7 @@
       if (seqTime >= T_SHIRT_OUT[1] && window._b2sShowShop) window._b2sShowShop();
 
       // Spin continuo de la camiseta al final (pausado durante grab)
-      if (shirtPivot && seqTime > T_SHIRT_OUT[1] && !isGrabbing) {
+      if (shirtPivot && seqTime > T_SHIRT_OUT[1] && !isGrabbing && !isTouchGrabbing) {
         shirtSpinAngle += dt * 1.2;
         shirtPivot.rotation.y = shirtSpinAngle;
       }
@@ -1137,7 +1183,11 @@
   let isGrabbing   = false;
   let grabLastX    = 0;
   let grabStarted  = false;
-  let grabDist     = 0; // px acumulados desde el último splat
+  let grabDist     = 0;
+  let isTouchGrabbing = false;
+  let touchGrabX   = 0;
+  let touchGrabStarted = false;
+  let touchGrabDist = 0;
   const b2sCanvas  = document.getElementById('b2s-three-canvas');
 
   window.addEventListener('mousedown', e => {
@@ -1188,6 +1238,62 @@
       if (hits.length > 0) addSplat(hits[0]);
     }
   });
+
+  // ── Touch grab (móvil): rotar shirt + manchar ─────────────────────────────
+  window.addEventListener('touchstart', e => {
+    if (!shirtPivot || !shirtPivot.visible) return;
+    const rect = b2sCanvas.getBoundingClientRect();
+    const t = e.touches[0];
+    if (t.clientX < rect.left || t.clientX > rect.right || t.clientY < rect.top || t.clientY > rect.bottom) return;
+    splatMouse.x = ((t.clientX - rect.left) / rect.width) * 2 - 1;
+    splatMouse.y = -((t.clientY - rect.top) / rect.height) * 2 + 1;
+    splatRaycaster.setFromCamera(splatMouse, camera);
+    const hits = splatRaycaster.intersectObject(shirtPivot, true);
+    if (hits.length > 0) {
+      isTouchGrabbing  = true;
+      touchGrabX       = t.clientX;
+      touchGrabStarted = false;
+      touchGrabDist    = 0;
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchmove', e => {
+    if (!isTouchGrabbing || !shirtPivot) return;
+    const t = e.touches[0];
+    const dx = t.clientX - touchGrabX;
+    // Solo tomar el gesto si es más horizontal que vertical
+    if (Math.abs(dx) > 5) {
+      if (e.cancelable) e.preventDefault();
+      shirtSpinAngle += dx * 0.015;
+      shirtPivot.rotation.y = shirtSpinAngle;
+      touchGrabX = t.clientX;
+      touchGrabStarted = true;
+      touchGrabDist += Math.abs(dx);
+      if (touchGrabDist >= 60) {
+        touchGrabDist = 0;
+        const rect = b2sCanvas.getBoundingClientRect();
+        splatMouse.x = ((t.clientX - rect.left) / rect.width) * 2 - 1;
+        splatMouse.y = -((t.clientY - rect.top) / rect.height) * 2 + 1;
+        splatRaycaster.setFromCamera(splatMouse, camera);
+        const hits = splatRaycaster.intersectObject(shirtPivot, true);
+        if (hits.length > 0) addSplat(hits[0]);
+      }
+    }
+  }, { passive: false });
+
+  window.addEventListener('touchend', e => {
+    if (!isTouchGrabbing) return;
+    isTouchGrabbing = false;
+    if (!touchGrabStarted && shirtPivot && shirtPivot.visible) {
+      const ct = e.changedTouches[0];
+      const rect = b2sCanvas.getBoundingClientRect();
+      splatMouse.x = ((ct.clientX - rect.left) / rect.width) * 2 - 1;
+      splatMouse.y = -((ct.clientY - rect.top) / rect.height) * 2 + 1;
+      splatRaycaster.setFromCamera(splatMouse, camera);
+      const hits = splatRaycaster.intersectObject(shirtPivot, true);
+      if (hits.length > 0) addSplat(hits[0]);
+    }
+  }, { passive: true });
 
   // ── Scroll handler: solo detecta disparo/reset ────────────────────────────
   window.addEventListener('scroll', () => {
