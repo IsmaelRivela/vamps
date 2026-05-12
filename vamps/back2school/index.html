@@ -986,6 +986,12 @@
     mouseNX = (e.clientX / window.innerWidth) * 2 - 1;
   });
 
+  // ── Cursor pizza ──────────────────────────────────────────────────────────
+  const pizzaCursor = document.getElementById('pizza-cursor');
+  let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  let px = cx, py = cy;
+  window.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+
   // ── Loop de render ────────────────────────────────────────────────────────
   let lastRaf = 0;
   function animate(time) {
