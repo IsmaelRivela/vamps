@@ -836,11 +836,11 @@ body.theme-ismael {
 }
 
 .ismael-bento {
-  min-height: 100vh;
+  height: 100vh;
   background: #fff;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto 1fr 1fr;
   gap: 16px;
   padding: 16px;
   position: relative;
@@ -957,12 +957,13 @@ body.theme-ismael {
 
 .ismael-bento__poster-gif {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  inset: 12px;
+  width: calc(100% - 24px);
+  height: calc(100% - 24px);
   object-fit: cover;
   object-position: center top;
   display: block;
+  border-radius: 8px;
 }
 
 /* Skills: col 1 row 2 */
