@@ -307,10 +307,17 @@
     font-size: 0.6rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.4);
     white-space: nowrap;
     z-index: 10;
     pointer-events: none;
+  }
+
+  .landing__side--vamps .landing__mobile-label {
+    color: rgba(255, 255, 255, 1);
+  }
+
+  .landing__side--ismael .landing__mobile-label {
+    color: rgba(0, 0, 0, 1);
   }
 
   .landing {
