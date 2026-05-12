@@ -1137,6 +1137,7 @@
   let isGrabbing   = false;
   let grabLastX    = 0;
   let grabStarted  = false; // si ha habido movimiento real durante el grab
+  const b2sCanvas  = document.getElementById('b2s-three-canvas');
 
   b2sCanvas.addEventListener('mousedown', e => {
     if (!shirtPivot || !shirtPivot.visible) return;
@@ -1192,7 +1193,6 @@
   const shopInfo    = document.getElementById('shop-info');
   const shopGallery = document.getElementById('shop-gallery');
   const btnCart     = document.getElementById('btn-cart');
-  const b2sCanvas   = document.getElementById('b2s-three-canvas');
 
   function showShop() {
     shopInfo.classList.add('visible');
