@@ -233,6 +233,10 @@
 
 /* — Circular cursor text — */
 
+.landing__mobile-label {
+  display: none;
+}
+
 .landing__cursor-text {
   position: fixed;
   pointer-events: none;
@@ -293,6 +297,22 @@
 /* — Mobile — */
 
 @media (max-width: 768px) {
+  .landing__mobile-label {
+    display: block;
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+  }
+
   .landing {
     position: fixed;
     inset: 0;
