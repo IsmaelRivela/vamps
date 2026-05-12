@@ -817,8 +817,12 @@
     obj.position.sub(c2);
   }
 
-  // ── Carga caja de pizza + camiseta (mismo GLB) ───────────────────────────
-  gltfLoader.load('/assets/vamps/pharma/3d/cajapizza3.glb', gltf => {
+  // ── Carga caja de pizza + camiseta (mismo GLB) — lazy al 60% scroll ──────
+  let glbLoaded = false;
+  function loadGLB() {
+    if (glbLoaded) return;
+    glbLoaded = true;
+    gltfLoader.load('/assets/vamps/pharma/3d/cajapizza3.glb', gltf => {
     const root = gltf.scene;
 
     // Localizar nodos por nombre
@@ -890,7 +894,7 @@
       shirtPivot.visible = false;
       scene.add(shirtPivot);
     }
-  }, undefined, err => console.error('[b2s3d] error caja:', err));
+    }, undefined, err => console.error('[b2s3d] error caja:', err));
   } // fin loadGLB
 
   // Disparar carga del GLB cuando scroll supera el 60%
