@@ -21,13 +21,11 @@ export function initSlot() {
   const slotEl = document.querySelector('.slot')
   if (!slotEl) return
 
-  let credits = 100
+  const slotCell = document.getElementById('slot-cell')
+  if (!slotCell) return
+
   let spinning = false
   let lastDirected = null
-
-  const creditsEl = document.getElementById('credits')
-  const spinBtn = document.getElementById('spin')
-  if (!creditsEl || !spinBtn) return
 
   const reels = [0, 1, 2].map(i => {
     const reel = document.getElementById('reel' + i)
@@ -120,14 +118,8 @@ export function initSlot() {
 
   async function spin() {
     if (spinning) return
-    if (credits < BET) {
-      return
-    }
 
     spinning = true
-    spinBtn.disabled = true
-    credits -= BET
-    creditsEl.textContent = credits
 
     const results = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()]
 
@@ -142,11 +134,9 @@ export function initSlot() {
       results[0] = results[1] = results[2] = SCHOOL_SYM
       directedTarget = 'school'
     } else if (roll < 0.33 && lastDirected === 'pharma') {
-      // Was pharma last time, switch to school
       results[0] = results[1] = results[2] = SCHOOL_SYM
       directedTarget = 'school'
     } else if (roll >= 0.33 && roll < 0.66 && lastDirected === 'school') {
-      // Was school last time, switch to pharma
       results[0] = results[1] = results[2] = PHARMA_SYM
       directedTarget = 'pharma'
     }
@@ -154,35 +144,14 @@ export function initSlot() {
 
     await Promise.all(reels.map((r, i) => spinReel(r, results[i], i)))
 
-    if (directedTarget) {
-      const targetId = directedTarget === 'pharma' ? 'pharma-link' : 'school-link'
-      const targetEl = document.getElementById(targetId)
-      if (directedTarget === 'pharma') {
-        credits += 100
-        creditsEl.textContent = credits
-      } else {
-        credits += 100
-        creditsEl.textContent = credits
-      }
-      if (targetEl) {
-        setTimeout(() => {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        }, 600)
-      }
-    } else if (results[0] === JACKPOT && results[1] === JACKPOT && results[2] === JACKPOT) {
-      credits += 500
-      creditsEl.textContent = credits
-    } else if (results[0] === results[1] && results[1] === results[2]) {
-      credits += 100
-      creditsEl.textContent = credits
-    } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
-      credits += 20
-      creditsEl.textContent = credits
+    if (directedTarget === 'pharma') {
+      setTimeout(() => { window.location.href = '/vamps/pharma/' }, 600)
+    } else if (directedTarget === 'school') {
+      setTimeout(() => { window.location.href = '/vamps/back2school/' }, 600)
     }
 
     spinning = false
-    spinBtn.disabled = false
   }
 
-  spinBtn.addEventListener('click', spin)
+  slotCell.addEventListener('click', spin)
 }
