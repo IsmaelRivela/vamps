@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VAMPS — Back2School</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
 
     html, body {
       width: 100%;
@@ -72,7 +72,18 @@
       pointer-events: none;
     }
 
-    /* ── Logos fijos ── */
+    /* ── Cursor pizza ── */
+    #pizza-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 48px;
+      height: 48px;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      will-change: transform;
+    }
     #logo-vamps {
       position: fixed;
       top: 1.5rem;
@@ -89,6 +100,186 @@
       z-index: 999;
       display: block;
     }
+    /* ── Icono carrito ── */
+    #cart-icon {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 1001;
+      cursor: pointer;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #cart-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: #111;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    #cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -5px;
+      width: 14px;
+      height: 14px;
+      background: #111;
+      color: #fff;
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    #cart-badge.show { opacity: 1; transform: scale(1); }
+
+    /* ── Cart drawer ── */
+    #cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 280px;
+      height: 100%;
+      background: #fff;
+      border-left: 1px solid #e8e8e8;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: auto;
+    }
+    #cart-drawer.open { transform: translateX(0); }
+    #cart-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 1.6rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    #cart-drawer-title {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #aaa;
+    }
+    #cart-drawer-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      color: #aaa;
+      font-size: 16px;
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      transition: color 0.15s;
+    }
+    #cart-drawer-close:hover { color: #111; }
+    #cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.2rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    #cart-empty {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 10px;
+      color: #bbb;
+      letter-spacing: 0.06em;
+      margin-top: 0.4rem;
+    }
+    .cart-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+    }
+    .cart-item-info {
+      flex: 1;
+    }
+    .cart-item-name {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: 0.03em;
+    }
+    .cart-item-meta {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 9px;
+      color: #aaa;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+    .cart-item-price {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 11px;
+      color: #111;
+      white-space: nowrap;
+    }
+    .cart-item-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 13px;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+    .cart-item-remove:hover { color: #111; }
+    #cart-footer {
+      padding: 1.2rem 1.6rem;
+      border-top: 1px solid #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    #cart-subtotal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    #cart-subtotal-label {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #aaa;
+    }
+    #cart-subtotal-value {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111;
+    }
+    #btn-checkout {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: #111;
+      color: #fff;
+      border: none;
+      padding: 0.85rem 1.2rem;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    #btn-checkout:hover { background: #333; }
+
     /* ── XP Loader ── */
     #xp-loader {
       position: fixed;
@@ -148,14 +339,208 @@
       opacity: 0;
       pointer-events: none;
       z-index: 2;
-      transition: opacity 0.6s ease;
+      transition: opacity 0.5s ease;
+    }
+
+    /* ── Panel de producto ── */
+    #shop-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Panel izquierdo: info producto */
+    #shop-info {
+      pointer-events: auto;
+      width: 260px;
+      padding: 12.5rem 1.6rem 2rem;
+      background: #fff;
+      border-right: 1px solid #e8e8e8;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+      transform: translateX(-100%);
+      transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+      overflow-y: auto;
+    }
+    #shop-info.visible { transform: translateX(0); }
+
+    #shop-info .si-label {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 0.2rem;
+    }
+    #shop-info .si-name {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #111;
+    }
+    #shop-info .si-price {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #111;
+    }
+    #shop-info .si-desc {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 11px;
+      line-height: 1.65;
+      color: #444;
+    }
+    #shop-info .si-details {
+      list-style: none;
+    }
+    #shop-info .si-details li {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 10px;
+      color: #555;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    #shop-info .si-details li::before {
+      content: '—';
+      color: #ccc;
+      font-size: 8px;
+    }
+
+    /* Tallas */
+    .si-sizes {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+    .si-size {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      border: 1px solid #ddd;
+      padding: 0.3rem 0.6rem;
+      color: #bbb;
+      text-decoration: line-through;
+      cursor: not-allowed;
+      position: relative;
+    }
+    .si-size::after {
+      content: 'sold out';
+      display: block;
+      font-size: 7px;
+      letter-spacing: 0.08em;
+      color: #ccc;
+      text-decoration: none;
+      margin-top: 1px;
+    }
+
+    /* Info row genérica */
+    .si-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+    .si-value {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 11px;
+      color: #222;
+    }
+
+    /* Botón */
+    #btn-cart {
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      background: #111;
+      color: #fff;
+      border: none;
+      padding: 0.85rem 1.2rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: auto;
+      transition: background 0.2s;
+    }
+    #btn-cart:hover { background: #333; }
+    #btn-cart.added { background: #555; }
+
+    /* Panel derecho: galería hover */
+    #shop-gallery {
+      pointer-events: none;
+      width: 280px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0;
+      transform: translateX(100%);
+      transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+      overflow: hidden;
+    }
+    #shop-gallery.visible { transform: translateX(0); }
+    #shop-gallery.peek    { transform: translateX(60%); }
+
+    .sg-img {
+      flex: 1;
+      overflow: hidden;
+    }
+    .sg-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(15%);
+      transition: filter 0.3s;
+    }
+    .sg-img img:hover { filter: grayscale(0%); }
+
+    @media (max-width: 768px) {
+      #shop-info  { width: 200px; padding: 4.5rem 1.1rem 1.4rem; }
+      #shop-gallery { width: 160px; }
     }
   </style>
 </head>
 <body>
 
+  <img id="pizza-cursor" src="/assets/vamps/back2school/pizza-cursor.png" alt="" />
+
   <a href="/vamps/"><img id="logo-vamps" src="/assets/vamps/back2school/b2s-logovamps.svg" alt="VAMPS" /></a>
   <img id="logo-b2s" src="/assets/vamps/back2school/b2s-logo.png" alt="Back2School" />
+  <div id="cart-icon" title="Cart">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <path d="M16 10a4 4 0 0 1-8 0"/>
+    </svg>
+    <span id="cart-badge">0</span>
+  </div>
+
+  <!-- Cart drawer -->
+  <div id="cart-drawer">
+    <div id="cart-drawer-header">
+      <span id="cart-drawer-title">Cart</span>
+      <button id="cart-drawer-close">&times;</button>
+    </div>
+    <div id="cart-items">
+      <p id="cart-empty">Your cart is empty.</p>
+    </div>
+    <div id="cart-footer" style="display:none">
+      <div id="cart-subtotal-row">
+        <span id="cart-subtotal-label">Subtotal</span>
+        <span id="cart-subtotal-value">€0.00</span>
+      </div>
+      <button id="btn-checkout">Checkout</button>
+    </div>
+  </div>
 
   <!-- XP Loader -->
   <div id="xp-loader">
@@ -176,6 +561,62 @@
         <div class="slide"><img src="/assets/vamps/back2school/b2s-1.webp" /></div>
       </div>
       <canvas id="b2s-three-canvas"></canvas>
+    </div>
+  </div>
+
+  <!-- Panel de producto -->
+  <div id="shop-overlay">
+    <!-- Info izquierda -->
+    <div id="shop-info">
+      <div class="si-row">
+        <span class="si-label">Name</span>
+        <span class="si-name">VAMPBOY Tee</span>
+      </div>
+      <div class="si-row">
+        <span class="si-label">Price</span>
+        <span class="si-price">€34.95</span>
+      </div>
+      <div class="si-row">
+        <span class="si-label">Description</span>
+        <p class="si-desc">White oversized t-shirt featuring a high quality VAMPBOY screen printed graphic.</p>
+      </div>
+      <div class="si-row">
+        <span class="si-label">Details</span>
+        <ul class="si-details">
+          <li>100% cotton</li>
+          <li>240 GSM</li>
+          <li>Oversized fit</li>
+          <li>Screen printed artwork</li>
+          <li>Reinforced collar</li>
+        </ul>
+      </div>
+      <div class="si-row">
+        <span class="si-label">Sizes</span>
+        <div class="si-sizes">
+          <div class="si-size">S</div>
+          <div class="si-size">M</div>
+          <div class="si-size">L</div>
+          <div class="si-size">XL</div>
+        </div>
+      </div>
+      <div class="si-row">
+        <span class="si-label">Color</span>
+        <span class="si-value">White</span>
+      </div>
+      <div class="si-row">
+        <span class="si-label">Shipping</span>
+        <span class="si-value">24/48h</span>
+      </div>
+      <button id="btn-cart">Add to Cart</button>
+    </div>
+
+    <!-- Galería derecha -->
+    <div id="shop-gallery">
+      <div class="sg-img"><img src="/assets/vamps/back2school/vamps-image-asset-back2school1.webp" /></div>
+      <div class="sg-img"><img src="/assets/vamps/back2school/vamps-image-asset-back2school2.webp" /></div>
+      <div class="sg-img"><img src="/assets/vamps/back2school/vamps-image-asset-back2school3.webp" /></div>
+      <div class="sg-img"><img src="/assets/vamps/back2school/vamps-image-asset-back2school4.webp" /></div>
+      <div class="sg-img"><img src="/assets/vamps/back2school/vamps-image-asset-back2school5.webp" /></div>
     </div>
   </div>
 
@@ -385,87 +826,367 @@
     boxPivot.add(root);
     boxPivot.visible = false;
     scene.add(boxPivot);
-
-    // Inicializar estado según scroll actual
-    const initP = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
-    updateByScroll(initP);
+    // Estado inicial: caja invisible, tapa cerrada
+    boxPivot.scale.setScalar(0);
+    if (tapaNode) tapaNode.rotation.x = Math.PI * 0.47;
 
     // Camiseta
     if (shirtNode) {
       shirtPivot = new THREE.Group();
       shirtPivot.add(shirtNode);
       fitToView(shirtPivot, 1.5);
+      // Asegurar que el raycaster funcione: computar bounding volumes y desactivar frustum culling
+      shirtPivot.traverse(c => {
+        if (c.isMesh && c.geometry) {
+          c.geometry.computeBoundingBox();
+          c.geometry.computeBoundingSphere();
+          c.frustumCulled = false;
+        }
+      });
       shirtPivot.visible = false;
       scene.add(shirtPivot);
     }
   }, undefined, err => console.error('[b2s3d] error caja:', err));
 
-  // ── Rangos de scroll para cada fase ──────────────────────────────────────
-  const S_BOX_IN    = [0.75, 0.83];
-  const S_BOX_ROT   = [0.80, 0.96];
-  const S_LID_OPEN  = [0.84, 0.96];  // tapa se abre durante el giro
-  const S_SHIRT_OUT = [0.93, 1.00];
+  // ── Umbral de disparo (scroll%) ──────────────────────────────────────────
+  const TRIGGER_IN  = 0.85;  // a partir de aquí se dispara la animación
+  const TRIGGER_OUT = 0.78;  // por debajo de aquí se resetea
 
-  // ── Actualizar escena según progreso de scroll ────────────────────────────
-  function updateByScroll(p) {
-    const visible = p >= S_BOX_IN[0];
+  // ── Secuencia de tiempo (segundos) ───────────────────────────────────────
+  // 0.0 → 0.6  : caja aparece (scale in)
+  // 0.4 → 2.8  : caja rota 360° (lento)
+  // 0.6 → 2.8  : tapa se abre
+  // 2.6 → 4.2  : camiseta flota
+  // 4.2+        : camiseta gira en bucle
+  const T_BOX_IN    = [0.0, 0.6];
+  const T_BOX_ROT   = [0.4, 2.8];
+  const T_LID_OPEN  = [0.6, 2.8];
+  const T_SHIRT_OUT = [2.6, 4.2];
 
-    // ── Caja ──────────────────────────────────────────────────────────────
-    if (boxPivot) {
-      boxPivot.visible = visible;
-      canvas.style.opacity = visible ? '1' : '0';
+  function remapT(v, a, b) { return Math.max(0, Math.min(1, (v - a) / (b - a))); }
 
-      // Scale in
-      const scaleP = easeOut(remap(p, ...S_BOX_IN));
-      boxPivot.scale.setScalar(scaleP);
+  // ── Estado de la secuencia ────────────────────────────────────────────────
+  let seqTime    = -1;   // -1 = no activa
+  let triggered  = false;
+  let fadingOut  = false;  // true durante el fade-out de vuelta
 
-      // Rotación 360°
-      const rotP = easeInOut(remap(p, ...S_BOX_ROT));
-      boxPivot.rotation.y = Math.PI * 2 * rotP;
+  function hardReset() {
+    fadingOut = false;
+    triggered = false;
+    seqTime   = -1;
+    if (boxPivot)  { boxPivot.scale.setScalar(0); boxPivot.rotation.y = 0; boxPivot.position.y = 0; boxPivot.visible = false; }
+    if (tapaNode)  tapaNode.rotation.x = Math.PI * 0.47;
+    if (shirtPivot){ shirtPivot.visible = false; shirtPivot.scale.setScalar(0); shirtPivot.position.y = -1; shirtPivot.rotation.y = 0; }
+    shirtSpinAngle = 0;
+  }
 
-      // Baja cuando sale la camiseta
-      const shirtP = easeOut(remap(p, ...S_SHIRT_OUT));
-      boxPivot.position.y = -1.2 * shirtP;
-    }
+  function startFadeOut() {
+    if (fadingOut) return;
+    fadingOut = true;
+    triggered = false;
+    seqTime   = -1;
+    if (window._b2sHideShop) window._b2sHideShop();
+    canvas.style.opacity = '0';
+    canvas.addEventListener('transitionend', hardReset, { once: true });
+  }
 
-    // ── Tapa ──────────────────────────────────────────────────────────────
-    // rotation.x = +PI*0.85 → cerrada (sobre la base)
-    // rotation.x = 0        → pose default del GLB (abierta = último frame)
-    if (tapaNode) {
-      const lidP = easeOut(remap(p, ...S_LID_OPEN));
-      tapaNode.rotation.x = Math.PI * 0.47 * (1 - lidP);
-    }
+  function updateSeq(t) {
+    if (!boxPivot) return;
+    canvas.style.opacity = '1';
+    boxPivot.visible = true;
 
-    // ── Camiseta ──────────────────────────────────────────────────────────
+    // Scale in
+    boxPivot.scale.setScalar(easeOut(remapT(t, ...T_BOX_IN)));
+
+    // Rotación 360°
+    boxPivot.rotation.y = Math.PI * 2 * easeInOut(remapT(t, ...T_BOX_ROT));
+
+    // Baja cuando sale la camiseta
+    boxPivot.position.y = -1.2 * easeOut(remapT(t, ...T_SHIRT_OUT));
+
+    // Tapa
+    if (tapaNode)
+      tapaNode.rotation.x = Math.PI * 0.47 * (1 - easeOut(remapT(t, ...T_LID_OPEN)));
+
+    // Camiseta
     if (shirtPivot) {
-      const shirtP = easeOut(remap(p, ...S_SHIRT_OUT));
-      shirtPivot.visible = shirtP > 0;
-      shirtPivot.scale.setScalar(shirtP);
-      shirtPivot.position.y = -1.0 + 1.8 * shirtP;
+      const sp = easeOut(remapT(t, ...T_SHIRT_OUT));
+      shirtPivot.visible = sp > 0;
+      shirtPivot.scale.setScalar(sp);
+      shirtPivot.position.y = -1.0 + 1.8 * sp;
     }
   }
 
+  // ── Seguimiento de ratón para rotar la caja ────────────────────────────
+  let mouseNX     = 0;   // -1 .. 1 según posición X en pantalla
+  let boxMouseRot = 0;   // valor actual interpolado (rotation.y)
+  const BOX_MOUSE_AMP = Math.PI; // ±radianes de giro máximo (±180°)
+
+  window.addEventListener('mousemove', e => {
+    mouseNX = (e.clientX / window.innerWidth) * 2 - 1;
+  });
+
   // ── Loop de render ────────────────────────────────────────────────────────
-  // La camiseta sigue girando con rAF cuando está completamente fuera
   let lastRaf = 0;
   function animate(time) {
     requestAnimationFrame(animate);
-    const p = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
-    // Spin continuo de la camiseta solo al final
-    if (shirtPivot && p > 0.97) {
-      const dt = Math.min((time - lastRaf) / 1000, 0.05);
-      shirtSpinAngle += dt * 1.2;
-      shirtPivot.rotation.y = shirtSpinAngle;
-    }
+    const dt = Math.min((time - lastRaf) / 1000, 0.05);
     lastRaf = time;
+
+    if (triggered) {
+      seqTime += dt;
+      updateSeq(seqTime);
+
+      // Una vez que el intro 360° terminó, el ratón toma el control en Y
+      if (seqTime >= T_BOX_ROT[1] && boxPivot) {
+        const target = mouseNX * BOX_MOUSE_AMP;
+        boxMouseRot += (target - boxMouseRot) * Math.min(1, dt * 5);
+        boxPivot.rotation.y = boxMouseRot;
+      }
+
+      // Panel de producto: aparece cuando la camiseta ha terminado de subir
+      if (seqTime >= T_SHIRT_OUT[1] && window._b2sShowShop) window._b2sShowShop();
+
+      // Spin continuo de la camiseta al final
+      if (shirtPivot && seqTime > T_SHIRT_OUT[1]) {
+        shirtSpinAngle += dt * 1.2;
+        shirtPivot.rotation.y = shirtSpinAngle;
+      }
+    } else if (fadingOut && boxPivot) {
+      // Seguir renderizando durante el fade-out para que la transición CSS se vea
+      boxPivot.visible = true;
+    }
     renderer.render(scene, camera);
   }
   requestAnimationFrame(t => { lastRaf = t; animate(t); });
 
-  // ── Scroll handler ────────────────────────────────────────────────────────
+  // ── Ketchup splats al hacer click sobre la camiseta ───────────────────────
+  const splatRaycaster = new THREE.Raycaster();
+  const splatMouse     = new THREE.Vector2();
+  const MAX_SPLATS     = 12;
+
+  // Genera una textura canvas con un blob de ketchup aleatorio
+  function makeSplatTexture() {
+    const size = 256;
+    const cv   = document.createElement('canvas');
+    cv.width = cv.height = size;
+    const ctx  = cv.getContext('2d');
+    const cx   = size / 2, cy = size / 2;
+
+    // Gotas satélite
+    const drops = 6 + Math.floor(Math.random() * 6);
+    for (let i = 0; i < drops; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 30 + Math.random() * 70;
+      const r     = 8 + Math.random() * 22;
+      const gx    = cx + Math.cos(angle) * dist;
+      const gy    = cy + Math.sin(angle) * dist;
+      const g     = ctx.createRadialGradient(gx, gy, 0, gx, gy, r);
+      g.addColorStop(0,   'rgba(180,10,10,0.95)');
+      g.addColorStop(0.6, 'rgba(140,5,5,0.7)');
+      g.addColorStop(1,   'rgba(100,0,0,0)');
+      ctx.beginPath();
+      ctx.ellipse(gx, gy, r * (0.7 + Math.random() * 0.6), r * (0.7 + Math.random() * 0.6),
+                  Math.random() * Math.PI, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+    }
+
+    // Blob central
+    const R  = 38 + Math.random() * 30;
+    const gc = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+    gc.addColorStop(0,   'rgba(200,15,15,1)');
+    gc.addColorStop(0.5, 'rgba(160,8,8,0.9)');
+    gc.addColorStop(1,   'rgba(120,0,0,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = gc;
+    ctx.fill();
+
+    const tex = new THREE.CanvasTexture(cv);
+    return tex;
+  }
+
+  // Coloca un splat en el punto de intersección sobre la camiseta
+  function addSplat(intersection) {
+    const tex  = makeSplatTexture();
+    const mat  = new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, depthWrite: false,
+      side: THREE.DoubleSide, opacity: 0
+    });
+    const size = 0.55 + Math.random() * 0.35;
+    const geo  = new THREE.PlaneGeometry(size, size);
+    const mesh = new THREE.Mesh(geo, mat);
+
+    // Posición en local de shirtPivot
+    const localPt = shirtPivot.worldToLocal(intersection.point.clone());
+    mesh.position.copy(localPt);
+
+    // Orientar el plano según la normal de la cara
+    if (intersection.face) {
+      const normalWorld = intersection.face.normal.clone()
+        .transformDirection(intersection.object.matrixWorld);
+      const normalLocal = shirtPivot.worldToLocal(
+        shirtPivot.position.clone().add(normalWorld)
+      ).normalize();
+      mesh.lookAt(mesh.position.clone().add(normalLocal));
+    }
+
+    // Offset para evitar z-fighting
+    mesh.position.addScaledVector(
+      mesh.getWorldDirection(new THREE.Vector3()).negate(), -0.01
+    );
+
+    // Rotación aleatoria en el plano
+    mesh.rotateZ(Math.random() * Math.PI * 2);
+
+    shirtPivot.add(mesh);
+
+    // Animación de aparición con GSAP
+    gsap.fromTo(mesh.material, { opacity: 0 }, {
+      opacity: 1, duration: 0.25, ease: 'power2.out'
+    });
+    gsap.fromTo(mesh.scale, { x: 0, y: 0, z: 0 }, {
+      x: 1, y: 1, z: 1, duration: 0.35, ease: 'back.out(1.8)'
+    });
+
+    // Limitar número de splats
+    const splats = shirtPivot.children.filter(c => c.isMesh && c.geometry.type === 'PlaneGeometry');
+    if (splats.length > MAX_SPLATS) {
+      const old = splats[0];
+      shirtPivot.remove(old);
+      old.geometry.dispose();
+      old.material.map?.dispose();
+      old.material.dispose();
+    }
+  }
+
+  window.addEventListener('click', e => {
+    if (!shirtPivot || !shirtPivot.visible) return;
+    const rect = b2sCanvas.getBoundingClientRect();
+    splatMouse.x = ((e.clientX - rect.left)  / rect.width)  * 2 - 1;
+    splatMouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+    splatRaycaster.setFromCamera(splatMouse, camera);
+    const hits = splatRaycaster.intersectObject(shirtPivot, true);
+    if (hits.length > 0) addSplat(hits[0]);
+  });
+
+  // ── Scroll handler: solo detecta disparo/reset ────────────────────────────
   window.addEventListener('scroll', () => {
     const p = window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
-    updateByScroll(p);
+    if (!triggered && p >= TRIGGER_IN && boxPivot) {
+      triggered = true;
+      seqTime   = 0;
+    }
+    if (!fadingOut && triggered && p < TRIGGER_OUT) {
+      startFadeOut();
+    }
   }, { passive: true });
+  // ── Panel de producto ─────────────────────────────────────────────────────
+  const shopInfo    = document.getElementById('shop-info');
+  const shopGallery = document.getElementById('shop-gallery');
+  const btnCart     = document.getElementById('btn-cart');
+  const b2sCanvas   = document.getElementById('b2s-three-canvas');
+
+  function showShop() {
+    shopInfo.classList.add('visible');
+  }
+  function hideShop() {
+    shopInfo.classList.remove('visible');
+    shopGallery.classList.remove('visible');
+    shopGallery.classList.remove('peek');
+  }
+
+  // ── Cart drawer logic ──────────────────────────────────────────────────
+  const cartIcon    = document.getElementById('cart-icon');
+  const cartDrawer  = document.getElementById('cart-drawer');
+  const cartClose   = document.getElementById('cart-drawer-close');
+  const cartItemsEl = document.getElementById('cart-items');
+  const cartEmptyEl = document.getElementById('cart-empty');
+  const cartFooter  = document.getElementById('cart-footer');
+  const cartBadge   = document.getElementById('cart-badge');
+  const subtotalVal = document.getElementById('cart-subtotal-value');
+
+  let cartItems = [];
+
+  function renderCart() {
+    // clear existing items (keep empty msg)
+    [...cartItemsEl.querySelectorAll('.cart-item')].forEach(el => el.remove());
+    if (cartItems.length === 0) {
+      cartEmptyEl.style.display = '';
+      cartFooter.style.display = 'none';
+      cartBadge.textContent = '0';
+      cartBadge.classList.remove('show');
+    } else {
+      cartEmptyEl.style.display = 'none';
+      cartFooter.style.display = 'flex';
+      cartBadge.textContent = cartItems.reduce((a, i) => a + i.qty, 0);
+      cartBadge.classList.add('show');
+      let total = 0;
+      cartItems.forEach((item, idx) => {
+        total += item.price * item.qty;
+        const el = document.createElement('div');
+        el.className = 'cart-item';
+        el.innerHTML = `
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-meta">${item.meta} &nbsp;·&nbsp; x${item.qty}</div>
+          </div>
+          <span class="cart-item-price">€${(item.price * item.qty).toFixed(2)}</span>
+          <button class="cart-item-remove" data-idx="${idx}">&times;</button>
+        `;
+        cartItemsEl.appendChild(el);
+      });
+      subtotalVal.textContent = `€${total.toFixed(2)}`;
+    }
+  }
+
+  cartItemsEl.addEventListener('click', e => {
+    const btn = e.target.closest('.cart-item-remove');
+    if (!btn) return;
+    const idx = +btn.dataset.idx;
+    cartItems.splice(idx, 1);
+    renderCart();
+  });
+
+  cartIcon.addEventListener('click', () => cartDrawer.classList.toggle('open'));
+  cartClose.addEventListener('click', () => cartDrawer.classList.remove('open'));
+
+  document.getElementById('btn-checkout').addEventListener('click', () => {
+    alert('Checkout — coming soon!');
+  });
+
+  // Botón Add to Cart
+  btnCart.addEventListener('click', () => {
+    // Lee producto del panel izquierdo
+    const name  = document.querySelector('.si-name')?.textContent  || 'VAMPBOY Tee';
+    const price = 34.95;
+    const meta  = 'White / One size';
+    const existing = cartItems.find(i => i.name === name && i.meta === meta);
+    if (existing) { existing.qty++; } else { cartItems.push({ name, meta, price, qty: 1 }); }
+    renderCart();
+    btnCart.textContent = '✓ Added';
+    btnCart.classList.add('added');
+    cartDrawer.classList.add('open');
+    setTimeout(() => { btnCart.textContent = 'Add to Cart'; btnCart.classList.remove('added'); }, 2000);
+  });
+
+  // Exponer para que el loop de animación pueda llamarlo
+  window._b2sShowShop = showShop;
+  window._b2sHideShop = hideShop;
+
+  // ── Cursor pizza ──────────────────────────────────────────────────────────
+  const pizzaCursor = document.getElementById('pizza-cursor');
+  let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  let px = cx, py = cy;
+
+  window.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+
+  (function moveCursor() {
+    px += (cx - px) * 0.18;
+    py += (cy - py) * 0.18;
+    pizzaCursor.style.transform = `translate(${px}px, ${py}px) translate(-50%, -50%)`;
+    requestAnimationFrame(moveCursor);
+  })();
   </script>
 </html>
