@@ -951,6 +951,7 @@ body.theme-ismael {
   border: none;
   outline: none;
   box-shadow: none;
+  background: transparent;
   position: relative;
 }
 
@@ -1337,17 +1338,6 @@ body.theme-ismael {
     font-size: 0.875rem;
     line-height: 1.65;
     max-width: 100%;
-  }
-
-  /* foto: col izquierda, abarca filas 2-3 */
-  .ismael-bento__cell--photo {
-    grid-column: 1;
-    grid-row: 2 / 4;
-    border-radius: 0;
-    min-height: unset;
-    aspect-ratio: 2 / 3;
-    width: 100%;
-    align-self: start;
   }
 
   /* contacto: fila completa, segunda posición */
