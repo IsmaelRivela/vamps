@@ -989,7 +989,7 @@ body.theme-ismael {
 }
 
 .ismael-bento__skills-list li {
-  font-size: 0.65rem;
+  font-size: clamp(0.75rem, 1.1vw, 1rem);
   color: #888;
   padding: 0.2rem 0;
   border-bottom: 1px solid #1e1e1e;
