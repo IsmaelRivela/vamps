@@ -81,7 +81,7 @@
       height: 48px;
       pointer-events: none;
       z-index: 99999;
-      transform: translate(-50%, -50%);
+      transform: none;
       will-change: transform;
     }
     #logo-vamps {
@@ -279,6 +279,40 @@
       transition: background 0.2s;
     }
     #btn-checkout:hover { background: #333; }
+
+    /* ── Cart thumbnail ── */
+    #cart-thumb {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      border-bottom: 1px solid #f0f0f0;
+      flex-shrink: 0;
+    }
+    #cart-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(15%);
+    }
+
+    /* ── Textos flotantes ── */
+    .float-label {
+      position: fixed;
+      left: 50%;
+      font-family: 'Trebuchet MS', Tahoma, sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #c00;
+      pointer-events: none;
+      z-index: 998;
+      transform: translateX(-50%);
+      opacity: 0;
+      white-space: nowrap;
+    }
+    #label-clickme { top: 12%; }
+    #label-ups     { top: 12%; }
 
     /* ── XP Loader ── */
     #xp-loader {
@@ -530,6 +564,9 @@
       <span id="cart-drawer-title">Cart</span>
       <button id="cart-drawer-close">&times;</button>
     </div>
+    <div id="cart-thumb">
+      <img src="/assets/vamps/back2school/thumbnaild-camiseta.jpg" alt="" />
+    </div>
     <div id="cart-items">
       <p id="cart-empty">Your cart is empty.</p>
     </div>
@@ -541,6 +578,9 @@
       <button id="btn-checkout">Checkout</button>
     </div>
   </div>
+
+  <span id="label-clickme" class="float-label">click to feed pizza</span>
+  <span id="label-ups"     class="float-label">you... ruined it... now you pay for it &gt;:(</span>
 
   <!-- XP Loader -->
   <div id="xp-loader">
@@ -1042,6 +1082,8 @@
 
     shirtPivot.add(mesh);
 
+    if (window._b2sShowUps) window._b2sShowUps();
+
     // Animación de aparición con GSAP
     gsap.fromTo(mesh.material, { opacity: 0 }, {
       opacity: 1, duration: 0.25, ease: 'power2.out'
@@ -1090,11 +1132,14 @@
 
   function showShop() {
     shopInfo.classList.add('visible');
+    const alreadyStained = window._b2sUpsShown ? window._b2sUpsShown() : false;
+    if (!alreadyStained && window._b2sShowClickMe) window._b2sShowClickMe();
   }
   function hideShop() {
     shopInfo.classList.remove('visible');
     shopGallery.classList.remove('visible');
     shopGallery.classList.remove('peek');
+    if (window._b2sHideClickMe) window._b2sHideClickMe();
   }
 
   // ── Cart drawer logic ──────────────────────────────────────────────────
@@ -1124,7 +1169,10 @@
       cartBadge.classList.add('show');
       let total = 0;
       cartItems.forEach((item, idx) => {
-        total += item.price * item.qty;
+        const isKiss  = item.price === 'a kiss';
+        const lineVal = isKiss ? 0 : item.price * item.qty;
+        total += lineVal;
+        const priceStr = isKiss ? 'a ki$$ :P' : `€${lineVal.toFixed(2)}`;
         const el = document.createElement('div');
         el.className = 'cart-item';
         el.innerHTML = `
@@ -1132,7 +1180,7 @@
             <div class="cart-item-name">${item.name}</div>
             <div class="cart-item-meta">${item.meta} &nbsp;·&nbsp; x${item.qty}</div>
           </div>
-          <span class="cart-item-price">€${(item.price * item.qty).toFixed(2)}</span>
+          <span class="cart-item-price">${priceStr}</span>
           <button class="cart-item-remove" data-idx="${idx}">&times;</button>
         `;
         cartItemsEl.appendChild(el);
@@ -1175,6 +1223,42 @@
   window._b2sShowShop = showShop;
   window._b2sHideShop = hideShop;
 
+  // ── Textos flotantes click me / ups ──────────────────────────────────────
+  const labelClickMe = document.getElementById('label-clickme');
+  const labelUps     = document.getElementById('label-ups');
+  let upsTimeout   = null;
+  let upsShown      = false;
+  window._b2sUpsShown = () => upsShown;
+
+  // Mostrar "click me!" cuando la camiseta aparece
+  window._b2sShowClickMe = function() {
+    labelClickMe.style.transition = 'opacity 0.6s ease';
+    labelClickMe.style.opacity = '1';
+  };
+  window._b2sHideClickMe = function() {
+    labelClickMe.style.transition = 'opacity 0.3s ease';
+    labelClickMe.style.opacity = '0';
+  };
+
+  // "you... ruined it..." aparece solo la primera vez + añade camiseta al carrito
+  window._b2sShowUps = function() {
+    if (upsShown) return;
+    upsShown = true;
+
+    // Ocultar primer texto
+    labelClickMe.style.transition = 'opacity 0.3s ease';
+    labelClickMe.style.opacity = '0';
+
+    // Mostrar segundo texto
+    labelUps.style.transition = 'opacity 0.4s ease';
+    labelUps.style.opacity = '1';
+
+    // Añadir camiseta manchada al carrito (solo una vez)
+    cartItems.push({ name: 'stained VAMPBOY Shirt', meta: 'White / One size', price: 'a kiss', qty: 1 });
+    renderCart();
+    setTimeout(() => cartDrawer.classList.add('open'), 600);
+  };
+
   // ── Cursor pizza ──────────────────────────────────────────────────────────
   const pizzaCursor = document.getElementById('pizza-cursor');
   let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
@@ -1185,7 +1269,7 @@
   (function moveCursor() {
     px += (cx - px) * 0.18;
     py += (cy - py) * 0.18;
-    pizzaCursor.style.transform = `translate(${px}px, ${py}px) translate(-50%, -50%)`;
+    pizzaCursor.style.transform = `translate(${px}px, ${py}px)`;
     requestAnimationFrame(moveCursor);
   })();
   </script>
