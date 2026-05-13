@@ -136,7 +136,7 @@ export function initSpriteCursor() {
   bentoMount.appendChild(timerEl)
 
   function positionTimer() {
-    timerEl.style.top = (groundY() + H / 2 - 72) + 'px'
+    timerEl.style.top = (groundY() + H / 2 - 92) + 'px'
   }
   positionTimer()
   window.addEventListener('resize', positionTimer)
@@ -173,7 +173,7 @@ export function initSpriteCursor() {
   bentoMount.appendChild(livesEl)
 
   function positionLives() {
-    livesEl.style.top = (groundY() + H / 2 - 52) + 'px'
+    livesEl.style.top = (groundY() + H / 2 - 72) + 'px'
   }
   positionLives()
   window.addEventListener('resize', positionLives)
