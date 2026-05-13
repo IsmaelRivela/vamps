@@ -723,6 +723,19 @@ body.theme-vamps {
 .vamps-bento__cell--visual  { grid-column: 2; grid-row: 2; border-radius: 0; }
 .vamps-bento__cell--visual video { object-fit: cover; scale: 1.30; }
 .vamps-bento__cell--extra   { grid-column: 3; grid-row: 2; background: #000; }
+
+.vamps-bento__extra-hint {
+  position: absolute;
+  bottom: 1.2rem;
+  left: 1.4rem;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  pointer-events: none;
+}
 .vamps-bento__cell--extra2  { display: none; }
 
 /* Marquee — full width bottom bar */
