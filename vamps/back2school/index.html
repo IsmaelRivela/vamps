@@ -617,6 +617,8 @@
         transform: translateY(100%);
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+        overscroll-behavior: contain;
         background: rgba(255,255,255,0.75);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
@@ -1343,6 +1345,7 @@
 
   window.addEventListener('touchmove', e => {
     if (!isTouchGrabbing || !shirtPivot) return;
+    if (e.target.closest('#shop-info, #cart-drawer')) return;
     const t = e.touches[0];
     const dx = t.clientX - touchGrabX;
     // Solo tomar el gesto si es más horizontal que vertical
