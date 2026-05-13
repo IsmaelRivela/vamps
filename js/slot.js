@@ -180,22 +180,13 @@ export function initSlot() {
 
     const results = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()]
 
-    // 33% pharma jackpot, 33% school jackpot, 34% random
-    // Never repeat the same directed jackpot twice in a row
-    let roll = Math.random()
+    // Elegir destino jackpot: 50/50 pero nunca el mismo dos veces seguidas
     let directedTarget = null
-    if (roll < 0.33 && lastDirected !== 'pharma') {
-      results[0] = results[1] = results[2] = PHARMA_SYM
-      directedTarget = 'pharma'
-    } else if (roll < 0.66 && lastDirected !== 'school') {
-      results[0] = results[1] = results[2] = SCHOOL_SYM
-      directedTarget = 'school'
-    } else if (roll < 0.33 && lastDirected === 'pharma') {
-      results[0] = results[1] = results[2] = SCHOOL_SYM
-      directedTarget = 'school'
-    } else if (roll >= 0.33 && roll < 0.66 && lastDirected === 'school') {
-      results[0] = results[1] = results[2] = PHARMA_SYM
-      directedTarget = 'pharma'
+    const candidates = ['pharma', 'school'].filter(t => t !== lastDirected)
+    if (Math.random() < 0.66) {
+      directedTarget = candidates[Math.floor(Math.random() * candidates.length)]
+      const sym = directedTarget === 'pharma' ? PHARMA_SYM : SCHOOL_SYM
+      results[0] = results[1] = results[2] = sym
     }
     lastDirected = directedTarget
 
