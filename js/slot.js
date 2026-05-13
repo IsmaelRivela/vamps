@@ -17,12 +17,68 @@ const COPIES = 10
 const PHARMA_SYM = 'vamps1'
 const SCHOOL_SYM = 'vamps3'
 
+const PALANCA_FRAMES = [
+  '/assets/vamps/palanca/palanca1.png',
+  '/assets/vamps/palanca/palanca2.png',
+  '/assets/vamps/palanca/palanca3.png',
+  '/assets/vamps/palanca/palanca4.png',
+  '/assets/vamps/palanca/palanca5.png',
+]
+
 export function initSlot() {
   const slotEl = document.querySelector('.slot')
   if (!slotEl) return
 
   const slotCell = document.getElementById('slot-cell')
   if (!slotCell) return
+
+  // — Cursor palanca —
+  const cursor = document.createElement('div')
+  cursor.id = 'slot-cursor'
+  cursor.style.cssText = [
+    'position:fixed',
+    'pointer-events:none',
+    'z-index:9999',
+    'width:80px',
+    'height:80px',
+    'transform:translate(-20%, -20%)',
+    'display:none',
+  ].join(';')
+  const cursorImg = document.createElement('img')
+  cursorImg.src = PALANCA_FRAMES[0]
+  cursorImg.style.cssText = 'width:100%;height:100%;object-fit:contain'
+  cursor.appendChild(cursorImg)
+  document.body.appendChild(cursor)
+
+  // Precarga frames
+  PALANCA_FRAMES.forEach(src => { const i = new Image(); i.src = src })
+
+  slotCell.addEventListener('mouseenter', () => {
+    slotCell.style.cursor = 'none'
+    cursorImg.src = PALANCA_FRAMES[0]
+    cursor.style.display = 'block'
+  })
+  slotCell.addEventListener('mouseleave', () => {
+    slotCell.style.cursor = ''
+    cursor.style.display = 'none'
+  })
+  slotCell.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px'
+    cursor.style.top  = e.clientY + 'px'
+  })
+
+  function animatePalanca() {
+    let frame = 0
+    const interval = setInterval(() => {
+      frame++
+      if (frame >= PALANCA_FRAMES.length) {
+        clearInterval(interval)
+        cursorImg.src = PALANCA_FRAMES[0]
+        return
+      }
+      cursorImg.src = PALANCA_FRAMES[frame]
+    }, 80)
+  }
 
   let spinning = false
   let lastDirected = null
@@ -120,6 +176,7 @@ export function initSlot() {
     if (spinning) return
 
     spinning = true
+    animatePalanca()
 
     const results = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()]
 
