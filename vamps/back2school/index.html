@@ -892,7 +892,10 @@
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
   const isMobile3D = window.innerWidth <= 768;
-  camera.position.set(0, isMobile3D ? -1.8 : 0.3, 9.0);
+  const CAM_Y_DEFAULT = 0.3;
+  const CAM_Y_SHOP    = isMobile3D ? -1.8 : 0.3;
+  let cameraTargetY   = CAM_Y_DEFAULT;
+  camera.position.set(0, CAM_Y_DEFAULT, 9.0);
 
   function resize() {
     const w = sticky.clientWidth, h = sticky.clientHeight;
@@ -1156,6 +1159,10 @@
       boxPivot.visible = true;
     }
     renderer.render(scene, camera);
+    // Cámara sigue al shop en mobile
+    if (isMobile3D) {
+      camera.position.y += (cameraTargetY - camera.position.y) * Math.min(1, dt * 3);
+    }
     // Cursor pizza en el mismo RAF
     px += (cx - px) * 0.18;
     py += (cy - py) * 0.18;
@@ -1408,11 +1415,13 @@
 
   function showShop() {
     shopInfo.classList.add('visible');
+    if (isMobile3D) cameraTargetY = CAM_Y_SHOP;
     const alreadyStained = window._b2sUpsShown ? window._b2sUpsShown() : false;
     if (!alreadyStained && window._b2sShowClickMe) window._b2sShowClickMe();
   }
   function hideShop() {
     shopInfo.classList.remove('visible');
+    if (isMobile3D) cameraTargetY = CAM_Y_DEFAULT;
     shopGallery.classList.remove('visible');
     shopGallery.classList.remove('peek');
     if (window._b2sHideClickMe) window._b2sHideClickMe();
