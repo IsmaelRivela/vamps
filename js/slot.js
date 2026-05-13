@@ -67,6 +67,18 @@ export function initSlot() {
     cursor.style.top  = e.clientY + 'px'
   })
 
+  // Touch: mostrar palanca centrada en el toque
+  slotCell.addEventListener('touchstart', e => {
+    const t = e.touches[0]
+    cursorImg.src = PALANCA_FRAMES[0]
+    cursor.style.left = t.clientX + 'px'
+    cursor.style.top  = t.clientY + 'px'
+    cursor.style.display = 'block'
+  }, { passive: true })
+  slotCell.addEventListener('touchend', () => {
+    setTimeout(() => { cursor.style.display = 'none' }, 500)
+  }, { passive: true })
+
   function animatePalanca() {
     let frame = 0
     const interval = setInterval(() => {
