@@ -1324,6 +1324,8 @@
   // ── Touch grab (móvil): rotar shirt + manchar ─────────────────────────────
   window.addEventListener('touchstart', e => {
     if (!shirtPivot || !shirtPivot.visible) return;
+    // No interferir con el panel de producto ni el cart
+    if (e.target.closest('#shop-info, #cart-drawer, #cart-icon')) return;
     const rect = b2sCanvas.getBoundingClientRect();
     const t = e.touches[0];
     if (t.clientX < rect.left || t.clientX > rect.right || t.clientY < rect.top || t.clientY > rect.bottom) return;
