@@ -615,7 +615,8 @@
         border-radius: 16px 16px 0 0;
         box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
         transform: translateY(100%);
-        overflow-y: auto;
+        will-change: transform;
+        overflow-y: scroll;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-y;
         overscroll-behavior: contain;
@@ -623,7 +624,7 @@
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
       }
-      #shop-info.visible { transform: translateY(0); }
+      #shop-info.visible { transform: translateY(0) translateZ(0); }
 
       /* Galeria: oculta en móvil */
       #shop-gallery { display: none; }
@@ -1397,6 +1398,11 @@
   const shopInfo    = document.getElementById('shop-info');
   const shopGallery = document.getElementById('shop-gallery');
   const btnCart     = document.getElementById('btn-cart');
+
+  // Aislar touch del panel: iOS necesita stopPropagation para scroll nativo en overflow
+  shopInfo.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
+  shopInfo.addEventListener('touchmove',  e => e.stopPropagation(), { passive: true });
+  shopInfo.addEventListener('touchend',   e => e.stopPropagation(), { passive: true });
 
   function showShop() {
     shopInfo.classList.add('visible');
