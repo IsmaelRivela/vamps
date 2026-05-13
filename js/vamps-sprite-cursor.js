@@ -126,10 +126,9 @@ export function initSpriteCursor() {
     position: absolute;
     right: 20px;
     font-family: ${PIXEL_FONT};
-    font-size: 10px;
+    font-size: 20px;
     color: #fff;
     text-shadow: 1px 1px 0 #000;
-    z-index: 9998;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.5s;
@@ -165,8 +164,7 @@ export function initSpriteCursor() {
   livesEl.style.cssText = `
     position: absolute;
     right: 20px;
-    font-size: 18px;
-    letter-spacing: 4px;
+    font-size: 32px;
     z-index: 9998;
     pointer-events: none;
     opacity: 0;
