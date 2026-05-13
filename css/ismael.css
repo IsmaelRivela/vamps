@@ -1326,6 +1326,7 @@ body.theme-ismael {
 
   /* ── Bento: 2 columnas ── */
   .ismael-bento {
+    height: auto;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: auto auto auto auto auto auto auto;
     gap: 10px;
