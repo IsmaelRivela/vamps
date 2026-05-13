@@ -39,8 +39,8 @@ export function initSlot() {
     'position:fixed',
     'pointer-events:none',
     'z-index:9999',
-    'width:80px',
-    'height:80px',
+    'width:120px',
+    'height:120px',
     'transform:translate(-20%, -20%)',
     'display:none',
   ].join(';')
