@@ -584,7 +584,7 @@
       .slide img { width: min(92vw, 92vh); height: min(92vw, 92vh); }
 
       /* Logos */
-      #logo-b2s { width: clamp(130px, 42vw, 200px); }
+      #logo-b2s { width: clamp(65px, 21vw, 100px); }
 
       /* Float labels */
       #label-clickme { display: none; }
@@ -632,7 +632,7 @@
       #shop-info-thumb {
         display: block;
         width: 100%;
-        height: 180px;
+        aspect-ratio: 3 / 4;
         overflow: hidden;
         border-radius: 10px;
       }
@@ -1351,7 +1351,6 @@
     const dx = t.clientX - touchGrabX;
     // Solo tomar el gesto si es más horizontal que vertical
     if (Math.abs(dx) > 5) {
-      if (e.cancelable) e.preventDefault();
       shirtSpinAngle += dx * 0.015;
       shirtPivot.rotation.y = shirtSpinAngle;
       touchGrabX = t.clientX;
@@ -1367,7 +1366,7 @@
         if (hits.length > 0) addSplat(hits[0]);
       }
     }
-  }, { passive: false });
+  }, { passive: true });
 
   window.addEventListener('touchend', e => {
     if (!isTouchGrabbing) return;
