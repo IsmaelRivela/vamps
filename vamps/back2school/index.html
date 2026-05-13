@@ -892,7 +892,7 @@
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
   const isMobile3D = window.innerWidth <= 768;
-  camera.position.set(0, isMobile3D ? 1.2 : 0.3, 9.0);
+  camera.position.set(0, isMobile3D ? -1.8 : 0.3, 9.0);
 
   function resize() {
     const w = sticky.clientWidth, h = sticky.clientHeight;
