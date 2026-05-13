@@ -891,7 +891,8 @@
 
   const scene  = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-  camera.position.set(0, 0.3, 9.0);
+  const isMobile3D = window.innerWidth <= 768;
+  camera.position.set(0, isMobile3D ? 1.2 : 0.3, 9.0);
 
   function resize() {
     const w = sticky.clientWidth, h = sticky.clientHeight;
@@ -1087,7 +1088,8 @@
     boxPivot.visible = true;
 
     // Scale in
-    boxPivot.scale.setScalar(easeOut(remapT(t, ...T_BOX_IN)));
+    const mobileScale = isMobile3D ? 0.72 : 1.0;
+    boxPivot.scale.setScalar(easeOut(remapT(t, ...T_BOX_IN)) * mobileScale);
 
     // Rotación 360°
     boxPivot.rotation.y = Math.PI * 2 * easeInOut(remapT(t, ...T_BOX_ROT));
@@ -1103,7 +1105,7 @@
     if (shirtPivot) {
       const sp = easeOut(remapT(t, ...T_SHIRT_OUT));
       shirtPivot.visible = sp > 0;
-      shirtPivot.scale.setScalar(sp);
+      shirtPivot.scale.setScalar(sp * mobileScale);
       shirtPivot.position.y = -1.0 + 1.8 * sp;
     }
   }
