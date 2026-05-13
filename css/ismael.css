@@ -1450,6 +1450,14 @@ body.theme-ismael {
     grid-row: auto;
   }
 
+  .ismael-bento__cell--bio        { order: 1; }
+  .ismael-bento__cell--contact    { order: 2; }
+  .ismael-bento__cell--photo      { order: 3; }
+  .ismael-bento__cell--skills     { order: 4; }
+  .ismael-bento__cell--experience { order: 5; }
+  .ismael-bento__cell--interests  { order: 6; }
+  .ismael-bento__cell--status     { order: 7; }
+
   /* foto en una sola columna, formato vertical */
   .ismael-bento__cell--photo {
     grid-column: 1;
