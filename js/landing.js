@@ -56,4 +56,12 @@ function initLandingTransitions() {
       })
     })
   })
+
+  // Bfcache: al volver atrás el browser restaura la página con los inline styles
+  // de GSAP intactos (.landing en autoAlpha:0), así que la reseteamos
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      gsap.set('.landing', { autoAlpha: 1 })
+    }
+  })
 }
