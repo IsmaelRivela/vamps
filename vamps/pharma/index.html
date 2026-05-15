@@ -1257,6 +1257,7 @@
       }
 
       window.addEventListener('resize', resize);
+      new ResizeObserver(() => resize()).observe(panel);
 
       /* Animate — spin the pivot group (world Y), not the tilted model */
       function animate() {
