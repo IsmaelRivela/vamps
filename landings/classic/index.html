@@ -1,0 +1,93 @@
+<!-- LANDING: classic — split VAMPS / Ismael. Oculta. Ver landings/README.md -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="levamps" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta charset="UTF-8" />
+  <!-- <script>document.documentElement.lang=localStorage.getItem('site-lang')||'en'</script> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAMPS — Ismael Rivela Creative</title>
+  <meta name="description" content="Creative studio by Ismael Rivela. Branding, art direction and digital experiences with intention." />
+  <link rel="canonical" href="https://vamps.studio/" />
+  <!-- Open Graph -->
+  <meta property="og:title" content="VAMPS — Ismael Rivela Creative" />
+  <meta property="og:description" content="Creative studio by Ismael Rivela. Branding, art direction and digital experiences with intention." />
+  <meta property="og:url" content="https://vamps.studio/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="VAMPS" />
+  <!-- Schema.org -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@graph":[{"@type":"Person","name":"Ismael Rivela","url":"https://vamps.studio","jobTitle":"Creative Director & Designer","email":"hola@ismaelrivela.com","sameAs":["https://instagram.com/ismaelrivela","https://behance.net/ismaelrivela","https://linkedin.com/in/ismaelrivela"]},{"@type":"WebSite","url":"https://vamps.studio","name":"VAMPS","author":{"@type":"Person","name":"Ismael Rivela"}}]}
+  </script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/landing.css" />
+</head>
+<body>
+
+  <div class="landing">
+
+    <!-- Custom Cursor -->
+    <div class="landing__cursor"></div>
+
+    <!-- Circular cursor text -->
+    <div class="landing__cursor-text">
+      <svg class="landing__cursor-text-svg" viewBox="0 0 140 140" width="140" height="140">
+        <defs>
+          <path id="landing-circle-path" d="M 70,70 m -56,0 a 56,56 0 1,1 112,0 a 56,56 0 1,1 -112,0" />
+        </defs>
+        <text class="landing__cursor-text-el">
+          <textPath href="#landing-circle-path">ENTER  ENTER  ENTER  ENTER  ENTER  ENTER  </textPath>
+        </text>
+      </svg>
+    </div>
+
+    <!-- SVG Fluid Divider -->
+    <svg class="landing__divider" preserveAspectRatio="none"></svg>
+
+    <!-- Left: VAMPS -->
+    <a href="/vamps/" class="landing__side landing__side--vamps" aria-label="VAMPS project">
+      <span class="landing__mobile-label">Go to Personal Project</span>
+      <div class="landing__content">
+        <div class="landing__vamps-morph">
+          <img class="landing__vamps-logo" src="/assets/vamps/logovamps.svg" alt="VAMPS" />
+          <img class="landing__vamps-title" src="/assets/vamps/vampstitle.svg" alt="VAMPS" />
+        </div>
+      </div>
+    </a>
+
+    <!-- Right: Ismael Rivela -->
+    <a href="/creative/" class="landing__side landing__side--ismael" aria-label="Work — Ismael Rivela">
+      <span class="landing__mobile-label">Go to Work</span>
+      <canvas class="landing__ascii"></canvas>
+      <div class="landing__content">
+        <div class="landing__image-wrapper">
+          <img 
+            src="/assets/landing/isma.png" 
+            alt="Ismael Rivela" 
+            class="landing__image"
+            loading="lazy"
+          />
+        </div>
+        <h1 class="landing__title-ismael">
+          Ismael Rivela
+          <span>Creative</span>
+        </h1>
+      </div>
+    </a>
+
+    <!-- Enter labels -->
+    <div class="landing__enter landing__enter--vamps">vamps project</div>
+    <div class="landing__enter landing__enter--ismael">work</div>
+
+  </div>
+
+  <script type="module" src="./js/landing.js"></script>
+</body>
+</html>
