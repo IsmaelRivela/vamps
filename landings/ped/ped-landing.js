@@ -8,8 +8,10 @@ const JOG_SPEED = 2.45;
 const WANDER_SPEED = 1.65;
 const TURN_TIME = 0.66;
 const PUNCH_REACH = 0.62;
-const WALK_X = 2.35;
-const WALK_Z = 1.15;
+const PED_BACK = -1.45;
+const WALK_X = 1.5;
+const WALK_Z_MIN = -2.05;
+const WALK_Z_MAX = -0.55;
 
 const canvas = document.getElementById("stage");
 const labelVamps = document.getElementById("label-vamps");
@@ -156,6 +158,7 @@ function centerPed() {
   }
   const grounded = bodyBox(root);
   hold.position.y -= grounded.min.y;
+  actor.position.set(0, 0, PED_BACK);
   pedHeight = height;
   return true;
 }
@@ -179,11 +182,11 @@ function framePed() {
   camera.near = 0.15;
   camera.far = Math.max(90, dist * 8);
   if (portrait && mobile) {
-    camera.position.set(0, height * 0.9, dist * 1.02);
-    camera.lookAt(0, height * 0.26, 0);
+    camera.position.set(0, height * 0.95, dist * 1.08);
+    camera.lookAt(0, height * 0.24, PED_BACK * 0.35);
   } else {
-    camera.position.set(0, height * 0.72, dist * 0.86);
-    camera.lookAt(0, height * 0.3, 0);
+    camera.position.set(0, height * 0.78, dist * 0.92);
+    camera.lookAt(0, height * 0.28, PED_BACK * 0.25);
   }
   camera.updateProjectionMatrix();
 }
@@ -204,47 +207,82 @@ function clipTime(name) {
   return clip ? clip.duration : 0.5;
 }
 
-function groundAtNdc(ndcX, ndcY) {
+function hitPlaneY(ndcX, ndcY, y) {
   ndc.set(ndcX, ndcY, 0.5).unproject(camera);
   rayDir.copy(ndc).sub(camera.position);
-  if (Math.abs(rayDir.y) < 0.0001) {
-    return new THREE.Vector3(ndcX * 4, 0, 0);
-  }
-  const t = -camera.position.y / rayDir.y;
+  if (Math.abs(rayDir.y) < 0.0001) return null;
+  const t = (y - camera.position.y) / rayDir.y;
+  if (t < 0.04) return null;
   return camera.position.clone().add(rayDir.multiplyScalar(t));
 }
 
-function wordOnGround(el) {
-  const r = el.getBoundingClientRect();
-  const portrait = isPortrait();
-  const top = el === labelVamps;
-  const px = portrait ? r.left + r.width * 0.5 : top ? r.right : r.left;
-  const py = portrait ? (top ? r.bottom : r.top) : r.top + r.height * 0.5;
-  const ndcX = (px / window.innerWidth) * 2 - 1;
-  const ndcY = -(py / window.innerHeight) * 2 + 1;
-  const hit = groundAtNdc(ndcX, ndcY);
-  hit.y = 0;
-  if (!Number.isFinite(hit.x) || !Number.isFinite(hit.z)) {
-    if (portrait) return new THREE.Vector3(0, 0, top ? -2.2 : 1.6);
-    return new THREE.Vector3(top ? -2.1 : 2.1, 0, actor.position.z);
+function shoulderHeight() {
+  if (pedModel) {
+    const names = ["L UpperArm", "R UpperArm", "Neck", "Bip01 L Clavicle"];
+    for (let i = 0; i < names.length; i += 1) {
+      const bone = pedModel.getObjectByName(names[i]);
+      if (!bone) continue;
+      bone.getWorldPosition(_pt);
+      if (Number.isFinite(_pt.y)) return _pt.y;
+    }
   }
-  return hit;
+  return Math.max(pedHeight, 1.89) * 0.72;
 }
 
-function targetForLabel(el) {
-  const word = wordOnGround(el);
-  const dx = word.x - actor.position.x;
-  const dz = word.z - actor.position.z;
-  const dist = Math.hypot(dx, dz);
-  if (dist <= PUNCH_REACH + 0.04) {
-    return actor.position.clone();
-  }
-  const s = (dist - PUNCH_REACH) / dist;
-  return new THREE.Vector3(
-    actor.position.x + dx * s,
+function wordPunchPoint(el) {
+  const r = el.getBoundingClientRect();
+  const ndcX = ((r.left + r.width * 0.5) / window.innerWidth) * 2 - 1;
+  const ndcY = -((r.top + r.height * 0.4) / window.innerHeight) * 2 + 1;
+  const y = shoulderHeight();
+  const hit = hitPlaneY(ndcX, ndcY, y);
+  if (hit && Number.isFinite(hit.x) && Number.isFinite(hit.z)) return hit;
+  const left = el === labelVamps;
+  return new THREE.Vector3(left ? -1.2 : 1.2, y, actor.position.z + 1.4);
+}
+
+function faceYaw(dx, dz) {
+  return yawXZ(dx, dz);
+}
+
+function facingXZ(yaw) {
+  return { x: -Math.sin(yaw), z: -Math.cos(yaw) };
+}
+
+function stanceForPunch(aim) {
+  const away = new THREE.Vector3(
+    aim.x - camera.position.x,
     0,
-    actor.position.z + dz * s
+    aim.z - camera.position.z
   );
+  if (away.lengthSq() < 0.0001) away.set(0, 0, -1);
+  away.normalize();
+  const dest = new THREE.Vector3(
+    aim.x + away.x * PUNCH_REACH,
+    0,
+    aim.z + away.z * PUNCH_REACH
+  );
+  const yaw = faceYaw(aim.x - dest.x, aim.z - dest.z);
+  const face = facingXZ(yaw);
+  const rightX = face.z;
+  const rightZ = -face.x;
+  dest.x -= rightX * 0.18;
+  dest.z -= rightZ * 0.18;
+  return { dest, punchFace: yaw };
+}
+
+function aimFistAt(target, label, correctHand) {
+  actor.rotation.y = shortest(
+    actor.rotation.y,
+    faceYaw(target.x - actor.position.x, target.z - actor.position.z)
+  );
+  if (!correctHand || !pedModel || !label) return;
+  const hand = pedModel.getObjectByName("R Hand") || pedModel.getObjectByName("R Finger");
+  if (!hand) return;
+  hand.getWorldPosition(_pt);
+  _pt.project(camera);
+  const r = label.getBoundingClientRect();
+  const wantX = ((r.left + r.width * 0.5) / window.innerWidth) * 2 - 1;
+  actor.rotation.y += (wantX - _pt.x) * 0.7;
 }
 
 function shortest(from, to) {
@@ -363,14 +401,13 @@ function startTurn() {
 }
 
 function pickWanderPoint() {
-  const bx = isPortrait() ? 1.15 : WALK_X;
-  const bz = isPortrait() ? 1.55 : WALK_Z;
+  const bx = isPortrait() ? 1.05 : WALK_X;
   let x = actor.position.x;
   let z = actor.position.z;
   for (let i = 0; i < 10; i += 1) {
     x = (Math.random() * 2 - 1) * bx;
-    z = (Math.random() * 2 - 1) * bz;
-    if (Math.hypot(x - actor.position.x, z - actor.position.z) > 0.95) break;
+    z = WALK_Z_MIN + Math.random() * (WALK_Z_MAX - WALK_Z_MIN);
+    if (Math.hypot(x - actor.position.x, z - actor.position.z) > 0.7) break;
   }
   return { x, z };
 }
@@ -404,15 +441,14 @@ function startTrip(side) {
   labelVamps.classList.toggle("is-locked", side === "left");
   labelWork.classList.toggle("is-locked", side === "right");
   const label = side === "left" ? labelVamps : labelWork;
-  const dest = targetForLabel(label);
-  const word = wordOnGround(label);
-  goTo(dest, {
+  const aim = wordPunchPoint(label);
+  const stance = stanceForPunch(aim);
+  goTo(stance.dest, {
     label,
     url: side === "left" ? VAMPS : PORTFOLIO,
-    punchFace: shortest(
-      actor.rotation.y,
-      yawXZ(word.x - dest.x, word.z - dest.z)
-    ),
+    punchFace: shortest(actor.rotation.y, stance.punchFace),
+    aim,
+    showMark: false,
   });
 }
 
@@ -422,7 +458,8 @@ function goTo(dest, opts = {}) {
   wander = null;
   afterScratchHold = null;
   busy = true;
-  markClick(dest);
+  if (opts.showMark === false) hideClick();
+  else markClick(dest);
   const dx = dest.x - actor.position.x;
   const dz = dest.z - actor.position.z;
   if (Math.hypot(dx, dz) < 0.12) {
@@ -435,6 +472,7 @@ function goTo(dest, opts = {}) {
         label: opts.label || null,
         url: opts.url,
         punchFace: face,
+        aim: opts.aim || null,
         face,
         faceFrom: face,
         t: 0,
@@ -454,6 +492,7 @@ function goTo(dest, opts = {}) {
     label: opts.label || null,
     url: opts.url || null,
     punchFace: opts.punchFace,
+    aim: opts.aim || null,
     faceFrom: actor.rotation.y,
     face,
     t: 0,
@@ -543,28 +582,60 @@ function updateTrip(dt) {
     actor.rotation.y = trip.face;
     const reached = stepToward(trip.dest, JOG_SPEED * dt);
     if (reached) {
-      if (trip.punchFace != null) {
-        actor.rotation.y = shortest(actor.rotation.y, trip.punchFace);
-      } else {
-        actor.rotation.y = trip.face;
+      if (trip.url && trip.punchFace != null) {
+        const aim = shortest(actor.rotation.y, trip.punchFace);
+        if (Math.abs(aim - actor.rotation.y) > 0.28) {
+          trip.phase = "aim";
+          trip.faceFrom = actor.rotation.y;
+          trip.face = aim;
+          trip.t = 0;
+          const delta = aim - actor.rotation.y;
+          const turnName =
+            Math.abs(delta) > 2.2 ? "turn_180" : delta > 0 ? "Turn_R" : "Turn_L";
+          if (actions[turnName]) {
+            actions[turnName].timeScale = 1.2;
+            play(turnName, 0.06, true);
+          }
+          trip.turnDur = clipTime(turnName) / 1.2;
+          return;
+        }
+        actor.rotation.y = aim;
+        play("FightA_1", 0.08, true);
+        trip.phase = "punch";
+        trip.t = 0;
+        return;
       }
       if (trip.url) {
         play("FightA_1", 0.08, true);
         trip.phase = "punch";
         trip.t = 0;
-      } else {
-        trip = null;
-        busy = false;
-        hideClick();
-        play("IDLE_stance", 0.16, false);
-        afterScratchHold = 1.1;
+        return;
       }
+      trip = null;
+      busy = false;
+      hideClick();
+      play("IDLE_stance", 0.16, false);
+      afterScratchHold = 1.1;
+    }
+    return;
+  }
+  if (trip.phase === "aim") {
+    trip.t += dt;
+    const u = Math.min(1, trip.t / Math.max(trip.turnDur, 0.28));
+    const s = u * u * (3 - 2 * u);
+    actor.rotation.y = trip.faceFrom + (trip.face - trip.faceFrom) * s;
+    if (u >= 1) {
+      actor.rotation.y = trip.face;
+      play("FightA_1", 0.08, true);
+      trip.phase = "punch";
+      trip.t = 0;
     }
     return;
   }
   if (trip.phase === "punch") {
-    actor.rotation.y =
-      trip.punchFace != null ? trip.punchFace : trip.face;
+    if (trip.aim) aimFistAt(trip.aim, trip.label, trip.t > 0.1);
+    else if (trip.punchFace != null) actor.rotation.y = trip.punchFace;
+    else actor.rotation.y = trip.face;
     trip.t += dt;
     if (!trip.hit && trip.t > 0.16) {
       trip.hit = true;
