@@ -23,3 +23,5 @@ node landings/use.mjs ped
 Eso solo sustituye `/index.html`. No borra nada.
 
 Los CSS/JS de classic siguen en `/css/landing.css` y `/js/landing.js`. Los de ped viven solo en `landings/ped/`. El modelo está en `public/models/ped.glb`.
+
+Exportar un GLB nuevo: `landings/EXPORT.md`. Notas para el agente: `AGENTS.md` en la raíz.
