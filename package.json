@@ -6,6 +6,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "optimize": "node optimize-assets.mjs",
+    "export:tulipana-hero": "python3 scripts/export-tulipana-parallax.py && node scripts/optimize-tulipana-parallax.mjs",
     "webp": "node convert-to-webp.mjs"
   },
   "keywords": [],

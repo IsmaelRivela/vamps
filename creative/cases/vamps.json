@@ -1,0 +1,128 @@
+{
+  "id": "vamps",
+  "assetDir": "vamps-brand",
+  "projectNo": "000001",
+  "title": "VAMPS",
+  "theme": {
+    "bg": "#e5e5e5",
+    "stage": "#d4d4d4",
+    "text": "#0a0a0a"
+  },
+  "hero": {
+    "type": "image",
+    "src": "/assets/projects/vamps-brand/full-width-vamps.png",
+    "alt": "VAMPS hero"
+  },
+  "rows": [
+    {
+      "label": "CONTEXT",
+      "value": "VAMPS started as a riff on Vans — \"Vamps of the world\" instead of \"Vans of the world\" — and grew into a concept brand with its own cheeky, barely controllable personality."
+    },
+    {
+      "label": "IDEA",
+      "value": "Not about blood or coffins: laid-back characters, vampire doodles, and \"vampirifications\" of things I like. A visual universe that's desenfadado, afable and hard to pin down."
+    },
+    {
+      "label": "ROLE",
+      "value": "Creative director"
+    },
+    {
+      "label": "YEAR",
+      "value": "2026"
+    },
+    {
+      "label": "DISCIPLINES",
+      "value": "Branding · Web · Editorial · Product"
+    },
+    {
+      "label": "DELIVERABLES",
+      "value": "Logo system · Typography · Colour · Character & applications"
+    }
+  ],
+  "carousel": [
+    {
+      "id": "logo-construction-1",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/logocontruction1.svg",
+      "alt": "Logo construction 1"
+    },
+    {
+      "id": "logo-construction-2",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/logocontruction2.svg",
+      "alt": "Logo construction 2"
+    },
+    {
+      "id": "clear-spaces",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/logo-design-clear-spaces-security.svg",
+      "alt": "Clear spaces"
+    },
+    {
+      "id": "full-logo",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/full-width-logo.png",
+      "alt": "Full width logo"
+    },
+    {
+      "id": "isologo",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/isologotest.png",
+      "alt": "VAMPS isologo"
+    },
+    {
+      "id": "isodesigns",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/isodesigns.svg",
+      "alt": "Isotype designs"
+    },
+    {
+      "id": "iso-closeup",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/-full-width-iso.png",
+      "alt": "Isotype close-up"
+    },
+    {
+      "id": "color",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/color.jpg",
+      "alt": "Colour guidelines"
+    },
+    {
+      "id": "typography",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/helveticavampsbasefont.svg",
+      "alt": "Helvetica base typography"
+    },
+    {
+      "id": "closeups",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/closeups.png",
+      "alt": "Details"
+    },
+    {
+      "id": "vamp-figure",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/vamp-figure.jpg",
+      "alt": "Vamp figure"
+    },
+    {
+      "id": "heart-edit",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/vampheartedit.png",
+      "alt": "Heart edit"
+    },
+    {
+      "id": "pattern",
+      "type": "image",
+      "src": "/assets/projects/vamps-brand/vamps-edit.png",
+      "alt": "Editorial pattern"
+    }
+  ],
+  "carouselStart": 8,
+  "gallery": [],
+  "nav": {
+    "prev": { "case": "copydad", "title": "Copydad" },
+    "next": { "case": "tulipana", "title": "La Tulipana" }
+  }
+}

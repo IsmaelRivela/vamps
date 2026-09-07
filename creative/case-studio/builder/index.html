@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Case Studio Builder · VAMPS</title>
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/case-studio.css" />
+</head>
+<body>
+
+  <div class="cstudio-builder-page" data-case-builder>
+    <header class="cstudio-builder-page__bar">
+      <a href="/creative/">← Work</a>
+      <label>
+        Case
+        <select data-case-select></select>
+      </label>
+      <button type="button" data-export>Export JSON</button>
+      <button type="button" data-reset>Reset overrides</button>
+      <a href="/creative/case-studio/?case=tulipana" data-open-case>Open case</a>
+    </header>
+    <div class="cstudio-builder-page__body">
+      <aside class="cstudio-builder-page__side">
+        <p class="cstudio-builder__hint">Enable carousel items for the right panel. Count adapts automatically. Order with ↑↓. Saved per browser.</p>
+        <ul class="cstudio-builder__list" data-builder-list></ul>
+      </aside>
+      <div class="cstudio-builder-page__preview">
+        <iframe data-preview title="Case preview" src="/creative/case-studio/?case=tulipana"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initCaseStudioBuilder } from "/js/case-studio.js";
+    initCaseStudioBuilder();
+
+    const select = document.querySelector("[data-case-select]");
+    const open = document.querySelector("[data-open-case]");
+    const preview = document.querySelector("[data-preview]");
+    select?.addEventListener("change", () => {
+      const id = select.value;
+      if (open) open.href = `/creative/case-studio/?case=${id}`;
+      if (preview) preview.src = `/creative/case-studio/?case=${id}`;
+    });
+  </script>
+</body>
+</html>

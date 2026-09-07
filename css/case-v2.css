@@ -1,0 +1,183 @@
+/* ============================================
+   Case v2 — editorial stack (Tot-like)
+   Helvetica only · visual-first
+   ============================================ */
+
+body:has(.case-v2) {
+  background: #fbf2f0;
+  color: #1a0a08;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.case-v2 {
+  --case-bg: #fbf2f0;
+  --case-text: #1a0a08;
+  --case-muted: #7a4a44;
+  --case-gap: clamp(0.65rem, 1.6vw, 1rem);
+  --case-pad: clamp(1.25rem, 4vw, 3.5rem);
+
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: var(--case-bg);
+  color: var(--case-text);
+  min-height: 100dvh;
+}
+
+.case-v2 *,
+.case-v2 *::before,
+.case-v2 *::after {
+  font-family: inherit;
+}
+
+.case-v2__mark {
+  position: fixed;
+  top: var(--case-pad);
+  left: var(--case-pad);
+  z-index: 20;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--case-text);
+  opacity: 0.72;
+  transition: opacity 0.2s ease;
+}
+
+.case-v2__mark:hover,
+.case-v2__mark:focus-visible {
+  opacity: 1;
+}
+
+.case-v2__lead {
+  margin: 0;
+}
+
+.case-v2__lead img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.case-v2__intro {
+  padding: clamp(2.5rem, 7vh, 4.5rem) var(--case-pad);
+  max-width: 34rem;
+}
+
+.case-v2__eyebrow {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--case-muted);
+}
+
+.case-v2__title {
+  margin: 0 0 1.25rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.case-v2__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.5rem;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--case-muted);
+}
+
+.case-v2__meta a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.case-v2__meta a:hover,
+.case-v2__meta a:focus-visible {
+  color: var(--case-text);
+}
+
+.case-v2__meta strong {
+  font-weight: 500;
+  color: var(--case-text);
+}
+
+.case-v2__text {
+  margin: 0;
+  font-size: clamp(0.9375rem, 1.35vw, 1.0625rem);
+  font-weight: 400;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+}
+
+.case-v2__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--case-gap);
+  padding-bottom: clamp(3rem, 8vh, 5rem);
+}
+
+.case-v2__figure {
+  margin: 0;
+}
+
+.case-v2__figure img,
+.case-v2__pair img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.case-v2__figure--inset {
+  padding-inline: var(--case-pad);
+}
+
+.case-v2__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--case-gap);
+  padding-inline: var(--case-pad);
+}
+
+.case-v2__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 2rem var(--case-pad) 2.5rem;
+  border-top: 1px solid rgba(26, 10, 8, 0.1);
+  font-size: 0.8125rem;
+}
+
+.case-v2__nav a {
+  color: var(--case-text);
+  text-decoration: none;
+  opacity: 0.72;
+  transition: opacity 0.2s ease;
+}
+
+.case-v2__nav a:hover,
+.case-v2__nav a:focus-visible {
+  opacity: 1;
+}
+
+.case-v2__nav-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--case-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+}
+
+@media (max-width: 640px) {
+  .case-v2__pair {
+    grid-template-columns: 1fr;
+  }
+}

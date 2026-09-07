@@ -1,0 +1,172 @@
+{
+  "id": "tulipana",
+  "projectNo": "000003",
+  "title": "La Tulipana",
+  "titleImage": "/assets/projects/tulipana/pixelartlogo.webp",
+  "titleImageAlt": "La Tulipana",
+  "theme": {
+    "bg": "#e5e5e5",
+    "stage": "#d8d8d8",
+    "text": "#0a0a0a"
+  },
+  "hero": {
+    "type": "parallax",
+    "alt": "La Tulipana — Talking Through Flowers",
+    "scrollLock": true,
+    "mobileAutoplay": true,
+    "mobileLoopSeconds": 18,
+    "logoBaseScale": 0.32,
+    "logoMaxScale": 1.14,
+    "diveDistance": 2600,
+    "holdDistance": 500,
+    "scrollSpeed": 1000,
+    "wheelStep": 110,
+    "flowerMidZ": -900,
+    "refEnter": 0.28,
+    "refTunnel": 0.58,
+    "refExit": 0.86,
+    "groundDrop": 6.5,
+    "base": "/assets/projects/tulipana/parallax/fondo.webp",
+    "fondoPlacement": {
+      "left": -13.0078,
+      "top": -8.3125,
+      "width": 120.8984,
+      "height": 108.3125
+    },
+    "layers": [
+      {
+        "id": "cloud-3",
+        "file": "cloud-3.webp",
+        "repeat": 3,
+        "speed": 34,
+        "cloudWidth": 31.7969,
+        "placement": { "top": 5.8125, "height": 27.5 }
+      },
+      {
+        "id": "layer-4",
+        "file": "layer-4.webp",
+        "placement": { "left": 0, "top": 55.75, "width": 104.5313, "height": 66.4375 }
+      },
+      {
+        "id": "layer-2",
+        "file": "layer-2.webp",
+        "placement": { "left": -6.3672, "top": 41.9375, "width": 46.8359, "height": 65.6875 }
+      },
+      {
+        "id": "layer-3",
+        "file": "layer-3.webp",
+        "placement": { "left": 63.4766, "top": 48.125, "width": 38.125, "height": 56.875 }
+      },
+      {
+        "id": "layer-1",
+        "file": "layer-1.webp",
+        "placement": { "left": 72.1484, "top": -20.6875, "width": 42.9297, "height": 73.3125 }
+      },
+      {
+        "id": "logo",
+        "file": "logo.webp",
+        "placement": { "left": 29.5, "top": 40.5, "width": 41, "height": 12.05 }
+      },
+      {
+        "id": "layer-5",
+        "file": "layer-5.webp",
+        "placement": { "left": -6.4844, "top": -8.3125, "width": 114.1016, "height": 130.5 }
+      }
+    ]
+  },
+  "rows": [
+    {
+      "label": "CONTEXT",
+      "value": "La Tulipana is a London florist with a strong character. The brand lives between craft and screen — flowers arranged by hand, sold and shared through digital channels."
+    },
+    {
+      "label": "IDEA",
+      "value": "Use the tension between digital and handmade as the creative thread: ASCII bouquets, pixel logos, and a coral-cream system that feels warm online and tactile in print.",
+      "html": true
+    },
+    {
+      "label": "ROLE",
+      "value": "Concept, project & content management"
+    },
+    {
+      "label": "CLIENT",
+      "value": "Anita García Rico"
+    },
+    {
+      "label": "WITH",
+      "value": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>",
+      "html": true
+    },
+    {
+      "label": "YEAR",
+      "value": "2025"
+    },
+    {
+      "label": "DELIVERABLES",
+      "value": "Brand identity · ASCII tool · Social content · Mother's Day web"
+    }
+  ],
+  "carousel": [
+    {
+      "id": "tv-sony",
+      "type": "model",
+      "src": "/assets/3d/tv_sony.glb",
+      "content": "/assets/projects/tulipana/talking-through-flowers.mp4",
+      "contentFit": "coverWidth",
+      "contentAnchorY": 0.7,
+      "contentInsetY": 0.095,
+      "spin": false,
+      "alt": "Talking Through Flowers on CRT"
+    },
+    {
+      "id": "cabecera",
+      "type": "image",
+      "src": "/assets/projects/tulipana/cabecera3.webp",
+      "alt": "La Tulipana branding"
+    },
+    {
+      "id": "ascii-tool",
+      "type": "image",
+      "src": "/assets/projects/tulipana/converter.webp",
+      "alt": "ASCII converter"
+    },
+    {
+      "id": "ascii-result",
+      "type": "image",
+      "src": "/assets/projects/tulipana/ramoprueba.webp",
+      "alt": "ASCII bouquet"
+    },
+    {
+      "id": "pixel-logo",
+      "type": "image",
+      "src": "/assets/projects/tulipana/pixelartlogo.webp",
+      "alt": "Pixel logo"
+    },
+    {
+      "id": "social",
+      "type": "video",
+      "src": "/assets/projects/tulipana/gifrrss.gif",
+      "poster": "/assets/projects/tulipana/tarjeta.webp",
+      "alt": "Social content"
+    },
+    {
+      "id": "web-header",
+      "type": "image",
+      "src": "/assets/projects/tulipana/header-tulip.webp",
+      "alt": "Web header"
+    },
+    {
+      "id": "bnomio",
+      "type": "link",
+      "href": "https://bnomio.studio",
+      "label": "bnomio.studio",
+      "thumb": "/assets/projects/tulipana/archive-drops.webp",
+      "alt": "Visit bnomio.studio"
+    }
+  ],
+  "gallery": [],
+  "nav": {
+    "prev": { "case": "vamps", "title": "VAMPS" },
+    "next": { "case": "copydad", "title": "Copydad" }
+  }
+}

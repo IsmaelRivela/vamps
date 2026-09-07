@@ -1,0 +1,99 @@
+{
+  "id": "copydad",
+  "projectNo": "000002",
+  "title": "Copydad",
+  "theme": {
+    "bg": "#e5e5e5",
+    "stage": "#d8d8d8",
+    "text": "#0a0a0a"
+  },
+  "hero": {
+    "type": "image",
+    "src": "/assets/projects/copydad/hero.svg",
+    "alt": "Copydad hero"
+  },
+  "rows": [
+    {
+      "label": "CONTEXT",
+      "value": "Copydad is a brand of unique pieces taken from your dad's wardrobe, between New York and Madrid — one-of-a-kind garments with a story baked in."
+    },
+    {
+      "label": "IDEA",
+      "value": "One word: steal. The concept connects fathers and sons through an emotional transaction — raiding dad's closet. The real value isn't the garment, it's answering \"where did you get that?\" with \"I stole it from my dad.\""
+    },
+    {
+      "label": "ROLE",
+      "value": "Concept & content branding"
+    },
+    {
+      "label": "CLIENT",
+      "value": "Max García Rico"
+    },
+    {
+      "label": "WITH",
+      "value": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>",
+      "html": true
+    },
+    {
+      "label": "YEAR",
+      "value": "2026"
+    },
+    {
+      "label": "SECTOR",
+      "value": "Fashion — NY / Madrid"
+    },
+    {
+      "label": "DELIVERABLES",
+      "value": "Naming · Visual identity · Stickers · Apparel concept"
+    }
+  ],
+  "carousel": [
+    {
+      "id": "logo-construction",
+      "type": "image",
+      "src": "/assets/projects/copydad/Logo-construction960.jpg",
+      "alt": "Logo construction"
+    },
+    {
+      "id": "inkbleed",
+      "type": "image",
+      "src": "/assets/projects/copydad/inkbleed-version2.jpg",
+      "alt": "Inkbleed version"
+    },
+    {
+      "id": "isotype",
+      "type": "image",
+      "src": "/assets/projects/copydad/lilthiefisotype.jpg",
+      "alt": "Lil Thief isotype"
+    },
+    {
+      "id": "stickers",
+      "type": "image",
+      "src": "/assets/projects/copydad/stickers.jpg",
+      "alt": "Stickers"
+    },
+    {
+      "id": "touchpoints",
+      "type": "image",
+      "src": "/assets/projects/copydad/touchpoints.png",
+      "alt": "Touchpoints"
+    },
+    {
+      "id": "concept",
+      "type": "image",
+      "src": "/assets/projects/copydad/conceptoropa.jpg",
+      "alt": "Clothing concept"
+    },
+    {
+      "id": "shirts",
+      "type": "image",
+      "src": "/assets/projects/copydad/shirts.png",
+      "alt": "Copydad shirts"
+    }
+  ],
+  "gallery": [],
+  "nav": {
+    "prev": { "case": "tulipana", "title": "La Tulipana" },
+    "next": { "case": "vamps", "title": "VAMPS" }
+  }
+}

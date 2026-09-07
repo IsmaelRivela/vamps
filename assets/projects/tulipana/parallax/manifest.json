@@ -1,0 +1,137 @@
+{
+  "canvas": {
+    "width": 2560,
+    "height": 1600,
+    "aspect": 1.6
+  },
+  "layers": [
+    {
+      "id": "fondo",
+      "file": "fondo.webp",
+      "bbox": [
+        -333,
+        -133,
+        2762,
+        1600
+      ],
+      "placement": {
+        "left": -13.0078,
+        "top": -8.3125,
+        "width": 120.8984,
+        "height": 108.3125
+      }
+    },
+    {
+      "id": "cloud-3",
+      "file": "cloud-3.webp",
+      "bbox": [
+        86,
+        93,
+        900,
+        533
+      ],
+      "placement": {
+        "left": 3.3594,
+        "top": 5.8125,
+        "width": 31.7969,
+        "height": 27.5
+      }
+    },
+    {
+      "id": "layer-4",
+      "file": "layer-4.webp",
+      "bbox": [
+        0,
+        892,
+        2676,
+        1955
+      ],
+      "placement": {
+        "left": 0.0,
+        "top": 55.75,
+        "width": 104.5313,
+        "height": 66.4375
+      }
+    },
+    {
+      "id": "layer-1",
+      "file": "layer-1.webp",
+      "bbox": [
+        1847,
+        -331,
+        2946,
+        842
+      ],
+      "placement": {
+        "left": 72.1484,
+        "top": -20.6875,
+        "width": 42.9297,
+        "height": 73.3125
+      }
+    },
+    {
+      "id": "layer-2",
+      "file": "layer-2.webp",
+      "bbox": [
+        -163,
+        671,
+        1036,
+        1722
+      ],
+      "placement": {
+        "left": -6.3672,
+        "top": 41.9375,
+        "width": 46.8359,
+        "height": 65.6875
+      }
+    },
+    {
+      "id": "layer-3",
+      "file": "layer-3.webp",
+      "bbox": [
+        1625,
+        770,
+        2601,
+        1680
+      ],
+      "placement": {
+        "left": 63.4766,
+        "top": 48.125,
+        "width": 38.125,
+        "height": 56.875
+      }
+    },
+    {
+      "id": "logo",
+      "file": "logo.webp",
+      "bbox": [
+        667,
+        616,
+        1922,
+        984
+      ],
+      "placement": {
+        "left": 26.0547,
+        "top": 38.5,
+        "width": 49.0234,
+        "height": 23.0
+      }
+    },
+    {
+      "id": "layer-5",
+      "file": "layer-5.webp",
+      "bbox": [
+        -166,
+        -133,
+        2755,
+        1955
+      ],
+      "placement": {
+        "left": -6.4844,
+        "top": -8.3125,
+        "width": 114.1016,
+        "height": 130.5
+      }
+    }
+  ]
+}

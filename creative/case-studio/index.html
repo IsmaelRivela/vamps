@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Case Studio · VAMPS</title>
+  <meta name="description" content="Capital-style case template with dock media selector." />
+  <link rel="stylesheet" href="/css/globals.css" />
+  <link rel="stylesheet" href="/css/case-studio.css" />
+  <link rel="stylesheet" href="/css/case-studio-parallax.css" />
+</head>
+<body data-case="tulipana">
+
+  <div class="cstudio" data-case-studio>
+    <header class="cstudio__nav">
+      <a class="cstudio__nav-logo" href="/creative/" aria-label="Creative">
+        <img
+          src="/assets/brand/studio-logo.png"
+          alt="Studio"
+          width="300"
+          height="120"
+          decoding="async"
+        />
+      </a>
+    </header>
+
+    <section class="cstudio__hero" data-hero aria-hidden="true"></section>
+
+    <div class="cstudio__sheet">
+      <div class="cstudio__grid">
+        <aside class="cstudio__spec">
+          <div class="cstudio__rows" data-meta-rows></div>
+          <div class="cstudio__rows" data-rows></div>
+          <nav class="cstudio__case-nav" data-case-nav hidden></nav>
+        </aside>
+
+        <div class="cstudio__stage-col">
+          <div class="cstudio__stage" data-stage>
+            <div class="cstudio__viewer" data-viewer aria-live="polite"></div>
+            <div class="cstudio__dock-scene" data-dock-scene>
+              <div class="cstudio__dock-ring" data-dock-ring></div>
+            </div>
+            <footer class="cstudio__stage-foot">
+              <span class="cstudio__stage-index">
+                <span data-carousel-index>01</span> / <span data-carousel-count>00</span>
+              </span>
+              <span class="cstudio__stage-label" data-carousel-label hidden></span>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initCaseStudio } from "/js/case-studio.js";
+    initCaseStudio();
+  </script>
+</body>
+</html>
