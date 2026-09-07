@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-assets-to-dist.mjs",
     "preview": "vite preview",
     "optimize": "node optimize-assets.mjs",
     "export:tulipana-hero": "python3 scripts/export-tulipana-parallax.py && node scripts/optimize-tulipana-parallax.mjs",
