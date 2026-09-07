@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://vamps.studio/</loc>
+    <loc>https://levamps.com/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/vamps/</loc>
+    <loc>https://levamps.com/vamps/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/creative/</loc>
+    <loc>https://levamps.com/creative/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/work/</loc>
+    <loc>https://levamps.com/work/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/about/</loc>
+    <loc>https://levamps.com/about/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/creative/case-studio/?case=vamps</loc>
+    <loc>https://levamps.com/creative/case-studio/?case=vamps</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/creative/case-studio/?case=tulipana</loc>
+    <loc>https://levamps.com/creative/case-studio/?case=tulipana</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/creative/case-studio/?case=copydad</loc>
+    <loc>https://levamps.com/creative/case-studio/?case=copydad</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/work/verbena-case/</loc>
+    <loc>https://levamps.com/work/verbena-case/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/vamps/back2school/</loc>
+    <loc>https://levamps.com/vamps/back2school/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://vamps.studio/vamps/pharma/</loc>
+    <loc>https://levamps.com/vamps/pharma/</loc>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>

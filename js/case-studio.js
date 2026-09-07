@@ -130,7 +130,7 @@ export async function initCaseStudio(root = document) {
     canonical.rel = "canonical";
     document.head.appendChild(canonical);
   }
-  canonical.href = `https://vamps.studio/creative/case-studio/?case=${encodeURIComponent(config.id)}`;
+  canonical.href = `https://levamps.com/creative/case-studio/?case=${encodeURIComponent(config.id)}`;
 
   return { config, stage, dispose: () => parallaxDispose?.() };
 }
