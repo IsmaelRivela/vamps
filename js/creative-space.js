@@ -9,7 +9,7 @@ const LASTFM_USER = "ismaelrivela";
 const LASTFM_KEY = "e3724b3c0543dd7ab22dfc394ffd4afc";
 const ARTWORK_API = "https://vamps-artwork-api.vercel.app/api/artwork";
 const LASTFM_PLACEHOLDER = "2a96cbd8b46e442fc41c2b86b821562f";
-const BG = 0xf3f3f1;
+const BG = 0xefece6;
 const LINE_IDLE = 0.28;
 const LINE_HOVER = 0.78;
 const LINE_COLOR = 0x6f6a64;
@@ -657,7 +657,7 @@ function drawDockCanvas(ctx, tracks) {
   const w = 512;
   const h = 220;
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = "#f3f3f1";
+  ctx.fillStyle = "#f4f1ea";
   roundRect(ctx, 0, 0, w, h, 28);
   ctx.fill();
   ctx.strokeStyle = "rgba(28,27,25,0.07)";
@@ -678,7 +678,7 @@ function drawDockCanvas(ctx, tracks) {
   for (let i = 0; i < 3; i++) {
     const t = tracks[i];
     const x = startX + i * (slotW + gap);
-    ctx.fillStyle = "#e8e8e6";
+    ctx.fillStyle = "#e4e0d8";
     roundRect(ctx, x + (slotW - coverS) / 2, coverY, coverS, coverS, 10);
     ctx.fill();
     if (t?.artImg) {

@@ -2,7 +2,7 @@
 
 html,
 body.space {
-  background: #f3f3f1;
+  background: #efece6;
   color: #1c1b19;
   cursor: auto;
 }
@@ -51,7 +51,7 @@ body.space #stage {
   width: 248px;
   padding: 0.62rem 0.68rem 0.72rem;
   border-radius: 20px;
-  background: #f3f3f1;
+  background: #efece6;
   border: 1px solid rgb(28 27 25 / 0.07);
   box-shadow:
     0 18px 42px rgb(28 27 25 / 0.12),
@@ -95,7 +95,7 @@ body.space #stage {
   aspect-ratio: 1;
   height: 64px;
   border-radius: 7px;
-  background: #e8e8e6;
+  background: #e4e0d8;
 }
 
 .space-dock__cover {
@@ -107,7 +107,7 @@ body.space #stage {
 }
 
 .space-dock__cover--empty {
-  background: #dededc;
+  background: #ddd8ce;
 }
 
 .space-dock__name,
@@ -235,7 +235,7 @@ body.space #stage {
   z-index: 400;
   padding: 0.5rem 0.75rem;
   background: #1c1b19;
-  color: #f3f3f1;
+  color: #efece6;
 }
 
 .skip:focus {
@@ -439,7 +439,7 @@ body.space #stage {
   overflow: visible;
   padding: 0.5rem 0.75rem;
   background: #1c1b19;
-  color: #f3f3f1;
+  color: #efece6;
   z-index: 400;
 }
 
@@ -666,7 +666,7 @@ body.space #stage {
   width: 100%;
   padding: 0.95rem 0.85rem 1rem;
   border-radius: 1.1rem;
-  background: #f3f3f1;
+  background: #efece6;
   border: 1px solid rgb(28 27 25 / 0.07);
 }
 
@@ -731,7 +731,7 @@ body.space #stage {
   height: 4.1rem;
   border-radius: 0.45rem;
   object-fit: cover;
-  background: #e8e8e6;
+  background: #e4e0d8;
 }
 
 .space-dock-mobile__name,

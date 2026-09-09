@@ -24,17 +24,17 @@ const renderer = new THREE.WebGLRenderer({
   antialias: true,
   alpha: false,
 });
-renderer.setClearColor(0xf3f3f1, 1);
+renderer.setClearColor(0xefece6, 1);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf3f3f1);
+scene.background = new THREE.Color(0xefece6);
 
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 80);
 
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(90, 90),
-  new THREE.MeshBasicMaterial({ color: 0xf3f3f1 })
+  new THREE.MeshBasicMaterial({ color: 0xefece6 })
 );
 floor.rotation.x = -Math.PI / 2;
 scene.add(floor);
