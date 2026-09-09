@@ -265,8 +265,23 @@ body:has(.cstudio) {
 
 .cstudio__title-img {
   display: block;
-  height: clamp(1.1rem, 2.5vw, 1.75rem);
+  height: clamp(1.35rem, 2.8vw, 2.05rem);
   width: auto;
+  max-width: min(100%, 14rem);
+  padding: 4px 0;
+  box-sizing: content-box;
+}
+
+.cstudio__title-img--copydad {
+  max-width: min(100%, 11rem);
+}
+
+.cstudio__title-img--vamps {
+  max-width: min(100%, 9.5rem);
+}
+
+.cstudio__title-img--tulipana {
+  max-width: min(100%, 11rem);
 }
 
 .cstudio__case-nav {
@@ -482,27 +497,95 @@ body:has(.cstudio) {
   opacity: 1;
 }
 
-.cstudio__glyphs {
+.cstudio__glyphs,
+.cstudio__loupe {
   width: 100%;
+}
+
+.cstudio__glyphs-loupe {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: min(52vh, 22rem);
+  cursor: none;
+  border-radius: 0.2rem;
+}
+
+.cstudio__glyphs-loupe .ascii-loupe__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cstudio__glyphs-loupe .ascii-loupe__lens {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid #0a0a0a;
+  box-shadow:
+    0 0 0 3px rgb(10 10 10 / 0.08),
+    0 4px 20px rgb(0 0 0 / 0.22);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  background-repeat: no-repeat;
+  z-index: 2;
+  transition: opacity 0.2s ease;
+}
+
+.cstudio__glyphs-loupe:hover .ascii-loupe__lens {
+  opacity: 1;
+}
+
+.cstudio__glyphs-loupe-hint {
+  position: absolute;
+  left: 0.65rem;
+  bottom: 0.55rem;
+  z-index: 1;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: rgb(10 10 10 / 0.72);
+  background: rgb(229 229 229 / 0.82);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cstudio__glyphs-loupe:hover .cstudio__glyphs-loupe-hint {
+  opacity: 1;
+}
+
+.cstudio__dock-item--glyph img {
+  padding: 22%;
+  object-fit: contain;
 }
 
 .cstudio__glyphs-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(0.45rem, 2vw, 0.75rem);
+  grid-template-columns: repeat(3, minmax(0, 2.65rem));
+  justify-content: center;
+  gap: 0.35rem 0.5rem;
+  max-width: 9.5rem;
+  margin: 0 auto;
 }
 
 .cstudio__glyphs-grid img {
   display: block;
   width: 100%;
   height: auto;
+  max-height: 2.65rem;
+  object-fit: contain;
 }
 
 .cstudio__glyphs-font {
-  margin: 0.85rem 0 0;
+  margin: 0.75rem 0 0;
   font-size: 0.6875rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-align: center;
+  white-space: nowrap;
   opacity: 0.55;
 }
 
@@ -1031,7 +1114,29 @@ body:has(.cstudio) {
   }
 
   .cstudio__title-img {
-    height: clamp(1rem, 4.5vw, 1.45rem);
+    height: clamp(1.2rem, 4.8vw, 1.65rem);
+  }
+
+  .cstudio__title-img--copydad {
+    max-width: min(100%, 10rem);
+  }
+
+  .cstudio__title-img--vamps {
+    max-width: min(100%, 8.5rem);
+  }
+
+  .cstudio__title-img--tulipana {
+    max-width: min(100%, 10rem);
+  }
+
+  .cstudio__glyphs-grid {
+    grid-template-columns: repeat(3, minmax(0, 2.35rem));
+    max-width: 8.5rem;
+    gap: 0.3rem 0.45rem;
+  }
+
+  .cstudio__glyphs-grid img {
+    max-height: 2.35rem;
   }
 
   .cstudio__case-nav {

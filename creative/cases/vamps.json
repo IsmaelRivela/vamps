@@ -3,6 +3,9 @@
   "assetDir": "vamps-brand",
   "projectNo": "000001",
   "title": "VAMPS",
+  "titleImage": "/assets/projects/vamps-brand/vamps-wordmark.svg",
+  "titleImageAlt": "VAMPS",
+  "titleImageClass": "vamps",
   "theme": {
     "bg": "#e5e5e5",
     "stage": "#d4d4d4",
@@ -100,8 +103,8 @@
     {
       "id": "vampboy",
       "type": "image",
-      "src": "/assets/vamps/sticker3.svg",
-      "imageMaxWidth": 260,
+      "src": "/assets/projects/vamps-brand/vampboy.png",
+      "imageMaxWidth": 320,
       "alt": "Vamp boy"
     },
     {

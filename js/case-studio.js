@@ -239,8 +239,11 @@ function renderMeta(shell, config, lang) {
   if (!el) return;
   const labels = META_LABEL_I18N[lang];
   const titleText = locText(config.title, lang) || config.title;
+  const titleImgClass = config.titleImageClass
+    ? ` cstudio__title-img--${esc(config.titleImageClass)}`
+    : "";
   const nameCell = config.titleImage
-    ? `<img src="${esc(config.titleImage)}" alt="${esc(locText(config.titleImageAlt, lang) || titleText)}" class="cstudio__title-img" />`
+    ? `<img src="${esc(config.titleImage)}" alt="${esc(locText(config.titleImageAlt, lang) || titleText)}" class="cstudio__title-img${titleImgClass}" />`
     : esc(titleText);
   el.innerHTML = `
     <div class="cstudio__row">

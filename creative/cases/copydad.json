@@ -2,6 +2,9 @@
   "id": "copydad",
   "projectNo": "000002",
   "title": "Copydad",
+  "titleImage": "/assets/projects/copydad/copydad-wordmark.png",
+  "titleImageAlt": "Copydad",
+  "titleImageClass": "copydad",
   "theme": {
     "bg": "#e5e5e5",
     "stage": "#d8d8d8",

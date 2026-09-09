@@ -3,18 +3,19 @@
  * Shows a zoomed-in circle that follows the cursor or finger.
  * Works correctly with object-fit: cover.
  */
-export function initAsciiLoupe() {
-  const container = document.getElementById('asciiLoupe');
-  const lens = document.getElementById('asciiLoupeLens');
-  if (!container || !lens) return;
+export function mountAsciiLoupe(container, options = {}) {
+  const lens = container.querySelector(".ascii-loupe__lens");
+  const img = container.querySelector(".ascii-loupe__img");
+  if (!container || !lens || !img) return;
 
-  const img = container.querySelector('.ascii-loupe__img');
-  if (!img) return;
+  const zoom = options.zoom ?? 2.5;
+  const lensSize =
+    options.lensSize ??
+    (window.matchMedia("(max-width: 768px)").matches ? 140 : 200);
 
-  const ZOOM = 2.5;
-  const LENS_SIZE = window.matchMedia('(max-width: 768px)').matches ? 140 : 200;
+  lens.style.width = `${lensSize}px`;
+  lens.style.height = `${lensSize}px`;
 
-  // Compute how object-fit: cover maps the image into the container
   function getCoverDimensions() {
     const cW = container.offsetWidth;
     const cH = container.offsetHeight;
@@ -23,10 +24,9 @@ export function initAsciiLoupe() {
     const scale = Math.max(cW / iW, cH / iH);
     const renderedW = iW * scale;
     const renderedH = iH * scale;
-    // object-position: center center
     const offsetX = (cW - renderedW) / 2;
     const offsetY = (cH - renderedH) / 2;
-    return { renderedW, renderedH, offsetX, offsetY, cW, cH };
+    return { renderedW, renderedH, offsetX, offsetY };
   }
 
   function updateLens(clientX, clientY) {
@@ -34,60 +34,68 @@ export function initAsciiLoupe() {
     const x = clientX - rect.left;
     const y = clientY - rect.top;
 
-    // Position lens centered on cursor/finger
-    lens.style.left = x + 'px';
-    lens.style.top = y + 'px';
+    lens.style.left = `${x}px`;
+    lens.style.top = `${y}px`;
 
     const { renderedW, renderedH, offsetX, offsetY } = getCoverDimensions();
+    const bgW = renderedW * zoom;
+    const bgH = renderedH * zoom;
+    const bgX = -(((x - offsetX) / renderedW) * bgW - lensSize / 2);
+    const bgY = -(((y - offsetY) / renderedH) * bgH - lensSize / 2);
 
-    // Zoomed background size based on the rendered (cover) image
-    const bgW = renderedW * ZOOM;
-    const bgH = renderedH * ZOOM;
-    // Map cursor position to image coordinates
-    const bgX = -(((x - offsetX) / renderedW) * bgW - LENS_SIZE / 2);
-    const bgY = -(((y - offsetY) / renderedH) * bgH - LENS_SIZE / 2);
-
-    lens.style.backgroundImage = `url('${img.src}')`;
+    lens.style.backgroundImage = `url('${img.currentSrc || img.src}')`;
     lens.style.backgroundSize = `${bgW}px ${bgH}px`;
     lens.style.backgroundPosition = `${bgX}px ${bgY}px`;
   }
 
-  // Mouse support
-  container.addEventListener('mousemove', (e) => updateLens(e.clientX, e.clientY));
+  const onMove = (e) => updateLens(e.clientX, e.clientY);
+  container.addEventListener("mousemove", onMove);
 
-  // Touch support — allow scroll, activate loupe only on horizontal/still touch
-  const hint = container.querySelector('.ascii-loupe__hint');
+  const hint = container.querySelector(".ascii-loupe__hint");
   let touchStartY = 0;
   let loupeActive = false;
 
-  container.addEventListener('touchstart', (e) => {
+  const onTouchStart = (e) => {
     const t = e.touches[0];
     touchStartY = t.clientY;
     loupeActive = false;
-    // Show loupe tentatively
-    lens.style.opacity = '1';
+    lens.style.opacity = "1";
     updateLens(t.clientX, t.clientY);
-    if (hint) hint.style.display = 'none';
-  }, { passive: true });
+    if (hint) hint.style.display = "none";
+  };
 
-  container.addEventListener('touchmove', (e) => {
+  const onTouchMove = (e) => {
     const t = e.touches[0];
     const dy = Math.abs(t.clientY - touchStartY);
 
     if (!loupeActive && dy > 10) {
-      // User is scrolling — hide loupe, let scroll happen
-      lens.style.opacity = '0';
+      lens.style.opacity = "0";
       return;
     }
 
-    // User is exploring the image (mostly horizontal or small movement)
     loupeActive = true;
     e.preventDefault();
     updateLens(t.clientX, t.clientY);
-  }, { passive: false });
+  };
 
-  container.addEventListener('touchend', () => {
-    lens.style.opacity = '0';
+  const onTouchEnd = () => {
+    lens.style.opacity = "0";
     loupeActive = false;
-  });
+  };
+
+  container.addEventListener("touchstart", onTouchStart, { passive: true });
+  container.addEventListener("touchmove", onTouchMove, { passive: false });
+  container.addEventListener("touchend", onTouchEnd);
+
+  return () => {
+    container.removeEventListener("mousemove", onMove);
+    container.removeEventListener("touchstart", onTouchStart);
+    container.removeEventListener("touchmove", onTouchMove);
+    container.removeEventListener("touchend", onTouchEnd);
+  };
+}
+
+export function initAsciiLoupe() {
+  const container = document.getElementById("asciiLoupe");
+  if (container) mountAsciiLoupe(container);
 }

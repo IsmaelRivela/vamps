@@ -12,6 +12,7 @@ import {
   dockYawForScreen,
   yawForScreen,
 } from "./mockup-content.js";
+import { mountAsciiLoupe } from "./ascii-loupe.js";
 
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mobileMq = window.matchMedia("(max-width: 899px)");
@@ -179,8 +180,32 @@ function modelViewAspect(root, item) {
   return clamp(size.y / width, 0.45, 2.4);
 }
 
+function mountLoupeInBody(body, item) {
+  const loupeSrc = item.loupeSrc;
+  if (!loupeSrc) return;
+  const loupeHint = item.loupeHint || "look closer";
+  body.innerHTML = `
+    <div class="cstudio__loupe">
+      <div class="cstudio__glyphs-loupe ascii-loupe">
+        <span class="ascii-loupe__hint cstudio__glyphs-loupe-hint">${loupeHint}</span>
+        <img src="${loupeSrc}" alt="${item.alt || ""}" class="ascii-loupe__img" loading="lazy" decoding="async" draggable="false" />
+        <div class="ascii-loupe__lens" aria-hidden="true"></div>
+      </div>
+    </div>`;
+  const loupe = body.querySelector(".cstudio__glyphs-loupe");
+  if (!loupe) return;
+  const img = loupe.querySelector(".ascii-loupe__img");
+  const bind = () => mountAsciiLoupe(loupe);
+  if (img?.complete) bind();
+  else img?.addEventListener("load", bind, { once: true });
+}
+
 async function measureItemDisplayHeight(item, maxW) {
-  if (item.type === "glyphs") return maxW * 0.82;
+  if (item.type === "glyphs") return maxW * 0.52;
+  if (item.loupeSrc) {
+    const { w, h } = await loadImageSize(item.loupeSrc);
+    return maxW * (h / w);
+  }
   if (item.type === "model") {
     const extra = item.visitHref ? LINK_LABEL_EXTRA_PX : 0;
     const aspect = Number(item.viewAspect) || DEFAULT_MODEL_ASPECT;
@@ -391,11 +416,12 @@ export class CaseStage {
     this.dockRing.innerHTML = this.items
       .map((item, i) => {
         const model = item.type === "model";
+        const glyph = item.type === "glyphs";
         const crop = model && item.cropOverflow;
         return `
       <button
         type="button"
-        class="cstudio__dock-item${model ? " cstudio__dock-item--model" : ""}${crop ? " cstudio__dock-item--crop" : ""}"
+        class="cstudio__dock-item${model ? " cstudio__dock-item--model" : ""}${glyph ? " cstudio__dock-item--glyph" : ""}${crop ? " cstudio__dock-item--crop" : ""}"
         data-index="${i}"
         aria-label="${item.alt || item.label || item.id || `Item ${i + 1}`}"
       >
@@ -842,8 +868,8 @@ export class CaseStage {
       return;
     }
 
-    const glyphs = body.querySelector(".cstudio__glyphs");
-    if (glyphs) {
+    const loupeBlock = body.querySelector(".cstudio__loupe, .cstudio__glyphs");
+    if (loupeBlock) {
       body.style.width = `${Math.round(maxW)}px`;
       body.style.height = "auto";
       return;
@@ -946,6 +972,11 @@ export class CaseStage {
           </div>
           ${item.fontLabel ? `<p class="cstudio__glyphs-font">${item.fontLabel}</p>` : ""}
         </div>`;
+      return;
+    }
+
+    if (item.loupeSrc && !thumbOnly) {
+      mountLoupeInBody(body, item);
       return;
     }
 
