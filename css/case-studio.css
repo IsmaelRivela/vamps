@@ -238,6 +238,14 @@ body:has(.cstudio) {
   min-width: 0;
 }
 
+.cstudio__rows[data-rows] .cstudio__row-value {
+  text-align: justify;
+  text-align-last: left;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
 .cstudio__row--scroll .cstudio__row-value {
   max-height: clamp(5.5rem, 22vh, 9.5rem);
   overflow-y: auto;
@@ -281,7 +289,8 @@ body:has(.cstudio) {
 }
 
 .cstudio__title-img--tulipana {
-  max-width: min(100%, 11rem);
+  max-width: min(100%, 13.5rem);
+  height: clamp(1.5rem, 3vw, 2.15rem);
 }
 
 .cstudio__case-nav {
@@ -441,6 +450,17 @@ body:has(.cstudio) {
 .cstudio__float-mockup-stage {
   position: relative;
   line-height: 0;
+  overflow: hidden;
+}
+
+.cstudio__float-css3d {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cstudio__float-css3d iframe {
+  pointer-events: auto;
 }
 
 .cstudio__dock-item--model {
@@ -459,25 +479,6 @@ body:has(.cstudio) {
 
 .cstudio__float-mockup--crop .cstudio__float-model {
   display: block;
-}
-
-.cstudio__float-mockup--iframe .cstudio__float-screen {
-  position: absolute;
-  left: 30.5%;
-  top: 9.5%;
-  width: 39%;
-  height: 81%;
-  overflow: hidden;
-  border-radius: 9% / 5%;
-  pointer-events: auto;
-  z-index: 2;
-}
-
-.cstudio__float-screen iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  background: #fff;
 }
 
 .cstudio__float-visit {
@@ -1049,6 +1050,12 @@ body:has(.cstudio) {
     aspect-ratio: var(--cstudio-hero-aspect);
   }
 
+  .cstudio__hero--scanner {
+    height: clamp(22rem, 62.5vw, 100dvh);
+    min-height: 0;
+    aspect-ratio: 8 / 5;
+  }
+
   .cstudio__hero--parallax.is-scroll-parallax {
     position: sticky;
     top: 0;
@@ -1126,7 +1133,8 @@ body:has(.cstudio) {
   }
 
   .cstudio__title-img--tulipana {
-    max-width: min(100%, 10rem);
+    max-width: min(100%, 12rem);
+    height: clamp(1.35rem, 5vw, 1.75rem);
   }
 
   .cstudio__glyphs-grid {

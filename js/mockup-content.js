@@ -182,6 +182,17 @@ function roundedAlphaTexture(w, h, radius, THREE) {
   return tex;
 }
 
+/** Ajusta CONTENT al bisel sin pintar textura (iframe en pantalla 3D). */
+export function applyScreenInsets(root, item) {
+  const content = root.getObjectByName("CONTENT");
+  if (!content) return null;
+  const spec = findMockupSpec(root);
+  resetContentTransform(content);
+  insetScreenPad(content, item.contentPad);
+  trimScreenBottom(content, resolveInsetY({ insetY: item.contentInsetY }, spec));
+  return content;
+}
+
 /** Acorta CONTENT por abajo y sube el pivot para que no invada el bisel. */
 function trimScreenBottom(content, insetY) {
   if (!insetY) return;

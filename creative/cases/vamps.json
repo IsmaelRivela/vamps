@@ -19,7 +19,9 @@
     "wobble": 0,
     "scanGain": 1.15,
     "mobilePassSec": 3.6,
-    "mobileDrift": 40
+    "mobileDrift": 40,
+    "aspect": 1.6,
+    "focalY": 0.42
   },
   "rows": [
     {
@@ -108,10 +110,11 @@
       "alt": "Vamp boy"
     },
     {
-      "id": "pharma-mobile",
+      "id": "vamps-mobile",
       "type": "model",
       "src": "/assets/3d/iphone.glb",
-      "content": "/assets/vamps/pharma/cerrado-pharma-pix2.png",
+      "contentIframe": "/vamps/",
+      "contentPoster": "/assets/projects/vamps-brand/cabecera-vamps.jpg",
       "contentFit": "coverWidth",
       "contentAnchorY": 0.52,
       "contentInsetY": 0.035,
@@ -124,15 +127,15 @@
       "cameraDockZ": 2.25,
       "viewAspect": 2,
       "modelYaw": 3.141592653589793,
-      "visitHref": "https://levamps.com/vamps/pharma/",
-      "visitLabel": "Visit VAMPS Pharma",
+      "visitHref": "/vamps/",
+      "visitLabel": "Visit VAMPS",
       "spin": false,
-      "alt": "VAMPS Pharma mobile"
+      "alt": "VAMPS mobile web"
     }
   ],
   "gallery": [],
   "nav": {
     "prev": { "case": "copydad", "title": "Copydad" },
-    "next": { "case": "tulipana", "title": "La Tulipana" }
+    "next": { "case": "tulipana", "title": "latulipana" }
   }
 }

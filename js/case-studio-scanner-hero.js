@@ -101,12 +101,14 @@ export function initCaseScannerHero(root, hero) {
     return rect;
   }
 
+  const focalY = clamp(Number(hero.focalY) || 0.5, 0, 1);
+
   function imageMetrics(rect) {
     const scale = Math.max(rect.width / width, rect.height / height);
     const dw = width * scale;
     const dh = height * scale;
     const ox = rect.left + (rect.width - dw) * 0.5;
-    const oy = rect.top + (rect.height - dh) * 0.5;
+    const oy = rect.top + (rect.height - dh) * focalY;
     return { scale, dw, dh, ox, oy };
   }
 

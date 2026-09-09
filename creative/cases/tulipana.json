@@ -1,9 +1,9 @@
 {
   "id": "tulipana",
   "projectNo": "000003",
-  "title": "La Tulipana",
-  "titleImage": "/assets/projects/tulipana/la-tulipana-wordmark.png",
-  "titleImageAlt": "La Tulipana",
+  "title": "latulipana",
+  "titleImage": "/assets/projects/tulipana/tulipana-mobile-logo.png",
+  "titleImageAlt": "latulipana",
   "titleImageClass": "tulipana",
   "theme": {
     "bg": "#e5e5e5",

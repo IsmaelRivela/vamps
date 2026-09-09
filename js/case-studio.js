@@ -213,6 +213,8 @@ function renderHero(shell, hero) {
     el.innerHTML = buildScannerHeroMarkup(hero);
     el.classList.add("cstudio__hero--scanner");
     el.removeAttribute("aria-hidden");
+    if (hero.aspect) el.style.setProperty("--cstudio-hero-aspect", String(hero.aspect));
+    else el.style.removeProperty("--cstudio-hero-aspect");
     return initCaseScannerHero(el, hero);
   }
 

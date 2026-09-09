@@ -2,9 +2,11 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { CSS3DObject, CSS3DRenderer } from "three/addons/renderers/CSS3DRenderer.js";
 import {
   alignPhoneScreen,
   applyContent,
+  applyScreenInsets,
   attachHiddenVideo,
   loadContentMedia,
   primeVideoPlayback,
@@ -48,6 +50,26 @@ const MODEL_CURSOR_ROLL = 0.24;
 const MODEL_CURSOR_LERP = 9;
 const MOBILE_IDLE_YAW = 0.1;
 const MOBILE_IDLE_PITCH = 0.045;
+const IFRAME_VIEWPORT = { w: 390, h: 844 };
+const _iframeBox = new THREE.Box3();
+const _iframeCenter = new THREE.Vector3();
+const _iframeSize = new THREE.Vector3();
+const _iframeQuat = new THREE.Quaternion();
+
+function syncFloatIframeCss(cssObject, content) {
+  if (!cssObject || !content) return;
+  content.updateMatrixWorld(true);
+  _iframeBox.setFromObject(content);
+  _iframeBox.getCenter(_iframeCenter);
+  _iframeBox.getSize(_iframeSize);
+  cssObject.position.copy(_iframeCenter);
+  content.getWorldQuaternion(_iframeQuat);
+  cssObject.quaternion.copy(_iframeQuat);
+  const worldW = Math.max(_iframeSize.x, _iframeSize.z);
+  const worldH = _iframeSize.y;
+  cssObject.scale.set(worldW / IFRAME_VIEWPORT.w, worldH / IFRAME_VIEWPORT.h, 1);
+}
+
 const MOBILE_IDLE_SPEED = 0.5;
 
 function clamp(v, min, max) {
@@ -58,12 +80,25 @@ function damp(current, target, lambda, dt) {
   return current + (target - current) * (1 - Math.exp(-lambda * dt));
 }
 
-function applyMetalLighting(renderer, scene, item) {
+function isPhoneItem(item) {
+  return /iphone/i.test(item?.src || "");
+}
+
+function applyEnvLighting(renderer, scene, exposure = 1.1) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = Number(item.modelExposure) || 1.2;
+  renderer.toneMappingExposure = exposure;
+  if (scene.environment) return;
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
   pmrem.dispose();
+}
+
+function applyMetalLighting(renderer, scene, item) {
+  applyEnvLighting(renderer, scene, Number(item.modelExposure) || 1.2);
+}
+
+function applyPhoneLighting(renderer, scene, item) {
+  applyEnvLighting(renderer, scene, Number(item.modelExposure) || 1.06);
 }
 
 function tuneMetalMaterials(root) {
@@ -78,6 +113,64 @@ function tuneMetalMaterials(root) {
       mat.needsUpdate = true;
     });
   });
+}
+
+function tunePhoneMaterials(root) {
+  root.traverse((child) => {
+    if (!child.isMesh?.material || child.name === "CONTENT") return;
+    const mats = Array.isArray(child.material) ? child.material : [child.material];
+    mats.forEach((mat) => {
+      if (mat.metalness === undefined) return;
+      mat.metalness = 0.9;
+      mat.roughness = 0.22;
+      mat.envMapIntensity = 1.55;
+      if (mat.color) mat.color.setRGB(0.27, 0.27, 0.29);
+      mat.needsUpdate = true;
+    });
+  });
+}
+
+function addMockupLights(scene, item, { dock = false } = {}) {
+  if (item.metalLighting) {
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x999999, dock ? 0.55 : 0.5));
+    const key = new THREE.DirectionalLight(0xffffff, dock ? 1.65 : 1.85);
+    key.position.set(dock ? 2.4 : 1.2, dock ? 3.2 : 2.4, 4);
+    scene.add(key);
+    if (!dock) {
+      const fill = new THREE.DirectionalLight(0xffffff, 0.9);
+      fill.position.set(-2, 0.6, 2);
+      scene.add(fill);
+    }
+    scene.add(new THREE.AmbientLight(0xffffff, dock ? 0.85 : 0.9));
+    const rim = new THREE.DirectionalLight(0xffffff, dock ? 0.75 : 0.8);
+    rim.position.set(dock ? -2.2 : 2, dock ? 0.8 : -0.4, dock ? -2.5 : -3);
+    scene.add(rim);
+    return;
+  }
+
+  if (isPhoneItem(item)) {
+    scene.add(new THREE.HemisphereLight(0xf2f4fa, 0x1c1e24, dock ? 0.72 : 0.66));
+    const key = new THREE.DirectionalLight(0xffffff, dock ? 1.05 : 1.18);
+    key.position.set(dock ? 2.1 : 1.55, dock ? 2.75 : 2.45, dock ? 3.5 : 4.35);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xd8e2ff, dock ? 0.36 : 0.46);
+    fill.position.set(-2.5, dock ? 0.3 : 0.5, 2.5);
+    scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xffffff, dock ? 0.8 : 0.9);
+    rim.position.set(-1.35, 1.55, -3.7);
+    scene.add(rim);
+    return;
+  }
+
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, 1.1));
+  const key = new THREE.DirectionalLight(0xffffff, dock ? 0.45 : 0.7);
+  key.position.set(dock ? 1.5 : 0.4, dock ? 2 : 1.4, dock ? 2 : 4);
+  scene.add(key);
+  if (!dock) {
+    const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+    fill.position.set(-2, 0.6, 2);
+    scene.add(fill);
+  }
 }
 
 function bindModelOrientation(entry, item, opts = {}) {
@@ -457,16 +550,8 @@ export class CaseStage {
     renderer.setPixelRatio(1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     if (item.metalLighting) applyMetalLighting(renderer, scene, item);
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x999999, item.metalLighting ? 0.55 : 1.1));
-    const key = new THREE.DirectionalLight(0xffffff, item.metalLighting ? 1.65 : 0.45);
-    key.position.set(item.metalLighting ? 2.4 : 1.5, item.metalLighting ? 3.2 : 2, item.metalLighting ? 4 : 2);
-    scene.add(key);
-    if (item.metalLighting) {
-      scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-      const rim = new THREE.DirectionalLight(0xffffff, 0.75);
-      rim.position.set(-2.2, 0.8, -2.5);
-      scene.add(rim);
-    }
+    else if (isPhoneItem(item)) applyPhoneLighting(renderer, scene, item);
+    addMockupLights(scene, item, { dock: true });
 
     const entry = {
       scene,
@@ -573,6 +658,7 @@ export class CaseStage {
 
   async prepareModelRoot(root, item) {
     if (item.metalLighting) tuneMetalMaterials(root);
+    else if (isPhoneItem(item)) tunePhoneMaterials(root);
     if (item.texture) await this.applyModelTexture(root, item.texture);
   }
 
@@ -679,7 +765,11 @@ export class CaseStage {
       if (this.floatModel.root) {
         applyModelRotation(this.floatModel, vx, vy, dt, 0.22);
       }
+      if (this.floatModel.cssObject && this.floatModel.contentMesh) {
+        syncFloatIframeCss(this.floatModel.cssObject, this.floatModel.contentMesh);
+      }
       this.floatModel.renderer.render(this.floatModel.scene, this.floatModel.camera);
+      this.floatModel.cssRenderer?.render(this.floatModel.cssScene, this.floatModel.camera);
     }
 
     this.updateFloatMotion();
@@ -795,10 +885,50 @@ export class CaseStage {
   disposeFloatModel() {
     const fm = this.floatModel;
     if (!fm) return;
+    fm.cssRenderer?.domElement?.remove();
     stopMedia(fm.media);
     fm.contentTex?.dispose();
     fm.renderer?.dispose();
     this.floatModel = null;
+  }
+
+  attachFloatIframeCss(container, canvas, item, contentMesh) {
+    if (!container || !canvas || !contentMesh) return;
+
+    const cssRenderer = new CSS3DRenderer();
+    cssRenderer.domElement.className = "cstudio__float-css3d";
+    container.appendChild(cssRenderer.domElement);
+
+    const cssScene = new THREE.Scene();
+    const iframe = document.createElement("iframe");
+    iframe.src = item.contentIframe;
+    iframe.title = item.alt || "Live preview";
+    iframe.loading = "lazy";
+    iframe.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
+    iframe.style.width = `${IFRAME_VIEWPORT.w}px`;
+    iframe.style.height = `${IFRAME_VIEWPORT.h}px`;
+    iframe.style.border = "0";
+    iframe.style.background = "#fff";
+    iframe.style.borderRadius = "12px";
+
+    const cssObject = new CSS3DObject(iframe);
+    cssScene.add(cssObject);
+
+    if (this.floatModel) {
+      this.floatModel.cssRenderer = cssRenderer;
+      this.floatModel.cssScene = cssScene;
+      this.floatModel.cssObject = cssObject;
+      this.floatModel.contentMesh = contentMesh;
+    }
+
+    const resizeCss = () => {
+      const w = canvas.clientWidth || 1;
+      const h = canvas.clientHeight || 1;
+      cssRenderer.setSize(w, h);
+      syncFloatIframeCss(cssObject, contentMesh);
+    };
+    resizeCss();
+    return resizeCss;
   }
 
   clearFloater() {
@@ -865,6 +995,12 @@ export class CaseStage {
       body.style.maxHeight = `${Math.round(boundsH + visitExtra)}px`;
       const float = body.closest(".cstudio__float");
       if (float) float.style.maxHeight = `${Math.round(boundsH + visitExtra)}px`;
+      if (this.floatModel?.cssRenderer) {
+        const w = model.clientWidth || 1;
+        const h = model.clientHeight || 1;
+        this.floatModel.cssRenderer.setSize(w, h);
+        syncFloatIframeCss(this.floatModel.cssObject, this.floatModel.contentMesh);
+      }
       return;
     }
 
@@ -998,19 +1134,6 @@ export class CaseStage {
       canvas.width = 640;
       canvas.height = 480;
       stage.appendChild(canvas);
-
-      if (hasIframe) {
-        const screen = document.createElement("div");
-        screen.className = "cstudio__float-screen";
-        const iframe = document.createElement("iframe");
-        iframe.src = item.contentIframe;
-        iframe.title = item.alt || "Live preview";
-        iframe.loading = "lazy";
-        iframe.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
-        screen.appendChild(iframe);
-        stage.appendChild(screen);
-      }
-
       wrap.appendChild(stage);
 
       if (item.visitHref) {
@@ -1024,7 +1147,7 @@ export class CaseStage {
       }
 
       body.appendChild(wrap);
-      await this.mountFloatModel(canvas, item);
+      await this.mountFloatModel(canvas, item, stage);
       return;
     }
 
@@ -1065,29 +1188,19 @@ export class CaseStage {
     body.appendChild(img);
   }
 
-  async mountFloatModel(canvas, item) {
+  async mountFloatModel(canvas, item, stageEl = null) {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(32, canvas.width / canvas.height, 0.1, 40);
     const camZ = Number(item.cameraZ) || 3.6;
     camera.position.set(0, 0.06, camZ);
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    const dprCap = isPhoneItem(item) ? 2.5 : 2;
+    renderer.setPixelRatio(Math.min(devicePixelRatio, dprCap));
     renderer.setSize(canvas.clientWidth || 640, canvas.clientHeight || 480, false);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     if (item.metalLighting) applyMetalLighting(renderer, scene, item);
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, item.metalLighting ? 0.5 : 1.1));
-    const key = new THREE.DirectionalLight(0xffffff, item.metalLighting ? 1.85 : 0.7);
-    key.position.set(item.metalLighting ? 1.2 : 0.4, item.metalLighting ? 2.4 : 1.4, 4);
-    scene.add(key);
-    const fill = new THREE.DirectionalLight(0xffffff, item.metalLighting ? 0.9 : 0.35);
-    fill.position.set(-2, 0.6, 2);
-    scene.add(fill);
-    if (item.metalLighting) {
-      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-      const rim = new THREE.DirectionalLight(0xffffff, 0.8);
-      rim.position.set(2, -0.4, -3);
-      scene.add(rim);
-    }
+    else if (isPhoneItem(item)) applyPhoneLighting(renderer, scene, item);
+    addMockupLights(scene, item);
 
     this.floatModel = {
       scene,
@@ -1104,12 +1217,14 @@ export class CaseStage {
       contentTex: null,
     };
 
+    let resizeCss = null;
     const resize = () => {
       const w = canvas.clientWidth || 1;
       const h = canvas.clientHeight || 1;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      resizeCss?.();
     };
     new ResizeObserver(resize).observe(canvas);
     resize();
@@ -1121,10 +1236,21 @@ export class CaseStage {
           alignPhoneScreen(root, item);
           try {
             await this.prepareModelRoot(root, item);
-            const painted = await this.paintMockupContent(root, item, this.viewer || this.root);
-            if (this.floatModel) {
-              this.floatModel.media = painted.media;
-              this.floatModel.contentTex = painted.tex;
+            if (item.contentIframe) {
+              const contentMesh = applyScreenInsets(root, item);
+              if (contentMesh) contentMesh.visible = false;
+              resizeCss = this.attachFloatIframeCss(
+                stageEl || canvas.parentElement,
+                canvas,
+                item,
+                contentMesh
+              );
+            } else {
+              const painted = await this.paintMockupContent(root, item, this.viewer || this.root);
+              if (this.floatModel) {
+                this.floatModel.media = painted.media;
+                this.floatModel.contentTex = painted.tex;
+              }
             }
           } catch {
             /* chassis only */
@@ -1139,6 +1265,7 @@ export class CaseStage {
             this.floatModel.spinEnabled = item.spin !== false;
           }
           renderer.render(scene, camera);
+          this.floatModel?.cssRenderer?.render(this.floatModel.cssScene, this.floatModel.camera);
           primeVideoPlayback(this.floatModel?.media);
           resolve();
         })

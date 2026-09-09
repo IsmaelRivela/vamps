@@ -26,6 +26,11 @@ const HEAD_AIM_DOT_MIN = Math.cos(HEAD_AIM_YAW_MAX);
 const MOBILE_HEAD_SCALE = 2;
 const MOBILE_HEAD_YAW = THREE.MathUtils.degToRad(14);
 const MOBILE_HEAD_PITCH = THREE.MathUtils.degToRad(9);
+const MOBILE_HEAD_Y = -0.06;
+const MOBILE_CAM_Y = 0.14;
+const MOBILE_LOOK_Y = 0.2;
+const MOBILE_CAM_Z = 3.82;
+const DESKTOP_ORBIT_INSET = 0.9;
 const HEAD_KEEP = new Set(["Head", "Jaw", "L Brow", "R Brow"]);
 const AUTO_SPIN = 0.018;
 const DRAG_THRESH = 10;
@@ -122,11 +127,12 @@ const spaceHero = document.getElementById("space-hero");
 const PROJECTS = [
   {
     id: "tulipana",
-    name: "La Tulipana",
+    name: "latulipana",
     year: "2025",
-    role: "Concept, Project and Content Management",
+    role: "Art director, graphic designer, concept strategist, project manager & content management",
     href: "/creative/case-studio/?case=tulipana",
     image: "/assets/projects/tulipana/pixelartlogo.webp",
+    mobileImage: "/assets/projects/tulipana/tulipana-mobile-logo.png",
     maxW: 0.5,
     maxH: 0.38,
     theta: 0.2,
@@ -135,8 +141,8 @@ const PROJECTS = [
   {
     id: "copydad",
     name: "Copydad",
-    year: "2026",
-    role: "Concept and Content Branding",
+    year: "2025",
+    role: "Art director, graphic designer & concept strategist",
     href: "/creative/case-studio/?case=copydad",
     image: "/assets/projects/copydad/copydad-coin.png",
     maxW: 0.44,
@@ -147,8 +153,8 @@ const PROJECTS = [
   {
     id: "vamps",
     name: "VAMPS",
-    year: "2026",
-    role: "Creative Director",
+    year: "2024",
+    role: "Creative director",
     href: "/creative/case-studio/?case=vamps",
     image: "/assets/projects/vamps-brand/vamps-head-icon.png",
     maxW: 0.44,
@@ -268,6 +274,13 @@ function computeOrbitRadii() {
     orbitRadii.z = ry * 0.88;
     orbitShell.rotation.x = 0.048;
   }
+
+  if (!mobile) {
+    orbitRadii.x *= DESKTOP_ORBIT_INSET;
+    orbitRadii.y *= DESKTOP_ORBIT_INSET;
+    orbitRadii.z *= DESKTOP_ORBIT_INSET;
+  }
+
   return orbitRadii;
 }
 
@@ -1239,6 +1252,9 @@ function setLayoutMode(mobile) {
   if (!mobile) {
     hovered = null;
     labelEl.hidden = true;
+    initDragHint();
+  } else {
+    hideDragHint(false);
   }
 }
 
@@ -1249,9 +1265,9 @@ function resize() {
   let w;
   let h;
   if (mobile) {
-    w = spaceHero?.clientWidth || innerWidth;
-    h = spaceHero?.clientHeight || Math.min(innerWidth * 0.44, 264);
-    camBase.set(0, 0.04, 3.55);
+    w = canvas?.clientWidth || innerWidth;
+    h = canvas?.clientHeight || Math.min(innerWidth * 0.5, 312);
+    camBase.set(0, MOBILE_CAM_Y, MOBILE_CAM_Z);
     camera.fov = 42;
     headRoot.scale.setScalar(MOBILE_HEAD_SCALE);
   } else {
@@ -1360,6 +1376,7 @@ function onPointerMove(e) {
     orbit.lastX = e.clientX;
     orbit.lastY = e.clientY;
     if (Math.abs(dx) + Math.abs(dy) > DRAG_THRESH) {
+      if (!orbit.dragMoved) requestHideDragHint();
       orbit.dragMoved = true;
       pendingNav = null;
     }
@@ -1375,24 +1392,108 @@ function onPointerMove(e) {
   hovered = obj;
 }
 
-function hideDragHint() {
+const DRAG_HINT_KEY = "vamps-creative-drag-hint";
+const DRAG_HINT_MIN_MS = 3000;
+const DRAG_HINT_FADE_MS = 1200;
+
+let dragHintShownAt = 0;
+let dragHintDismissTimer = 0;
+let dragHintFadeTimer = 0;
+
+function hideDragHint(persist = true) {
   const hint = document.getElementById("space-drag-hint");
   if (!hint || hint.classList.contains("is-hidden")) return;
+  if (dragHintFadeTimer) {
+    window.clearTimeout(dragHintFadeTimer);
+    dragHintFadeTimer = 0;
+  }
+  hint.classList.remove("is-leaving");
+  hint.style.opacity = "";
+  hint.style.animation = "";
   hint.classList.add("is-hidden");
+  hint.setAttribute("aria-hidden", "true");
+  if (persist) {
+    try {
+      sessionStorage.setItem(DRAG_HINT_KEY, "1");
+    } catch {
+      /* noop */
+    }
+  }
+}
+
+function finishDragHintFade() {
+  dragHintFadeTimer = 0;
+  hideDragHint();
+}
+
+function beginDragHintFade() {
+  const hint = document.getElementById("space-drag-hint");
+  if (!hint || hint.classList.contains("is-hidden") || hint.classList.contains("is-leaving")) return;
+
+  const opacity = window.getComputedStyle(hint).opacity;
+  hint.style.animation = "none";
+  hint.style.opacity = opacity;
+  requestAnimationFrame(() => {
+    hint.classList.add("is-leaving");
+    hint.style.opacity = "";
+    hint.style.animation = "";
+  });
+  hint.addEventListener(
+    "transitionend",
+    (e) => {
+      if (e.propertyName !== "opacity") return;
+      finishDragHintFade();
+    },
+    { once: true }
+  );
+  dragHintFadeTimer = window.setTimeout(finishDragHintFade, DRAG_HINT_FADE_MS + 80);
+}
+
+function requestHideDragHint() {
+  const hint = document.getElementById("space-drag-hint");
+  if (!hint || hint.classList.contains("is-hidden") || hint.classList.contains("is-leaving")) return;
+
+  const elapsed = performance.now() - dragHintShownAt;
+  const wait = Math.max(0, DRAG_HINT_MIN_MS - elapsed);
+  if (dragHintDismissTimer) return;
+
+  dragHintDismissTimer = window.setTimeout(() => {
+    dragHintDismissTimer = 0;
+    beginDragHintFade();
+  }, wait);
 }
 
 function initDragHint() {
   const hint = document.getElementById("space-drag-hint");
   if (!hint || mobileLayout) {
-    hideDragHint();
+    hideDragHint(false);
     return;
   }
-  window.setTimeout(hideDragHint, 9000);
+  try {
+    if (sessionStorage.getItem(DRAG_HINT_KEY)) {
+      hideDragHint(false);
+      return;
+    }
+  } catch {
+    /* noop */
+  }
+  if (dragHintDismissTimer) {
+    window.clearTimeout(dragHintDismissTimer);
+    dragHintDismissTimer = 0;
+  }
+  if (dragHintFadeTimer) {
+    window.clearTimeout(dragHintFadeTimer);
+    dragHintFadeTimer = 0;
+  }
+  hint.classList.remove("is-hidden", "is-leaving");
+  hint.style.opacity = "";
+  hint.style.animation = "";
+  dragHintShownAt = performance.now();
+  hint.removeAttribute("aria-hidden");
 }
 
 function onPointerDown(e) {
   if (mobileLayout) return;
-  hideDragHint();
   const obj = pick(e.clientX, e.clientY);
   pendingNav = obj?.userData?.href ? obj : null;
   orbit.dragging = true;
@@ -1539,7 +1640,7 @@ function updateHeadLook() {
     _lookTarget.set(
       Math.sin(t * 0.36) * 1.05,
       headRoot.position.y + Math.sin(t * 0.28 + 1.1) * 0.18,
-      3.55
+      MOBILE_CAM_Z
     );
     _aimDir.subVectors(_lookTarget, _wp);
     if (_aimDir.lengthSq() < 1e-6) return;
@@ -1594,14 +1695,13 @@ function buildMobileScroll() {
 
   const casesSec = document.createElement("section");
   casesSec.className = "space-section space-section--cases";
-  casesSec.innerHTML = `<p class="space-section__eyebrow">Selected work</p>`;
   const track = document.createElement("div");
   track.className = "space-cases__track";
   for (const p of PROJECTS) {
     const a = document.createElement("a");
-    a.className = "space-case";
+    a.className = `space-case space-case--${p.id}`;
     a.href = p.href;
-    a.innerHTML = `<img class="space-case__logo" src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy" />`;
+    a.innerHTML = `<img class="space-case__logo" src="${esc(p.mobileImage || p.image)}" alt="${esc(p.name)}" loading="lazy" />`;
     track.appendChild(a);
   }
   casesSec.appendChild(track);
@@ -1610,9 +1710,10 @@ function buildMobileScroll() {
   const split = document.createElement("section");
   split.className = "space-section space-section--about-social";
   const about = document.createElement("a");
-  about.className = "space-text space-text--about";
+  about.className = "space-about";
   about.href = ABOUT.href;
-  about.textContent = "About";
+  about.setAttribute("aria-label", ABOUT.name);
+  about.innerHTML = `<img src="${esc(ABOUT.image)}" alt="${esc(ABOUT.name)}" loading="lazy" />`;
   const socials = document.createElement("div");
   socials.className = "space-socials-inline";
   for (const s of SOCIALS) {
@@ -1668,8 +1769,9 @@ function tick() {
 
   if (mobileLayout) {
     camera.position.copy(camBase);
-    camera.lookAt(0, 0.06, 0);
-    headRoot.position.y = 0.06 + (reduced ? 0 : Math.sin(t * 0.4) * 0.012);
+    camera.lookAt(0, MOBILE_LOOK_Y, 0);
+    headRoot.position.y =
+      MOBILE_HEAD_Y + (reduced ? 0 : Math.sin(t * 0.4) * 0.012);
     updateHeadLook();
     renderer.render(scene, camera);
     requestAnimationFrame(tick);
