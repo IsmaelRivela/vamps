@@ -81,6 +81,7 @@
       "id": "coin",
       "type": "image",
       "src": "/assets/projects/copydad/copydad-coin.png",
+      "imageMaxWidth": 300,
       "alt": "Copydad coin"
     },
     {

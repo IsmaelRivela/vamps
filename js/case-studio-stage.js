@@ -319,7 +319,7 @@ async function measureItemDisplayHeight(item, maxW) {
 function fitInViewerBox(nw, nh, maxW, maxH, widthPriority = false) {
   let w = maxW;
   let h = w * (nh / nw);
-  if (!widthPriority && h > maxH) {
+  if (h > maxH) {
     h = maxH;
     w = h * (nw / nh);
   }
