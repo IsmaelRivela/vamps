@@ -12,15 +12,14 @@
   "hero": {
     "type": "parallax",
     "alt": "La Tulipana — Talking Through Flowers",
+    "aspect": 1.6,
     "scrollLock": true,
+    "diveDurationMs": 2000,
     "mobileAutoplay": true,
     "mobileLoopSeconds": 18,
-    "logoBaseScale": 0.32,
+    "logoBaseScale": 0.64,
     "logoMaxScale": 1.14,
-    "diveDistance": 2600,
-    "holdDistance": 500,
-    "scrollSpeed": 1000,
-    "wheelStep": 110,
+    "logoStartZ": -460,
     "flowerMidZ": -900,
     "refEnter": 0.28,
     "refTunnel": 0.58,
@@ -77,64 +76,102 @@
   "rows": [
     {
       "label": "CONTEXT",
-      "value": "La Tulipana is a London florist with a strong character. The brand lives between craft and screen — flowers arranged by hand, sold and shared through digital channels."
+      "value": {
+        "es": "La Tulipana es un estudio de concepto floral con base en Londres. La marca vive entre lo artesanal y la pantalla: flores compuestas a mano, vendidas y compartidas a través de canales digitales.",
+        "en": "La Tulipana is a London-based flower concept studio. The brand lives between craft and screen — flowers arranged by hand, sold and shared through digital channels."
+      }
     },
     {
       "label": "IDEA",
-      "value": "Use the tension between digital and handmade as the creative thread: ASCII bouquets, pixel logos, and a coral-cream system that feels warm online and tactile in print.",
-      "html": true
+      "value": {
+        "es": "“Talking Through Flowers”: bajo ese claim construimos más que una floristería. El concepto es claro — la comunicación a través de las flores en un entorno que vive entre lo digital y lo material. Si unimos los tres conceptos nos encontramos con el ASCII design, un estilo que genera imágenes a través de caracteres tipográficos. Creamos la tipografía LatulipanaGliph, en la que no hay letras sino caracteres basados en tulipanes, y desarrollamos una herramienta que traduce imágenes en diseños ASCII para que todos los elementos se comuniquen entre sí con las flores como centro.",
+        "en": "“Talking Through Flowers”: under that claim we built more than a florist. The concept is clear — communicating through flowers in an environment between digital and physical. Combine all three and you get ASCII design, a style that generates images through typographic characters. We created the LatulipanaGliph typeface, with no letters but tulip-based characters, and a tool that translates images into ASCII designs so every element communicates through flowers at the centre."
+      }
     },
     {
       "label": "ROLE",
-      "value": "Concept, project & content management"
+      "value": "Art director, graphic designer, concept strategist, project manager & content management"
     },
     {
       "label": "CLIENT",
-      "value": "Anita García Rico"
+      "value": {
+        "es": "Anita García",
+        "en": "Anita García"
+      }
     },
     {
       "label": "WITH",
-      "value": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>",
+      "value": {
+        "es": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>",
+        "en": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>"
+      },
       "html": true
     },
     {
       "label": "YEAR",
-      "value": "2025"
+      "value": {
+        "es": "2025 – actualidad",
+        "en": "2025 – present"
+      }
     },
     {
       "label": "DELIVERABLES",
-      "value": "Brand identity · ASCII tool · Social content · Mother's Day web"
+      "value": "Branding · Social media content · Stationery · Web"
     }
   ],
   "carousel": [
     {
-      "id": "tv-sony",
+      "id": "tv-spot",
       "type": "model",
       "src": "/assets/3d/tv_sony.glb",
       "content": "/assets/projects/tulipana/talking-through-flowers.mp4",
       "contentFit": "coverWidth",
       "contentAnchorY": 0.7,
       "contentInsetY": 0.095,
+      "scale": 0.82,
+      "fitView": 1.38,
+      "fitPadding": 0.78,
+      "cameraZ": 3.05,
+      "cameraDockZ": 2.05,
+      "viewAspect": 0.72,
       "spin": false,
-      "alt": "Talking Through Flowers on CRT"
+      "alt": "Talking Through Flowers TV spot"
     },
     {
-      "id": "cabecera",
-      "type": "image",
-      "src": "/assets/projects/tulipana/cabecera3.webp",
-      "alt": "La Tulipana branding"
+      "id": "poster-wall",
+      "type": "model",
+      "src": "/assets/3d/wall.glb",
+      "content": "/assets/projects/tulipana/talking-through-flowers-poster.webp",
+      "contentFit": "match",
+      "fitDock": 1.95,
+      "fitView": 1.85,
+      "fitPadding": 0.86,
+      "cameraDockZ": 2.05,
+      "cameraZ": 2.75,
+      "spin": false,
+      "alt": "Talking Through Flowers poster"
     },
     {
-      "id": "ascii-tool",
-      "type": "image",
-      "src": "/assets/projects/tulipana/converter.webp",
-      "alt": "ASCII converter"
-    },
-    {
-      "id": "ascii-result",
-      "type": "image",
-      "src": "/assets/projects/tulipana/ramoprueba.webp",
-      "alt": "ASCII bouquet"
+      "id": "mobile-web",
+      "type": "model",
+      "src": "/assets/3d/iphone.glb",
+      "content": "/assets/projects/tulipana/gifmobile.gif",
+      "contentFit": "coverWidth",
+      "contentAnchorY": 0.52,
+      "contentInsetY": 0.035,
+      "contentPad": 0.028,
+      "contentRadius": 0.095,
+      "scale": 0.7,
+      "fitView": 1.65,
+      "fitPadding": 0.84,
+      "cameraZ": 3.15,
+      "cameraDockZ": 2.25,
+      "viewAspect": 2,
+      "modelYaw": 3.141592653589793,
+      "visitHref": "https://www.latulipana.com/",
+      "visitLabel": "Visit latulipana.com",
+      "spin": false,
+      "alt": "La Tulipana mobile web"
     },
     {
       "id": "pixel-logo",
@@ -143,25 +180,32 @@
       "alt": "Pixel logo"
     },
     {
-      "id": "social",
-      "type": "video",
-      "src": "/assets/projects/tulipana/gifrrss.gif",
-      "poster": "/assets/projects/tulipana/tarjeta.webp",
-      "alt": "Social content"
+      "id": "bouquet-3d",
+      "type": "model",
+      "src": "/assets/3d/ramo.glb",
+      "scale": 0.82,
+      "fitView": 1.35,
+      "fitPadding": 0.88,
+      "spin": true,
+      "alt": "Flower bouquet"
     },
     {
-      "id": "web-header",
-      "type": "image",
-      "src": "/assets/projects/tulipana/header-tulip.webp",
-      "alt": "Web header"
-    },
-    {
-      "id": "bnomio",
-      "type": "link",
-      "href": "https://bnomio.studio",
-      "label": "bnomio.studio",
-      "thumb": "/assets/projects/tulipana/archive-drops.webp",
-      "alt": "Visit bnomio.studio"
+      "id": "ascii-glyphs",
+      "type": "glyphs",
+      "fontLabel": "latulipanagliph.otf",
+      "thumb": "/assets/projects/tulipana/closeup.webp",
+      "glyphs": [
+        "/assets/glifos/tulipana1.svg",
+        "/assets/glifos/tulipana2.svg",
+        "/assets/glifos/tulipana3.svg",
+        "/assets/glifos/tulipana4.svg",
+        "/assets/glifos/tulipana5.svg",
+        "/assets/glifos/tulipana6.svg",
+        "/assets/glifos/tulipana7.svg",
+        "/assets/glifos/tulipana8.svg",
+        "/assets/glifos/tulipana9.svg"
+      ],
+      "alt": "La Tulipana ASCII glyphs"
     }
   ],
   "gallery": [],

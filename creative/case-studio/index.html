@@ -15,26 +15,20 @@
 <body data-case="tulipana">
 
   <div class="cstudio" data-case-studio>
-    <header class="cstudio__nav">
-      <a class="cstudio__nav-logo" href="/creative/" aria-label="Creative">
-        <img
-          src="/assets/brand/studio-logo.png"
-          alt="Studio"
-          width="300"
-          height="120"
-          decoding="async"
-        />
-      </a>
-    </header>
-
     <section class="cstudio__hero" data-hero aria-hidden="true"></section>
 
     <div class="cstudio__sheet">
       <div class="cstudio__grid">
         <aside class="cstudio__spec">
-          <div class="cstudio__rows" data-meta-rows></div>
-          <div class="cstudio__rows" data-rows></div>
-          <nav class="cstudio__case-nav" data-case-nav hidden></nav>
+          <div class="cstudio__lang" data-lang-toggle role="group" aria-label="Language">
+            <button type="button" class="cstudio__lang-btn" data-lang="en" aria-pressed="false">EN</button>
+            <span class="cstudio__lang-sep" aria-hidden="true">/</span>
+            <button type="button" class="cstudio__lang-btn" data-lang="es" aria-pressed="false">ES</button>
+          </div>
+          <div class="cstudio__spec-scroll">
+            <div class="cstudio__rows" data-meta-rows></div>
+            <div class="cstudio__rows" data-rows></div>
+          </div>
         </aside>
 
         <div class="cstudio__stage-col">
@@ -51,8 +45,22 @@
             </footer>
           </div>
         </div>
+
+        <nav class="cstudio__case-nav" data-case-nav hidden></nav>
       </div>
     </div>
+
+    <header class="cstudio__nav">
+      <a class="cstudio__nav-logo" href="/creative/" aria-label="Creative">
+        <img
+          src="/assets/brand/studio-logo.png"
+          alt="Studio"
+          width="300"
+          height="120"
+          decoding="async"
+        />
+      </a>
+    </header>
   </div>
 
   <script type="module">

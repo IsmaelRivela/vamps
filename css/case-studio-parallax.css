@@ -1,16 +1,45 @@
 /* La Tulipana parallax hero — encuadre PSD + perspectiva de entrada */
 
+.cstudio__parallax-scroll {
+  position: relative;
+  isolation: isolate;
+  height: 100dvh;
+  background: #b8c4cf;
+}
+
+body.cstudio-parallax-locked {
+  overflow: hidden;
+  height: 100%;
+}
+
+.cstudio__hero--parallax.is-parallax-playing {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 3;
+}
+
 .cstudio__hero--parallax {
-  height: clamp(22rem, 62.5vw, 100dvh);
-  aspect-ratio: 8 / 5;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
+  min-height: 100dvh;
   max-height: 100dvh;
-  margin-top: var(--cstudio-nav-h, 4.04rem);
+  margin-top: 0;
   background: #b8c4cf;
   overflow: hidden;
+  z-index: 3;
 }
 
 .cstudio__hero--parallax::after {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.18) 100%);
+  display: none;
 }
 
 .cstudio-parallax {
@@ -20,12 +49,26 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  touch-action: none;
+  touch-action: pan-y;
 }
 
 @media (max-width: 899px) {
-  .cstudio-parallax {
-    touch-action: pan-y;
+  .cstudio__parallax-scroll {
+    height: auto;
+  }
+
+  .cstudio__hero--parallax,
+  .cstudio__hero--parallax.is-scroll-parallax {
+    position: relative;
+    top: auto;
+    height: clamp(22rem, 62.5vw, 100dvh);
+    min-height: 0;
+    max-height: 100dvh;
+    aspect-ratio: 8 / 5;
+  }
+
+  .cstudio__hero--parallax.is-parallax-playing {
+    position: relative;
   }
 }
 
@@ -50,21 +93,15 @@
   display: block;
 }
 
-.cstudio-parallax.is-dive-complete {
-  touch-action: pan-y;
-}
-
-body.cstudio-parallax-locked {
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
 .cstudio-parallax__rig {
   width: 100%;
   height: 100%;
-  perspective: clamp(300px, 42vw, 460px);
-  perspective-origin: 50% 48%;
+  perspective: clamp(340px, 46vw, 520px);
+  perspective-origin: 50% 46%;
   transform-style: preserve-3d;
+  transform: scale(var(--cover-scale, 1));
+  transform-origin: 50% 46%;
+  will-change: transform;
 }
 
 .cstudio-parallax__stage {
@@ -73,6 +110,7 @@ body.cstudio-parallax-locked {
   height: 100%;
   transform-style: preserve-3d;
   overflow: hidden;
+  will-change: transform;
 }
 
 .cstudio-parallax__layer {
@@ -211,23 +249,22 @@ body.cstudio-parallax-locked {
     transform: translateX(0);
   }
 
-  .cstudio-parallax__rig,
+  .cstudio-parallax__rig {
+    transform: scale(var(--cover-scale, 1)) !important;
+  }
+
+  .cstudio-parallax__stage,
   .cstudio-parallax__layer--fondo,
   .cstudio-parallax__cloud-band,
   .cstudio-parallax__layer--logo,
   .cstudio-parallax__layer--frame,
   .cstudio-parallax__layer--ground,
-  .cstudio-parallax__layer--flower,
-  .cstudio-parallax__cloud-band {
+  .cstudio-parallax__layer--flower {
     transform: none !important;
   }
 }
 
 @media (max-width: 899px) {
-  .cstudio__hero--parallax {
-    height: clamp(16rem, 62.5vw, 72dvh);
-  }
-
   .cstudio-parallax__rig {
     perspective: 380px;
   }

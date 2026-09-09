@@ -8,39 +8,59 @@
     "text": "#0a0a0a"
   },
   "hero": {
-    "type": "image",
-    "src": "/assets/projects/copydad/hero.svg",
+    "type": "video",
+    "src": "/assets/projects/copydad/cabecera.mp4",
+    "poster": "/assets/projects/copydad/cabecera-poster.jpg",
+    "aspect": 1.8,
     "alt": "Copydad hero"
   },
   "rows": [
     {
       "label": "CONTEXT",
-      "value": "Copydad is a brand of unique pieces taken from your dad's wardrobe, between New York and Madrid — one-of-a-kind garments with a story baked in."
+      "value": {
+        "es": "Partimos del sector de la ropa de segunda mano para presentar Copydad. La idea surge de crear una marca alrededor del fenómeno de robar la ropa de tus padres — Levi's, Carhartt, Burberry… Prendas de calidad a las que dar una segunda vida retrabajándolas a partir de trabajo de costura.",
+        "en": "We started from the second-hand clothing sector to present Copydad. The idea arose from building a brand around the phenomenon of stealing your parents' clothes — Levi's, Carhartt, Burberry… Quality pieces given a second life through sewing and rework."
+      }
     },
     {
       "label": "IDEA",
-      "value": "One word: steal. The concept connects fathers and sons through an emotional transaction — raiding dad's closet. The real value isn't the garment, it's answering \"where did you get that?\" with \"I stole it from my dad.\""
+      "value": {
+        "es": "A través de una acción — robar — hemos querido crear un concepto entero que relacione padres e hijos y una currency específica para esta “transacción”, profundizando en la idea del “asalto al armario de papá” y de un producto cuyo valor intrínseco, más allá de una prenda de buena calidad, es el lazo emocional de ser preguntado “¿de dónde has sacado eso?” y responder un simple “se lo he robado a mi padre”. Para bajarlo a tierra trabajamos insights como que las prendas, para tener realmente vida y dar sensación de que han sido vestidas por otra persona, lleven objetos como mecheros, monedas, cerillas, tickets o chicles adaptados al branding en bolsillos que sirven tanto de detalle con el comprador como paso lógico con la naturaleza de la marca.",
+        "en": "Through a single action — steal — we wanted to build a whole concept linking parents and children, and create a specific currency for this “transaction”, digging into the idea of “raiding dad's closet” and a product whose intrinsic value, beyond a quality garment, is the emotional bond of being asked “where did you get that?” and answering simply “I stole it from my dad”. To ground it, we worked insights such as garments needing to feel truly lived-in — as if worn by someone else — carrying objects like lighters, coins, matches, tickets, or gum, adapted to the branding in pockets that serve both as a detail for the buyer and a logical step in the brand's nature."
+      }
     },
     {
       "label": "ROLE",
-      "value": "Concept & content branding"
+      "value": "Art director, graphic designer & concept strategist"
     },
     {
       "label": "CLIENT",
-      "value": "Max García Rico"
+      "value": {
+        "es": "Max García Rico",
+        "en": "Max García Rico"
+      }
     },
     {
       "label": "WITH",
-      "value": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>",
+      "value": {
+        "es": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>",
+        "en": "<a href=\"https://bnomio.studio\" target=\"_blank\" rel=\"noopener\">bnomio.studio</a>"
+      },
       "html": true
     },
     {
       "label": "YEAR",
-      "value": "2026"
+      "value": {
+        "es": "2025",
+        "en": "2025"
+      }
     },
     {
       "label": "SECTOR",
-      "value": "Fashion — NY / Madrid"
+      "value": {
+        "es": "Moda — NY / Madrid",
+        "en": "Fashion — NY / Madrid"
+      }
     },
     {
       "label": "DELIVERABLES",
@@ -49,46 +69,50 @@
   ],
   "carousel": [
     {
-      "id": "logo-construction",
-      "type": "image",
-      "src": "/assets/projects/copydad/Logo-construction960.jpg",
-      "alt": "Logo construction"
-    },
-    {
-      "id": "inkbleed",
-      "type": "image",
-      "src": "/assets/projects/copydad/inkbleed-version2.jpg",
-      "alt": "Inkbleed version"
-    },
-    {
-      "id": "isotype",
-      "type": "image",
-      "src": "/assets/projects/copydad/lilthiefisotype.jpg",
-      "alt": "Lil Thief isotype"
-    },
-    {
       "id": "stickers",
       "type": "image",
-      "src": "/assets/projects/copydad/stickers.jpg",
+      "src": "/assets/projects/copydad/stickers.webp",
       "alt": "Stickers"
+    },
+    {
+      "id": "coin",
+      "type": "image",
+      "src": "/assets/projects/copydad/copydad-coin.png",
+      "alt": "Copydad coin"
     },
     {
       "id": "touchpoints",
       "type": "image",
-      "src": "/assets/projects/copydad/touchpoints.png",
+      "src": "/assets/projects/copydad/touchpoints.webp",
       "alt": "Touchpoints"
     },
     {
-      "id": "concept",
+      "id": "raccoon-iso",
       "type": "image",
-      "src": "/assets/projects/copydad/conceptoropa.jpg",
-      "alt": "Clothing concept"
+      "src": "/assets/projects/copydad/lilthiefisotype.webp",
+      "alt": "Lil Thief raccoon isotype"
+    },
+    {
+      "id": "logo",
+      "type": "image",
+      "src": "/assets/projects/copydad/hero.svg",
+      "alt": "Copydad logo"
     },
     {
       "id": "shirts",
       "type": "image",
       "src": "/assets/projects/copydad/shirts.png",
       "alt": "Copydad shirts"
+    },
+    {
+      "id": "cigarettes",
+      "type": "model",
+      "src": "/assets/3d/copydad-cigarettes/PackCigarettesStandard.fbx",
+      "scale": 0.42,
+      "fitView": 1.75,
+      "fitPadding": 0.88,
+      "spin": true,
+      "alt": "Copydad cigarette pack"
     }
   ],
   "gallery": [],

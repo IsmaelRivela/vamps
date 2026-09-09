@@ -94,7 +94,9 @@ function diveState(dive, hero) {
   const fondoZ = lerp(z(-1100), z(-540), p.travel);
   const cloudZ = lerp(z(-940), z(-440), p.travel);
   const groundZ = lerp(z(-800), z(-320), p.travel);
-  const logoZ = lerp(z(-660), z(-140), p.travel);
+  const logoStartZ = Number(hero.logoStartZ) || -660;
+  const logoEndZ = Number(hero.logoEndZ) || -140;
+  const logoZ = lerp(z(logoStartZ), z(logoEndZ), p.travel);
   const groundY = p.sceneDrop * groundDrop;
 
   return {
@@ -187,7 +189,7 @@ export function buildParallaxHeroMarkup(hero) {
 
   return `
     <div class="cstudio-parallax" data-parallax-hero style="--parallax-aspect:${aspect};--cloud-speed:${cloudSpeed}s">
-      <p class="cstudio-parallax__hint" data-parallax-hint aria-live="polite">Scroll para entrar</p>
+      <p class="cstudio-parallax__hint" data-parallax-hint aria-live="polite">Scroll</p>
       <div class="cstudio-parallax__rig">
         <div class="cstudio-parallax__stage">
           <div class="cstudio-parallax__layer cstudio-parallax__layer--fondo" data-layer="fondo" style="${placementStyle(fondoPlacement)}">
@@ -213,142 +215,157 @@ export function buildParallaxHeroMarkup(hero) {
     </div>`;
 }
 
+function ensureParallaxScrollWrap(heroEl) {
+  let scrollWrap = heroEl.parentElement;
+  if (!scrollWrap?.classList.contains("cstudio__parallax-scroll")) {
+    scrollWrap = document.createElement("div");
+    scrollWrap.className = "cstudio__parallax-scroll";
+    heroEl.parentNode.insertBefore(scrollWrap, heroEl);
+    scrollWrap.appendChild(heroEl);
+  }
+
+  scrollWrap.querySelector(".cstudio__parallax-runway")?.remove();
+  return { scrollWrap };
+}
+
+function diveEase(t) {
+  const x = clamp(t, 0, 1);
+  return 1 - (1 - x) ** 3;
+}
+
 export function initCaseParallaxHero(root, hero) {
   const rig = root.querySelector(".cstudio-parallax__rig");
+  const stage = root.querySelector(".cstudio-parallax__stage");
   const hint = root.querySelector("[data-parallax-hint]");
-  if (!rig) return () => {};
+  if (!rig || !stage) return () => {};
 
   const motionLayers = root.querySelectorAll("[data-layer]");
   const heroEl = root.closest(".cstudio__hero") || root;
-  const mobileLoop = hero.mobileAutoplay !== false && mobileMq.matches && !reduced;
-  const scrollLock = hero.scrollLock !== false && !reduced && !mobileLoop;
-  const diveDistance = Number(hero.diveDistance) || (mobileMq.matches ? 920 : 1850);
-  const holdDistance =
-    Number(hero.holdDistance) || (mobileMq.matches ? Math.round(diveDistance * 0.2) : Math.round(diveDistance * 0.22));
-  const lockDistance = diveDistance + holdDistance;
-  const scrollSpeed = Number(hero.scrollSpeed) || (mobileMq.matches ? 600 : 760);
-  const wheelStep = Number(hero.wheelStep) || (mobileMq.matches ? 90 : 110);
-  const scrollIdleMs = Number(hero.scrollIdleMs) || 380;
+  const parallaxEl = root.querySelector(".cstudio-parallax") || root;
+  ensureParallaxScrollWrap(heroEl);
+  const designAspect = Number(hero.aspect) || 1.6;
+  const diveDuration = Number(hero.diveDurationMs) || 2000;
+
+  const isMobileLoop = () =>
+    hero.mobileAutoplay !== false && mobileMq.matches && !reduced;
+  const isScrollLock = () => hero.scrollLock !== false && !reduced && !isMobileLoop();
 
   let mx = 0;
   let my = 0;
   let dive = 0;
-  let diveTarget = 0;
-  let virtualScroll = 0;
-  let virtualTarget = 0;
-  let diveComplete = !scrollLock;
-  let touchY = 0;
   let raf = 0;
-  let amp = reduced ? 0.25 : mobileMq.matches ? 0.65 : 1;
-  let scrollDrive = 0;
-  let lastScrollInput = 0;
-  let lastTick = 0;
+  let diveStart = 0;
+  let divePlaying = false;
+  let diveComplete = !isScrollLock();
+  let touchY = 0;
+  let completeFired = false;
   let loopDir = 1;
+  let loopTarget = 0;
+  let lastTick = 0;
+  let amp = reduced ? 0.2 : mobileMq.matches ? 0.55 : 1;
 
-  const syncAmp = () => {
-    amp = reduced ? 0.25 : mobileMq.matches ? 0.65 : 1;
+  const updateCoverScale = () => {
+    const w = heroEl.clientWidth;
+    const h = heroEl.clientHeight;
+    if (!w || !h) return;
+    const viewAspect = w / h;
+    const scale =
+      viewAspect > designAspect
+        ? viewAspect / designAspect
+        : designAspect / viewAspect;
+    rig.style.setProperty("--cover-scale", (scale * 1.04).toFixed(4));
   };
-  mobileMq.addEventListener("change", syncAmp);
+
+  const syncLayout = () => {
+    amp = reduced ? 0.2 : mobileMq.matches ? 0.55 : 1;
+    ensureParallaxScrollWrap(heroEl);
+    updateCoverScale();
+    if (isMobileLoop()) {
+      diveComplete = true;
+      divePlaying = false;
+      document.body.classList.remove("cstudio-parallax-locked");
+      heroEl.classList.remove("is-parallax-playing");
+      if (hint) hint.hidden = true;
+    }
+  };
 
   const stepMobileLoop = (dt) => {
     const halfCycle = (Number(hero.mobileLoopSeconds) || 18) / 2;
-    const speed = diveDistance / halfCycle;
-    virtualTarget += loopDir * speed * dt;
-    if (virtualTarget >= diveDistance) {
-      virtualTarget = diveDistance;
+    const speed = 1 / halfCycle;
+    loopTarget += loopDir * speed * dt;
+    if (loopTarget >= 1) {
+      loopTarget = 1;
       loopDir = -1;
-    } else if (virtualTarget <= 0) {
-      virtualTarget = 0;
+    } else if (loopTarget <= 0) {
+      loopTarget = 0;
       loopDir = 1;
     }
-    virtualScroll = lerp(virtualScroll, virtualTarget, 0.14);
-    diveTarget = clamp(virtualScroll / diveDistance, 0, 1);
+    dive = lerp(dive, loopTarget, 0.14);
   };
 
-  const setLocked = (locked) => {
-    document.body.classList.toggle("cstudio-parallax-locked", locked);
-    heroEl.classList.toggle("is-parallax-locked", locked);
-    root.classList.toggle("is-parallax-locked", locked);
-    if (hint) hint.hidden = !locked;
+  const lockPage = () => {
+    document.body.classList.add("cstudio-parallax-locked");
+    heroEl.classList.add("is-parallax-playing");
+    window.scrollTo(0, 0);
   };
 
-  const markComplete = () => {
-    if (diveComplete) return;
+  const unlockPage = () => {
+    document.body.classList.remove("cstudio-parallax-locked");
+    heroEl.classList.remove("is-parallax-playing");
     diveComplete = true;
-    virtualTarget = Math.min(virtualTarget, diveDistance);
-    virtualScroll = Math.min(virtualScroll, diveDistance);
-    root.classList.add("is-dive-complete");
-    heroEl.classList.add("is-dive-complete");
-    root.classList.add("is-dive-complete");
-    root.style.touchAction = "pan-y";
-    setLocked(false);
-    if (hint) hint.hidden = true;
-    heroEl.dispatchEvent(new CustomEvent("cstudio-parallax-dive-complete", { bubbles: true }));
+    divePlaying = false;
   };
 
-  const markIncomplete = () => {
-    diveComplete = false;
-    root.classList.remove("is-dive-complete");
-    heroEl.classList.remove("is-dive-complete");
-    root.classList.remove("is-dive-complete");
-    root.style.touchAction = "";
-    setLocked(true);
+  const startDive = () => {
+    if (!isScrollLock() || diveComplete || divePlaying) return;
+    divePlaying = true;
+    diveStart = performance.now();
+    lockPage();
   };
 
-  const syncDiveFromVirtual = () => {
-    virtualScroll = clamp(virtualScroll, 0, lockDistance);
-    virtualTarget = clamp(virtualTarget, 0, lockDistance);
-    diveTarget = clamp(virtualScroll / diveDistance, 0, 1);
-    if (diveTarget >= 1) {
-      if (!diveComplete && !mobileLoop) markComplete();
-    } else if (diveComplete && window.scrollY <= 1 && !mobileLoop) {
-      markIncomplete();
-    }
-  };
+  const onWheel = (e) => {
+    if (isMobileLoop() || !isScrollLock() || diveComplete) return;
 
-  const nudgeVirtual = (dir) => {
-    if (!dir) return;
-    const max = diveComplete ? lockDistance : diveDistance;
-    virtualTarget = clamp(virtualTarget + dir * wheelStep, 0, max);
-    syncDiveFromVirtual();
-  };
-
-  const setScrollDrive = (dir) => {
-    scrollDrive = dir > 0 ? 1 : dir < 0 ? -1 : 0;
-    if (scrollDrive) lastScrollInput = performance.now();
-  };
-
-  const stepScroll = (dt) => {
-    if (mobileLoop) {
-      stepMobileLoop(dt);
-      return;
-    }
-    if (!scrollLock) return;
-
-    const step = scrollSpeed * dt;
-    const now = performance.now();
-    if (scrollDrive && now - lastScrollInput > scrollIdleMs) scrollDrive = 0;
-
-    if (!diveComplete) {
-      const delta = virtualTarget - virtualScroll;
-      if (Math.abs(delta) > 0.05) {
-        virtualScroll += Math.sign(delta) * Math.min(Math.abs(delta), step);
-        syncDiveFromVirtual();
-      }
+    if (e.deltaY > 0) {
+      e.preventDefault();
+      if (!divePlaying) startDive();
       return;
     }
 
-    if (scrollDrive < 0 && window.scrollY <= 1) {
-      const backDelta = virtualTarget - virtualScroll;
-      if (Math.abs(backDelta) > 0.05) {
-        virtualScroll += Math.sign(backDelta) * Math.min(Math.abs(backDelta), step);
-        syncDiveFromVirtual();
-      }
+    if (window.scrollY <= 1) e.preventDefault();
+  };
+
+  const onTouchStart = (e) => {
+    touchY = e.touches[0]?.clientY ?? 0;
+  };
+
+  const onTouchMove = (e) => {
+    if (isMobileLoop() || !isScrollLock() || diveComplete) return;
+    const y = e.touches[0]?.clientY ?? touchY;
+    const dy = touchY - y;
+    if (dy > 6) {
+      e.preventDefault();
+      if (!divePlaying) startDive();
+    } else if (window.scrollY <= 1 && dy < -6) {
+      e.preventDefault();
     }
+  };
+
+  const onKeyDown = (e) => {
+    if (isMobileLoop() || !isScrollLock() || diveComplete) return;
+    if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+      e.preventDefault();
+      if (!divePlaying) startDive();
+    }
+  };
+
+  const onScroll = () => {
+    if (isMobileLoop() || !isScrollLock() || diveComplete) return;
+    if (window.scrollY > 1) window.scrollTo(0, 0);
   };
 
   const onMove = (e) => {
-    const rect = root.getBoundingClientRect();
+    const rect = heroEl.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     mx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
     my = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
@@ -359,63 +376,14 @@ export function initCaseParallaxHero(root, hero) {
     my = 0;
   };
 
-  const heroContainsPoint = (x, y) => {
-    const r = heroEl.getBoundingClientRect();
-    return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-  };
+  const applyMotion = (state, progress) => {
+    const pointerMix = (1 - progress * 0.65) * amp;
+    const scrollTiltX = progress * 2.2;
+    const scrollTiltY = progress * -1.1;
+    const tiltX = my * -0.75 * pointerMix + scrollTiltX;
+    const tiltY = mx * 0.95 * pointerMix + scrollTiltY;
 
-  const onWheel = (e) => {
-    if (!scrollLock) return;
-
-    const dir = Math.sign(e.deltaY);
-    if (!dir) return;
-
-    if (diveComplete) {
-      if (dir < 0 && window.scrollY <= 1) {
-        e.preventDefault();
-        setScrollDrive(-1);
-        nudgeVirtual(-1);
-      }
-      return;
-    }
-
-    e.preventDefault();
-    setScrollDrive(dir);
-    nudgeVirtual(dir);
-  };
-
-  const onTouchStart = (e) => {
-    touchY = e.touches[0]?.clientY ?? 0;
-  };
-
-  const onTouchMove = (e) => {
-    if (!scrollLock) return;
-    const y = e.touches[0]?.clientY ?? touchY;
-    const dy = touchY - y;
-    touchY = y;
-    if (dy === 0) return;
-
-    const dir = Math.sign(dy);
-    if (!dir) return;
-
-    if (diveComplete) {
-      if (dir < 0 && window.scrollY <= 1) {
-        e.preventDefault();
-        setScrollDrive(-1);
-        nudgeVirtual(-1);
-      }
-      return;
-    }
-
-    e.preventDefault();
-    setScrollDrive(dir);
-    nudgeVirtual(dir);
-  };
-
-  const applyMotion = (state) => {
-    const tiltX = my * -0.9 * amp * dive;
-    const tiltY = mx * 1.1 * amp * dive;
-    rig.style.transform = `rotateX(${tiltX.toFixed(3)}deg) rotateY(${tiltY.toFixed(3)}deg)`;
+    stage.style.transform = `rotateX(${tiltX.toFixed(3)}deg) rotateY(${tiltY.toFixed(3)}deg)`;
 
     const tunnelHold = state.tunnelOpen * (1 - state.flowersOut);
     const peekScale = lerp(1, 1.08, tunnelHold);
@@ -444,13 +412,12 @@ export function initCaseParallaxHero(root, hero) {
         el.style.opacity = String(state.frameOpacity);
         el.style.visibility = gone ? "hidden" : "visible";
         el.style.transform = `translate3d(0, 0, ${state.frameZ.toFixed(2)}px) scale(${state.frameScale.toFixed(4)})`;
-        el.style.pointerEvents = "none";
         return;
       }
 
       if (id === "logo") {
-        const px = mx * 4 * amp;
-        const py = my * 2.5 * amp;
+        const px = mx * 3.5 * pointerMix;
+        const py = my * 2.2 * pointerMix;
         el.style.transform = `translate3d(${px.toFixed(2)}px, ${py.toFixed(2)}px, ${state.logoZ.toFixed(2)}px) scale(${state.logoScale.toFixed(4)})`;
         return;
       }
@@ -458,7 +425,7 @@ export function initCaseParallaxHero(root, hero) {
       if (FLOWER_OUT[id]) {
         const cfg = FLOWER_OUT[id];
         const scale = lerp(peekScale, cfg.scaleMax, state.flowersOut);
-        const push = state.flowersOut * cfg.push * amp;
+        const push = state.flowersOut * cfg.push * pointerMix;
         const tx = cfg.dx * push;
         const ty = cfg.dy * push;
         el.style.opacity = String(state.flowerOpacity);
@@ -467,58 +434,77 @@ export function initCaseParallaxHero(root, hero) {
     });
   };
 
+  const markComplete = () => {
+    if (completeFired) return;
+    completeFired = true;
+    heroEl.classList.add("is-dive-complete");
+    parallaxEl.classList.add("is-dive-complete");
+    if (hint) hint.hidden = true;
+    heroEl.dispatchEvent(new CustomEvent("cstudio-parallax-dive-complete", { bubbles: true }));
+  };
+
   const tick = (now) => {
-    if (!lastTick) lastTick = now;
-    const dt = Math.min((now - lastTick) / 1000, 0.05);
+    const dt = lastTick ? (now - lastTick) / 1000 : 0;
     lastTick = now;
 
-    stepScroll(dt);
-    dive = lerp(dive, diveTarget, reduced ? 0.12 : 0.085);
-    const state = diveState(dive, hero);
-    applyMotion(state);
-
-    if (hint && mobileLoop) {
-      hint.hidden = true;
-    } else if (hint && scrollLock && !diveComplete) {
-      const { refEnter, refTunnel, refExit } = state;
-      if (dive < refEnter * 0.85) hint.textContent = "Scroll para entrar";
-      else if (dive < refTunnel) hint.textContent = "Sigue…";
-      else if (dive < refExit) hint.textContent = "Entra";
-      else hint.textContent = "Casi dentro";
-    } else if (hint && diveComplete) {
-      hint.hidden = false;
-      hint.textContent = "Scroll arriba para recomponer";
+    if (isMobileLoop()) {
+      stepMobileLoop(dt);
+    } else if (divePlaying) {
+      const t = clamp((now - diveStart) / diveDuration, 0, 1);
+      dive = diveEase(t);
+      if (t >= 1) {
+        dive = 1;
+        unlockPage();
+        markComplete();
+      }
+    } else if (reduced && !diveComplete) {
+      dive = 1;
+      unlockPage();
+      markComplete();
     }
 
+    applyMotion(diveState(dive, hero), dive);
+    if (hint && !isMobileLoop()) hint.hidden = dive > 0.04;
     raf = requestAnimationFrame(tick);
   };
 
-  if (scrollLock) setLocked(true);
-  if (mobileLoop && hint) hint.hidden = true;
+  heroEl.classList.add("is-scroll-parallax");
+  syncLayout();
+  raf = requestAnimationFrame(tick);
 
+  window.addEventListener("wheel", onWheel, { passive: false });
+  window.addEventListener("touchstart", onTouchStart, { passive: true });
+  window.addEventListener("touchmove", onTouchMove, { passive: false });
+  window.addEventListener("keydown", onKeyDown);
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  if (isMobileLoop() && hint) hint.hidden = true;
+
+  window.addEventListener("resize", syncLayout, { passive: true });
+  mobileMq.addEventListener("change", syncLayout);
   root.addEventListener("pointermove", onMove, { passive: true });
   root.addEventListener("pointerleave", onLeave);
-  if (scrollLock) {
-    window.addEventListener("wheel", onWheel, { passive: false });
-    root.addEventListener("touchstart", onTouchStart, { passive: true });
-    root.addEventListener("touchmove", onTouchMove, { passive: false });
-  }
-  syncDiveFromVirtual();
-  raf = requestAnimationFrame(tick);
 
   return () => {
     cancelAnimationFrame(raf);
+    window.removeEventListener("wheel", onWheel);
+    window.removeEventListener("touchstart", onTouchStart);
+    window.removeEventListener("touchmove", onTouchMove);
+    window.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", syncLayout);
+    mobileMq.removeEventListener("change", syncLayout);
     root.removeEventListener("pointermove", onMove);
     root.removeEventListener("pointerleave", onLeave);
-    if (scrollLock) {
-      window.removeEventListener("wheel", onWheel);
-      root.removeEventListener("touchstart", onTouchStart);
-      root.removeEventListener("touchmove", onTouchMove);
-    }
-    mobileMq.removeEventListener("change", syncAmp);
-    root.style.touchAction = "";
+    parallaxEl.style.opacity = "";
+    stage.style.transform = "";
+    rig.style.removeProperty("--cover-scale");
+    heroEl.classList.remove(
+      "is-scroll-parallax",
+      "is-dive-complete",
+      "is-parallax-playing",
+    );
+    parallaxEl.classList.remove("is-dive-complete");
     document.body.classList.remove("cstudio-parallax-locked");
-    heroEl.classList.remove("is-parallax-locked", "is-dive-complete");
-    root.classList.remove("is-parallax-locked", "is-dive-complete");
   };
 }

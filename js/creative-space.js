@@ -9,7 +9,7 @@ const LASTFM_USER = "ismaelrivela";
 const LASTFM_KEY = "e3724b3c0543dd7ab22dfc394ffd4afc";
 const ARTWORK_API = "https://vamps-artwork-api.vercel.app/api/artwork";
 const LASTFM_PLACEHOLDER = "2a96cbd8b46e442fc41c2b86b821562f";
-const BG = 0xefece6;
+const BG = 0xf3f3f1;
 const LINE_IDLE = 0.28;
 const LINE_HOVER = 0.78;
 const LINE_COLOR = 0x6f6a64;
@@ -23,12 +23,17 @@ const HEAD_AIM_AT_HOVER = true;
 const HEAD_AIM_YAW_MAX = THREE.MathUtils.degToRad(60);
 const HEAD_AIM_PITCH_MAX = THREE.MathUtils.degToRad(60);
 const HEAD_AIM_DOT_MIN = Math.cos(HEAD_AIM_YAW_MAX);
+const MOBILE_HEAD_SCALE = 2;
+const MOBILE_HEAD_YAW = THREE.MathUtils.degToRad(14);
+const MOBILE_HEAD_PITCH = THREE.MathUtils.degToRad(9);
 const HEAD_KEEP = new Set(["Head", "Jaw", "L Brow", "R Brow"]);
 const AUTO_SPIN = 0.018;
 const DRAG_THRESH = 10;
 const DRAG_SENS = 0.0038;
 
 const FILTER_STORAGE_KEY = "vamps-creative-content-filter";
+const LASTFM_CACHE_KEY = "vamps-lastfm-tracks-v2";
+const LASTFM_POLL_MS = 30000;
 const CONTENT_FILTERS = new Set(["all", "works", "socials"]);
 
 const canvas = document.getElementById("stage");
@@ -652,7 +657,7 @@ function drawDockCanvas(ctx, tracks) {
   const w = 512;
   const h = 220;
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = "#f4f1ea";
+  ctx.fillStyle = "#f3f3f1";
   roundRect(ctx, 0, 0, w, h, 28);
   ctx.fill();
   ctx.strokeStyle = "rgba(28,27,25,0.07)";
@@ -673,7 +678,7 @@ function drawDockCanvas(ctx, tracks) {
   for (let i = 0; i < 3; i++) {
     const t = tracks[i];
     const x = startX + i * (slotW + gap);
-    ctx.fillStyle = "#e4e0d8";
+    ctx.fillStyle = "#e8e8e6";
     roundRect(ctx, x + (slotW - coverS) / 2, coverY, coverS, coverS, 10);
     ctx.fill();
     if (t?.artImg) {
@@ -721,8 +726,32 @@ function truncate(ctx, text, maxW) {
   return `${s}…`;
 }
 
-async function buildDock() {
-  const tracks = await fetchTracks();
+function trackListKey(tracks) {
+  return tracks.map((t) => `${t.artist}§${t.name}§${t.now ? 1 : 0}`).join("|");
+}
+
+function loadCachedTracks() {
+  try {
+    const raw = localStorage.getItem(LASTFM_CACHE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data) || !data.length) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function saveCachedTracks(tracks) {
+  if (!tracks?.length) return;
+  try {
+    localStorage.setItem(LASTFM_CACHE_KEY, JSON.stringify(tracks));
+  } catch {
+    /* noop */
+  }
+}
+
+async function paintDock(tracks) {
   const enriched = [];
   for (const t of tracks) {
     let artImg = null;
@@ -755,6 +784,47 @@ async function buildDock() {
     dockTex.needsUpdate = true;
   }
   scaleDockToViewport();
+}
+
+function renderMobileDock(tracks) {
+  const host = document.getElementById("space-mobile-dock");
+  if (!host) return;
+  const slots = [...tracks];
+  while (slots.length < 3) slots.push(null);
+
+  host.innerHTML = `
+    <div class="space-dock-mobile">
+      <span class="space-dock-mobile__label">Recently played</span>
+      <div class="space-dock-mobile__row">
+        ${slots
+          .map(
+            (t) => `
+          <div class="space-dock-mobile__slot">
+            ${
+              t?.art
+                ? `<img class="space-dock-mobile__cover" src="${esc(t.art)}" alt="" loading="lazy" />`
+                : `<div class="space-dock-mobile__cover"></div>`
+            }
+            <span class="space-dock-mobile__name">${esc(t?.name || "—")}</span>
+            <span class="space-dock-mobile__artist">${esc(t?.artist || "")}</span>
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
+let lastFmRenderedKey = "";
+
+async function renderLastFmTracks(tracks) {
+  if (!tracks?.length) return;
+  const key = trackListKey(tracks);
+  if (key === lastFmRenderedKey) return;
+  lastFmRenderedKey = key;
+  await paintDock(tracks);
+  renderMobileDock(tracks);
 }
 
 function itemDim(maxW, maxH) {
@@ -1066,44 +1136,98 @@ function isYouTube(t) {
   const album = (t.album?.["#text"] || "").toLowerCase();
   if (!artist || artist === "youtube") return true;
   if (album.includes("- topic") || album.includes("auto-generated")) return true;
-  const imgs = t.image || [];
-  const hasArt = imgs.some((img) => {
-    const url = img["#text"] || "";
-    return url && !url.includes(LASTFM_PLACEHOLDER);
-  });
-  return !hasArt;
+  return false;
 }
 
-async function fetchTracks() {
+const NON_MUSIC_RE =
+  /\b(playlist|podcasts?|episodio|episode|opening\s*\d|openings?\s*\d|soundtrack compilation|mixtape|full album|entrevista|debate|documental|analizando|react(?:s|ing)?|watch party)\b/i;
+
+function isNonMusicScrobble(t) {
+  if (isYouTube(t)) return true;
+
+  const artist = (t.artist?.["#text"] || "").trim();
+  const name = (t.name || "").trim();
+  const album = (t.album?.["#text"] || "").trim();
+  const blob = `${artist} ${name} ${album}`;
+
+  if (NON_MUSIC_RE.test(blob)) return true;
+  if (/^\d{1,3}$/.test(name)) return true;
+  if (name.split(/\s+/).length >= 9) return true;
+  if (name.length >= 56) return true;
+
+  return false;
+}
+
+function normalizeMusicMeta(artist, name) {
+  const fifaInName = name.match(/^(.+?)\s*\((?:fifa|nba|madden)\s*\d+/i);
+  if (fifaInName) {
+    return { artist: fifaInName[1].trim(), name: artist.trim() || name };
+  }
+  const fifaInArtist = artist.match(/^(.+?)\s*\((?:fifa|nba|madden)\s*\d+/i);
+  if (fifaInArtist) {
+    return { artist: fifaInArtist[1].trim(), name: name.trim() || artist };
+  }
+  return { artist, name };
+}
+
+async function resolveTrackArt(artist, track) {
+  let art = await itunesArt(artist, track);
+  if (!art && artist && track) art = await itunesArt(track, artist);
+  return art;
+}
+
+async function fetchTracksFromApi() {
   try {
     const r = await fetch(
-      `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_KEY}&format=json&limit=10&_=${Date.now()}`,
+      `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LASTFM_USER}&api_key=${LASTFM_KEY}&format=json&limit=30&_=${Date.now()}`,
       { cache: "no-store" }
     );
     const data = await r.json();
+    if (data.error) return null;
     const tracks = data.recenttracks?.track || [];
     const all = Array.isArray(tracks) ? tracks : [tracks];
     const seen = new Set();
     const list = [];
     for (const t of all) {
-      if (isYouTube(t)) continue;
-      const key = `${t.artist?.["#text"]}§${t.name}`.toLowerCase();
+      if (isNonMusicScrobble(t)) continue;
+
+      const rawArtist = t.artist?.["#text"] || "";
+      const rawName = t.name || "";
+      const { artist, name } = normalizeMusicMeta(rawArtist, rawName);
+      const key = `${artist}§${name}`.toLowerCase();
       if (seen.has(key)) continue;
       seen.add(key);
+
       let art = lastFmArt(t.image);
-      if (!art) art = await itunesArt(t.artist?.["#text"] || "", t.name || "");
+      if (!art) art = await resolveTrackArt(artist, name);
+      if (!art) continue;
+
       list.push({
-        name: t.name || "",
-        artist: t.artist?.["#text"] || "",
+        name,
+        artist,
         art,
         now: t["@attr"]?.nowplaying === "true",
       });
       if (list.length === 3) break;
     }
-    return list;
+    return list.length ? list : null;
   } catch {
-    return [];
+    return null;
   }
+}
+
+async function refreshLastFmTracks() {
+  const fresh = await fetchTracksFromApi();
+  if (!fresh?.length) return;
+  saveCachedTracks(fresh);
+  await renderLastFmTracks(fresh);
+}
+
+async function initLastFmDock() {
+  const cached = loadCachedTracks();
+  if (cached?.length) await renderLastFmTracks(cached);
+  await refreshLastFmTracks();
+  setInterval(refreshLastFmTracks, LASTFM_POLL_MS);
 }
 
 function setLayoutMode(mobile) {
@@ -1127,13 +1251,15 @@ function resize() {
   if (mobile) {
     w = spaceHero?.clientWidth || innerWidth;
     h = spaceHero?.clientHeight || Math.min(innerWidth * 0.44, 264);
-    camBase.set(0, 0.04, 4.35);
-    camera.fov = 40;
+    camBase.set(0, 0.04, 3.55);
+    camera.fov = 42;
+    headRoot.scale.setScalar(MOBILE_HEAD_SCALE);
   } else {
     w = innerWidth;
     h = innerHeight;
     camBase.set(0, 0.28, 5.2);
     camera.fov = 36;
+    headRoot.scale.setScalar(1);
     computeOrbitRadii();
     scaleDockToViewport();
   }
@@ -1249,8 +1375,24 @@ function onPointerMove(e) {
   hovered = obj;
 }
 
+function hideDragHint() {
+  const hint = document.getElementById("space-drag-hint");
+  if (!hint || hint.classList.contains("is-hidden")) return;
+  hint.classList.add("is-hidden");
+}
+
+function initDragHint() {
+  const hint = document.getElementById("space-drag-hint");
+  if (!hint || mobileLayout) {
+    hideDragHint();
+    return;
+  }
+  window.setTimeout(hideDragHint, 9000);
+}
+
 function onPointerDown(e) {
   if (mobileLayout) return;
+  hideDragHint();
   const obj = pick(e.clientX, e.clientY);
   pendingNav = obj?.userData?.href ? obj : null;
   orbit.dragging = true;
@@ -1392,6 +1534,27 @@ function clampHeadAim(dir) {
 function updateHeadLook() {
   headPivot.getWorldPosition(_wp);
 
+  if (mobileLayout && !reduced) {
+    const t = clock.elapsedTime;
+    _lookTarget.set(
+      Math.sin(t * 0.36) * 1.05,
+      headRoot.position.y + Math.sin(t * 0.28 + 1.1) * 0.18,
+      3.55
+    );
+    _aimDir.subVectors(_lookTarget, _wp);
+    if (_aimDir.lengthSq() < 1e-6) return;
+    _aimDir.normalize();
+    const yaw = Math.atan2(_aimDir.x, _aimDir.z);
+    const pitch = Math.asin(THREE.MathUtils.clamp(_aimDir.y, -1, 1));
+    const cy = THREE.MathUtils.clamp(yaw, -MOBILE_HEAD_YAW, MOBILE_HEAD_YAW);
+    const cp = THREE.MathUtils.clamp(pitch, -MOBILE_HEAD_PITCH, MOBILE_HEAD_PITCH);
+    const cosP = Math.cos(cp);
+    _aimDir.set(Math.sin(cy) * cosP, Math.sin(cp), Math.cos(cy) * cosP);
+    _lookQuat.setFromUnitVectors(_headFwd, _aimDir);
+    headPivot.quaternion.slerp(_lookQuat, 0.085);
+    return;
+  }
+
   let aimAtHover = false;
   if (HEAD_AIM_AT_HOVER && hovered) {
     hovered.getWorldPosition(_lookTarget);
@@ -1495,37 +1658,6 @@ function buildMobileScroll() {
   spaceScroll.appendChild(vampsSec);
 }
 
-async function buildMobileDock() {
-  const host = document.getElementById("space-mobile-dock");
-  if (!host) return;
-  const tracks = await fetchTracks();
-  const slots = [...tracks];
-  while (slots.length < 3) slots.push(null);
-
-  host.innerHTML = `
-    <div class="space-dock-mobile">
-      <span class="space-dock-mobile__label">Recently played</span>
-      <div class="space-dock-mobile__row">
-        ${slots
-          .map(
-            (t) => `
-          <div class="space-dock-mobile__slot">
-            ${
-              t?.art
-                ? `<img class="space-dock-mobile__cover" src="${esc(t.art)}" alt="" loading="lazy" />`
-                : `<div class="space-dock-mobile__cover"></div>`
-            }
-            <span class="space-dock-mobile__name">${esc(t?.name || "—")}</span>
-            <span class="space-dock-mobile__artist">${esc(t?.artist || "")}</span>
-          </div>
-        `
-          )
-          .join("")}
-      </div>
-    </div>
-  `;
-}
-
 function tick() {
   const dt = Math.min(clock.getDelta(), 0.05);
   const t = clock.elapsedTime;
@@ -1537,7 +1669,7 @@ function tick() {
   if (mobileLayout) {
     camera.position.copy(camBase);
     camera.lookAt(0, 0.06, 0);
-    headRoot.position.y = 0.06;
+    headRoot.position.y = 0.06 + (reduced ? 0 : Math.sin(t * 0.4) * 0.012);
     updateHeadLook();
     renderer.render(scene, camera);
     requestAnimationFrame(tick);
@@ -1594,6 +1726,7 @@ function tick() {
 async function init() {
   buildMobileScroll();
   initContentFilter();
+  initDragHint();
   resize();
   canvas.style.cursor = "grab";
   requestAnimationFrame(tick);
@@ -1641,8 +1774,7 @@ async function init() {
     emailHovers.set(mesh, 0);
   }
 
-  buildDock();
-  buildMobileDock();
+  initLastFmDock();
 }
 
 window.addEventListener("resize", resize);

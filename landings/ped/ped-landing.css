@@ -41,10 +41,11 @@ body {
 
 .label {
   position: absolute;
-  top: auto;
-  bottom: clamp(6.8rem, 27vh, 11.5rem);
+  top: 50%;
+  bottom: auto;
   z-index: 3;
   margin: 0;
+  transform: translateY(-50%);
   font-size: clamp(1.4rem, 4vw, 3.4rem);
   font-weight: 500;
   letter-spacing: -0.03em;
@@ -110,25 +111,51 @@ body {
 
 @keyframes word-hit {
   0% {
-    transform: translateX(0) rotate(0deg);
+    transform: translateY(-50%) translateX(0) rotate(0deg);
   }
   35% {
-    transform: translateX(18px) rotate(8deg);
+    transform: translateY(-50%) translateX(18px) rotate(8deg);
   }
   100% {
-    transform: translateX(28px) rotate(5deg);
+    transform: translateY(-50%) translateX(28px) rotate(5deg);
   }
 }
 
 @keyframes word-hit-left {
   0% {
-    transform: translateX(0) rotate(0deg);
+    transform: translateY(-50%) translateX(0) rotate(0deg);
   }
   35% {
-    transform: translateX(-18px) rotate(-8deg);
+    transform: translateY(-50%) translateX(-18px) rotate(-8deg);
   }
   100% {
-    transform: translateX(-28px) rotate(-5deg);
+    transform: translateY(-50%) translateX(-28px) rotate(-5deg);
+  }
+}
+
+@media (max-width: 819px), (max-height: 519px) {
+  @keyframes word-hit {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    35% {
+      transform: translate(-50%, -50%) translateX(18px) rotate(8deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) translateX(28px) rotate(5deg);
+    }
+  }
+
+  @keyframes word-hit-left {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    35% {
+      transform: translate(-50%, -50%) translateX(-18px) rotate(-8deg);
+    }
+    100% {
+      transform: translate(-50%, -50%) translateX(-28px) rotate(-5deg);
+    }
   }
 }
 
@@ -145,15 +172,6 @@ body {
   .label {
     font-size: clamp(1.35rem, 6.2vw, 2rem);
     padding: 0.7rem 0.45rem;
-    bottom: max(6.2rem, calc(env(safe-area-inset-bottom) + 24vh));
-  }
-
-  .label--left {
-    left: max(0.55rem, env(safe-area-inset-left));
-  }
-
-  .label--right {
-    right: max(0.55rem, env(safe-area-inset-right));
   }
 }
 

@@ -1,7 +1,32 @@
 import { CaseStage } from "./case-studio-stage.js";
 import { buildParallaxHeroMarkup, initCaseParallaxHero } from "./case-studio-parallax.js";
+import { buildScannerHeroMarkup, initCaseScannerHero } from "./case-studio-scanner-hero.js";
+import { primeVideoPlayback } from "./mockup-content.js";
 
 const STORAGE_PREFIX = "vamps-case-studio::";
+const LANG_STORAGE_KEY = "vamps-case-studio-lang";
+
+const ROW_LABEL_I18N = {
+  CONTEXT: { en: "CONTEXT", es: "CONTEXTO" },
+  IDEA: { en: "IDEA", es: "IDEA" },
+  ROLE: { en: "ROLE", es: "ROL" },
+  CLIENT: { en: "CLIENT", es: "CLIENTE" },
+  WITH: { en: "WITH", es: "CON" },
+  YEAR: { en: "YEAR", es: "AÑO" },
+  SECTOR: { en: "SECTOR", es: "SECTOR" },
+  DISCIPLINES: { en: "DISCIPLINES", es: "DISCIPLINAS" },
+  DELIVERABLES: { en: "DELIVERABLES", es: "ENTREGABLES" },
+};
+
+const META_LABEL_I18N = {
+  en: { projectNo: "Project no.", name: "Name" },
+  es: { projectNo: "Proyecto n.º", name: "Nombre" },
+};
+
+const NAV_LABEL_I18N = {
+  en: { prev: "← Previous", next: "Next →" },
+  es: { prev: "← Anterior", next: "Siguiente →" },
+};
 
 const caseManifests = import.meta.glob("../creative/cases/*.json", {
   eager: true,
@@ -65,13 +90,53 @@ function esc(s) {
     .replace(/"/g, "&quot;");
 }
 
-function rowHtml(row) {
-  const label = esc(row.label).replace(/\n/g, "<br>");
-  const value = row.html ? row.value : esc(row.value);
+export function loadCaseLang() {
+  try {
+    const saved = localStorage.getItem(LANG_STORAGE_KEY);
+    if (saved === "en" || saved === "es") return saved;
+  } catch {
+    /* noop */
+  }
+  return "en";
+}
+
+export function saveCaseLang(lang) {
+  try {
+    localStorage.setItem(LANG_STORAGE_KEY, lang);
+  } catch {
+    /* noop */
+  }
+}
+
+export function locText(value, lang) {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  return value[lang] ?? value.en ?? value.es ?? "";
+}
+
+const EN_ONLY_ROWS = new Set(["ROLE", "DELIVERABLES"]);
+
+function locRowValue(row, lang) {
+  if (EN_ONLY_ROWS.has(row.label)) return locText(row.value, "en");
+  return locText(row.value, lang);
+}
+
+function rowLabel(row, lang) {
+  if (row.labels?.[lang]) return row.labels[lang];
+  return ROW_LABEL_I18N[row.label]?.[lang] ?? row.label;
+}
+
+const SCROLL_ROWS = new Set(["CONTEXT", "IDEA"]);
+
+function rowHtml(row, lang) {
+  const label = esc(rowLabel(row, lang)).replace(/\n/g, "<br>");
+  const raw = locRowValue(row, lang);
+  const value = row.html ? raw : esc(raw);
+  const scroll = SCROLL_ROWS.has(row.label) ? " cstudio__row--scroll" : "";
   return `
-    <div class="cstudio__row">
+    <div class="cstudio__row${scroll}">
       <div class="cstudio__row-label">${label}</div>
-      <div class="cstudio__row-value">${value}</div>
+      <div class="cstudio__row-value" tabindex="0">${value}</div>
     </div>`;
 }
 
@@ -86,10 +151,11 @@ export async function initCaseStudio(root = document) {
 
   let parallaxDispose = null;
 
+  const lang = loadCaseLang();
+
   applyTheme(shell, config.theme);
   parallaxDispose = renderHero(shell, config.hero);
-  renderMeta(shell, config);
-  renderRows(shell, config.rows);
+  initLangToggle(shell, config, lang);
 
   const stageRoot = shell.querySelector("[data-stage]");
   const indexEl = shell.querySelector("[data-carousel-index]");
@@ -108,21 +174,10 @@ export async function initCaseStudio(root = document) {
 
   initSheetScroll(shell);
   initBuilderPanel(shell, config, stage);
-  renderCaseNav(shell, config);
+  applyCaseLang(shell, config, lang);
 
-  const title = `${config.title} — Case · VAMPS`;
+  const title = `${locText(config.title, lang) || config.title} — Case · VAMPS`;
   document.title = title;
-
-  const desc = config.rows?.find((r) => r.label === "CONTEXT")?.value;
-  if (desc) {
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.name = "description";
-      document.head.appendChild(meta);
-    }
-    meta.content = desc.slice(0, 160);
-  }
 
   let canonical = document.querySelector('link[rel="canonical"]');
   if (!canonical) {
@@ -145,7 +200,7 @@ function renderHero(shell, hero) {
   const el = shell.querySelector("[data-hero]");
   if (!el || !hero) return null;
 
-  el.classList.remove("cstudio__hero--parallax");
+  el.classList.remove("cstudio__hero--parallax", "cstudio__hero--scanner");
 
   if (hero.type === "parallax") {
     el.innerHTML = buildParallaxHeroMarkup(hero);
@@ -154,49 +209,69 @@ function renderHero(shell, hero) {
     return initCaseParallaxHero(el, hero);
   }
 
+  if (hero.type === "scanner") {
+    el.innerHTML = buildScannerHeroMarkup(hero);
+    el.classList.add("cstudio__hero--scanner");
+    el.removeAttribute("aria-hidden");
+    return initCaseScannerHero(el, hero);
+  }
+
   if (hero.type === "video" && !hero.src?.endsWith(".gif")) {
-    el.innerHTML = `<video src="${esc(hero.src)}" poster="${esc(hero.poster || "")}" muted playsinline loop autoplay></video>`;
+    const sources = [];
+    if (hero.webm) sources.push({ src: hero.webm, type: "video/webm" });
+    if (hero.src) sources.push({ src: hero.src, type: hero.src.endsWith(".webm") ? "video/webm" : "video/mp4" });
+    const sourceMarkup = sources
+      .map((s) => `<source src="${esc(s.src)}" type="${esc(s.type)}" />`)
+      .join("");
+    el.innerHTML = `<video class="cstudio__hero-video" ${hero.poster ? `poster="${esc(hero.poster)}"` : ""} muted playsinline webkit-playsinline loop autoplay preload="auto">${sourceMarkup}</video>`;
+    const video = el.querySelector("video");
+    if (video) primeVideoPlayback(video);
+    if (hero.aspect) el.style.setProperty("--cstudio-hero-aspect", String(hero.aspect));
   } else {
     el.innerHTML = `<img src="${esc(hero.src)}" alt="${esc(hero.alt || "")}" />`;
+    if (hero.aspect) el.style.setProperty("--cstudio-hero-aspect", String(hero.aspect));
   }
   return null;
 }
 
-function renderMeta(shell, config) {
+function renderMeta(shell, config, lang) {
   const el = shell.querySelector("[data-meta-rows]");
   if (!el) return;
+  const labels = META_LABEL_I18N[lang];
+  const titleText = locText(config.title, lang) || config.title;
   const nameCell = config.titleImage
-    ? `<img src="${esc(config.titleImage)}" alt="${esc(config.titleImageAlt || config.title)}" class="cstudio__title-img" />`
-    : esc(config.title);
+    ? `<img src="${esc(config.titleImage)}" alt="${esc(locText(config.titleImageAlt, lang) || titleText)}" class="cstudio__title-img" />`
+    : esc(titleText);
   el.innerHTML = `
     <div class="cstudio__row">
-      <div class="cstudio__row-label">Project no.</div>
+      <div class="cstudio__row-label">${esc(labels.projectNo)}</div>
       <div class="cstudio__row-value">${esc(config.projectNo || "—")}</div>
     </div>
     <div class="cstudio__row">
-      <div class="cstudio__row-label">Name</div>
+      <div class="cstudio__row-label">${esc(labels.name)}</div>
       <div class="cstudio__row-value">${nameCell}</div>
     </div>`;
 }
 
-function renderRows(shell, rows = []) {
+function renderRows(shell, rows = [], lang) {
   const el = shell.querySelector("[data-rows]");
   if (!el) return;
-  el.innerHTML = rows.map(rowHtml).join("");
+  el.innerHTML = rows.map((row) => rowHtml(row, lang)).join("");
 }
 
-function renderCaseNav(shell, config) {
+function renderCaseNav(shell, config, lang) {
   const nav = shell.querySelector("[data-case-nav]");
   if (!nav || !config.nav) return;
 
   const { prev, next } = config.nav;
+  const labels = NAV_LABEL_I18N[lang];
   const parts = [];
 
   if (prev?.case) {
     parts.push(
       `<a class="cstudio__case-nav-link cstudio__case-nav-link--prev" href="/creative/case-studio/?case=${esc(prev.case)}">
-        <span class="cstudio__case-nav-dir">← Previous</span>
-        <span class="cstudio__case-nav-title">${esc(prev.title || prev.case)}</span>
+        <span class="cstudio__case-nav-dir">${labels.prev}</span>
+        <span class="cstudio__case-nav-title">${esc(locText(prev.title, lang) || prev.case)}</span>
       </a>`
     );
   }
@@ -204,8 +279,8 @@ function renderCaseNav(shell, config) {
   if (next?.case) {
     parts.push(
       `<a class="cstudio__case-nav-link cstudio__case-nav-link--next" href="/creative/case-studio/?case=${esc(next.case)}">
-        <span class="cstudio__case-nav-dir">Next →</span>
-        <span class="cstudio__case-nav-title">${esc(next.title || next.case)}</span>
+        <span class="cstudio__case-nav-dir">${labels.next}</span>
+        <span class="cstudio__case-nav-title">${esc(locText(next.title, lang) || next.case)}</span>
       </a>`
     );
   }
@@ -214,43 +289,63 @@ function renderCaseNav(shell, config) {
   nav.hidden = parts.length === 0;
 }
 
+function applyCaseLang(shell, config, lang) {
+  document.documentElement.lang = lang;
+  renderMeta(shell, config, lang);
+  renderRows(shell, config.rows, lang);
+  renderCaseNav(shell, config, lang);
+  updateLangToggle(shell, lang);
+
+  const contextRow = config.rows?.find((r) => r.label === "CONTEXT");
+  const desc = contextRow ? locText(contextRow.value, lang) : "";
+  if (desc) {
+    let meta = document.querySelector('meta[name="description"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "description";
+      document.head.appendChild(meta);
+    }
+    meta.content = desc.slice(0, 160);
+  }
+
+  const titleText = locText(config.title, lang) || config.title;
+  document.title = `${titleText} — Case · VAMPS`;
+}
+
+function updateLangToggle(shell, lang) {
+  shell.querySelectorAll("[data-lang]").forEach((btn) => {
+    const on = btn.dataset.lang === lang;
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+function initLangToggle(shell, config, lang) {
+  const toggle = shell.querySelector("[data-lang-toggle]");
+  if (!toggle || toggle.dataset.bound) return;
+  toggle.dataset.bound = "1";
+
+  toggle.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-lang]");
+    if (!btn) return;
+    const next = btn.dataset.lang;
+    if (next !== "en" && next !== "es") return;
+    saveCaseLang(next);
+    applyCaseLang(shell, config, next);
+  });
+
+  updateLangToggle(shell, lang);
+}
+
 function initSheetScroll(shell) {
-  const hero = shell.querySelector(".cstudio__hero");
   const sheet = shell.querySelector(".cstudio__sheet");
-  if (!hero || !sheet) return;
-
-  const mobileMq = window.matchMedia("(max-width: 899px)");
-  const parallaxHero = hero.classList.contains("cstudio__hero--parallax");
-
-  const ease = (t) => {
-    const x = Math.min(1, Math.max(0, t));
-    return x * x * (3 - 2 * x);
-  };
-
-  const handoffPx = () => Math.max(240, Math.min(hero.offsetHeight * 0.32, 520));
+  if (!sheet) return;
 
   const onScroll = () => {
-    if (mobileMq.matches) {
-      sheet.style.transform = "";
-      sheet.style.opacity = "";
-      return;
-    }
-    if (parallaxHero && !hero.classList.contains("is-dive-complete")) {
-      sheet.style.transform = `translateY(12vh)`;
-      sheet.style.opacity = "0.55";
-      return;
-    }
-    const p = ease(window.scrollY / handoffPx());
-    sheet.style.transform = `translateY(${(1 - p) * 12}vh)`;
-    sheet.style.opacity = String(0.55 + p * 0.45);
+    sheet.style.transform = "";
+    sheet.style.opacity = "";
   };
 
   window.addEventListener("scroll", onScroll, { passive: true });
-  mobileMq.addEventListener("change", onScroll);
-  if (parallaxHero) {
-    hero.addEventListener("cstudio-parallax-dive-complete", onScroll);
-    new MutationObserver(onScroll).observe(hero, { attributes: true, attributeFilter: ["class"] });
-  }
   onScroll();
 }
 
@@ -335,121 +430,4 @@ function readBuilderState(list, order) {
     if (!input.checked) disabled.push(input.dataset.id);
   });
   return { order, disabled };
-}
-
-export async function initCaseStudioBuilder(root = document) {
-  const shell = root.querySelector("[data-case-builder]");
-  if (!shell) return;
-
-  const select = shell.querySelector("[data-case-select]");
-  const list = shell.querySelector("[data-builder-list]");
-  const preview = shell.querySelector("[data-preview]");
-  const exportBtn = shell.querySelector("[data-export]");
-  const resetBtn = shell.querySelector("[data-reset]");
-
-  const ids = Object.keys(caseManifests).map((k) =>
-    k.replace("../creative/cases/", "").replace(".json", "")
-  );
-  select.innerHTML = ids.map((id) => `<option value="${esc(id)}">${esc(id)}</option>`).join("");
-
-  const initial = caseIdFromLocation();
-  if (ids.includes(initial)) select.value = initial;
-
-  let config = loadCaseManifest(select.value);
-  let override = loadCarouselOverride(config.id) ?? { order: [], disabled: [] };
-
-  const assetGlob = import.meta.glob("/assets/projects/**/*.{webp,jpg,jpeg,png,gif,mp4,glb}", {
-    eager: true,
-    query: "?url",
-    import: "default",
-  });
-
-  function render() {
-    config = loadCaseManifest(select.value);
-    override = loadCarouselOverride(config.id) ?? { order: [], disabled: [] };
-    if (!override.order?.length) override.order = (config.carousel ?? []).map((i) => i.id);
-
-    const folderPrefix = `/assets/projects/${config.assetDir || config.id}/`;
-    const discovered = Object.values(assetGlob).filter((url) => url.includes(folderPrefix));
-
-    list.innerHTML = "";
-
-    override.order.forEach((id) => {
-      const item = config.carousel.find((c) => c.id === id);
-      if (item) list.appendChild(builderRow(item, override));
-    });
-
-    const orphanAssets = discovered
-      .filter((path) => !(config.carousel ?? []).some((c) => c.src === path || c.thumb === path))
-      .slice(0, 12);
-
-    if (orphanAssets.length) {
-      const head = document.createElement("li");
-      head.className = "cstudio-builder__discover";
-      head.innerHTML = `<strong>Assets in folder (add to manifest to use)</strong>`;
-      list.appendChild(head);
-      orphanAssets.forEach((url) => {
-        const li = document.createElement("li");
-        li.className = "cstudio-builder__asset";
-        li.innerHTML = `<code>${esc(url)}</code>`;
-        list.appendChild(li);
-      });
-    }
-
-    if (preview) {
-      preview.src = `/creative/case-studio/?case=${encodeURIComponent(config.id)}&builder=0`;
-    }
-  }
-
-  function builderRow(item, ov) {
-    const disabled = new Set(ov.disabled ?? []);
-    const li = document.createElement("li");
-    li.className = "cstudio-builder__item";
-    li.innerHTML = `
-      <label>
-        <input type="checkbox" data-id="${esc(item.id)}" ${disabled.has(item.id) ? "" : "checked"} />
-        <span>${esc(item.alt || item.label || item.id)}</span>
-        <em>${esc(item.type)}</em>
-      </label>
-      <div class="cstudio-builder__order">
-        <button type="button" data-up="${esc(item.id)}">↑</button>
-        <button type="button" data-down="${esc(item.id)}">↓</button>
-      </div>`;
-    return li;
-  }
-
-  select.addEventListener("change", render);
-
-  list.addEventListener("click", (e) => {
-    const up = e.target.closest("[data-up]");
-    const down = e.target.closest("[data-down]");
-    if (!up && !down) return;
-    const id = up?.dataset.up || down?.dataset.down;
-    const i = override.order.indexOf(id);
-    if (up && i > 0) [override.order[i - 1], override.order[i]] = [override.order[i], override.order[i - 1]];
-    if (down && i < override.order.length - 1) [override.order[i + 1], override.order[i]] = [override.order[i], override.order[i + 1]];
-    saveCarouselOverride(config.id, readBuilderState(list, override.order));
-    render();
-  });
-
-  list.addEventListener("change", () => {
-    saveCarouselOverride(config.id, readBuilderState(list, override.order));
-    if (preview) preview.src = `/creative/case-studio/?case=${encodeURIComponent(config.id)}&builder=0&_=${Date.now()}`;
-  });
-
-  exportBtn?.addEventListener("click", () => {
-    const data = readBuilderState(list, override.order);
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${config.id}-carousel.json`;
-    a.click();
-  });
-
-  resetBtn?.addEventListener("click", () => {
-    clearCarouselOverride(config.id);
-    render();
-  });
-
-  render();
 }

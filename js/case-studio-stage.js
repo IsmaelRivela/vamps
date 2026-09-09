@@ -1,9 +1,13 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { FBXLoader } from "three/addons/loaders/FBXLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import {
+  alignPhoneScreen,
   applyContent,
   attachHiddenVideo,
   loadContentMedia,
+  primeVideoPlayback,
   stopMedia,
   dockYawForScreen,
   yawForScreen,
@@ -15,7 +19,9 @@ const AUTO_SPIN = reduced ? 0 : 18;
 const DOCK_OPEN = "transform 0.58s cubic-bezier(0.22, 1.28, 0.36, 1)";
 
 function thumbSrc(item) {
+  if (item.type === "glyphs") return item.thumb || item.glyphs?.[0] || item.src;
   if (item.type === "link") return item.thumb || item.src;
+  if (item.type === "model" && item.contentPoster) return item.contentPoster;
   if (item.type === "video" && item.poster) return item.poster;
   return item.src;
 }
@@ -29,13 +35,19 @@ function dockRadius(n) {
 }
 
 const VIEWER_FIT = 0.9;
+const MODEL_VIEWER_PAD = 0.88;
+const DEFAULT_MODEL_ASPECT = 0.78;
 const LINK_LABEL_EXTRA_PX = 40;
 const VIEWER_SLOT_MIN_PX = 192;
 const FLOAT_AMP_Y = 9;
 const FLOAT_SPEED = 0.7;
 const MODEL_CURSOR_YAW = 0.42;
 const MODEL_CURSOR_PITCH = 0.2;
+const MODEL_CURSOR_ROLL = 0.24;
 const MODEL_CURSOR_LERP = 9;
+const MOBILE_IDLE_YAW = 0.1;
+const MOBILE_IDLE_PITCH = 0.045;
+const MOBILE_IDLE_SPEED = 0.5;
 
 function clamp(v, min, max) {
   return Math.min(max, Math.max(min, v));
@@ -43,6 +55,78 @@ function clamp(v, min, max) {
 
 function damp(current, target, lambda, dt) {
   return current + (target - current) * (1 - Math.exp(-lambda * dt));
+}
+
+function applyMetalLighting(renderer, scene, item) {
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = Number(item.modelExposure) || 1.2;
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+  pmrem.dispose();
+}
+
+function tuneMetalMaterials(root) {
+  root.traverse((child) => {
+    if (!child.isMesh?.material) return;
+    const mats = Array.isArray(child.material) ? child.material : [child.material];
+    mats.forEach((mat) => {
+      if (mat.metalness === undefined) return;
+      mat.metalness = 0.95;
+      mat.roughness = 0.16;
+      mat.envMapIntensity = 1.3;
+      mat.needsUpdate = true;
+    });
+  });
+}
+
+function bindModelOrientation(entry, item, opts = {}) {
+  const pitch = Number(item.modelPitch);
+  const roll = Number(item.modelRoll);
+  entry.basePitch = Number.isFinite(pitch) ? pitch : opts.dock ? 0.05 : 0;
+  entry.baseRoll = Number.isFinite(roll) ? roll : 0;
+  entry.faceLock = !!item.modelFaceLock;
+  entry.cursorTrack = !!item.cursorTrack;
+}
+
+function attachModelToScene(scene, model, item) {
+  if (!item.cursorTrack) {
+    scene.add(model);
+    return model;
+  }
+  const pivot = new THREE.Group();
+  pivot.add(model);
+  scene.add(pivot);
+  return pivot;
+}
+
+function applyModelRotation(entry, px, py, dt, spinRate = 0.45) {
+  if (!entry.root) return;
+
+  if (entry.cursorTrack) {
+    if (entry.spinEnabled) entry.spin += dt * spinRate;
+    const targetYaw = entry.spin + px;
+    const targetPitch = py;
+    entry.root.rotation.y = damp(entry.root.rotation.y, targetYaw, MODEL_CURSOR_LERP, dt);
+    entry.root.rotation.x = damp(entry.root.rotation.x, targetPitch, MODEL_CURSOR_LERP, dt);
+    return;
+  }
+
+  if (entry.spinEnabled) entry.spin += dt * spinRate;
+  const targetYaw = entry.yaw + entry.spin + px;
+  const targetPitch = entry.basePitch + py;
+  entry.root.rotation.y = damp(entry.root.rotation.y, targetYaw, MODEL_CURSOR_LERP, dt);
+  entry.root.rotation.x = damp(entry.root.rotation.x, targetPitch, MODEL_CURSOR_LERP, dt);
+  if (entry.faceLock) {
+    const targetRoll = entry.baseRoll + px * MODEL_CURSOR_ROLL;
+    entry.root.rotation.z = damp(entry.root.rotation.z, targetRoll, MODEL_CURSOR_LERP, dt);
+  }
+}
+
+function mobileIdleSway(t) {
+  return {
+    yaw: Math.sin(t * MOBILE_IDLE_SPEED) * MOBILE_IDLE_YAW,
+    pitch: Math.sin(t * MOBILE_IDLE_SPEED * 0.82 + 1.1) * MOBILE_IDLE_PITCH,
+  };
 }
 
 function normPointer(clientX, clientY, rect) {
@@ -84,8 +168,24 @@ function loadVideoSize(src) {
   });
 }
 
+function modelViewAspect(root, item) {
+  if (Number.isFinite(item.viewAspect)) return item.viewAspect;
+  if (!root) return DEFAULT_MODEL_ASPECT;
+  root.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(root);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const width = Math.max(size.x, size.z, 0.001);
+  return clamp(size.y / width, 0.45, 2.4);
+}
+
 async function measureItemDisplayHeight(item, maxW) {
-  if (item.type === "model") return maxW * 0.72;
+  if (item.type === "glyphs") return maxW * 0.82;
+  if (item.type === "model") {
+    const extra = item.visitHref ? LINK_LABEL_EXTRA_PX : 0;
+    const aspect = Number(item.viewAspect) || DEFAULT_MODEL_ASPECT;
+    return maxW * aspect + extra;
+  }
   if (item.type === "link") {
     const { w, h } = await loadImageSize(thumbSrc(item));
     return maxW * (h / w) + LINK_LABEL_EXTRA_PX;
@@ -153,6 +253,8 @@ export class CaseStage {
     this.dockModels = new Map();
     this.clock = new THREE.Clock();
     this.gltfLoader = new GLTFLoader();
+    this.fbxLoader = new FBXLoader();
+    this.textureLoader = new THREE.TextureLoader();
     this.modelPointer = { x: 0, y: 0 };
     this.viewerPointer = { x: 0, y: 0 };
     this.cursorFollow = reduced ? 0.35 : 1;
@@ -161,6 +263,7 @@ export class CaseStage {
     this._onDockMove = (e) => this.onDockMove(e);
     this._onDockUp = (e) => this.onDockUp(e);
     this._onModelPointer = (e) => this.updateModelPointer(e);
+    this._onPrimeVideos = () => this.primeAllVideos();
     this._slotTimer = null;
     this._viewerRo = null;
     this._onMobileLayout = () => this.queueViewerSlot();
@@ -169,6 +272,7 @@ export class CaseStage {
     window.addEventListener("pointermove", this._onDockMove);
     window.addEventListener("pointermove", this._onModelPointer, { passive: true });
     window.addEventListener("pointerup", this._onDockUp);
+    this.viewer?.addEventListener("touchstart", this._onPrimeVideos, { passive: true });
 
     this.buildDock();
     this.alignDockSpin(this.startIndex);
@@ -176,6 +280,24 @@ export class CaseStage {
     if (this.items.length) void this.select(this.startIndex, false);
     this.initViewerSlot();
     this.tick();
+
+    window.addEventListener("touchstart", this._onPrimeVideos, { passive: true });
+    window.addEventListener("pointerdown", this._onPrimeVideos, { passive: true });
+
+    if (this.viewer && typeof IntersectionObserver !== "undefined") {
+      this._videoIo = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) this.primeAllVideos();
+        },
+        { threshold: 0.15 }
+      );
+      this._videoIo.observe(this.viewer);
+    }
+  }
+
+  primeAllVideos() {
+    for (const entry of this.dockModels.values()) primeVideoPlayback(entry.media);
+    primeVideoPlayback(this.floatModel?.media);
   }
 
   alignDockSpin(index) {
@@ -203,6 +325,10 @@ export class CaseStage {
     }
     this._viewerRo = new ResizeObserver(() => this.queueViewerSlot());
     this._viewerRo.observe(this.viewer);
+    if (this.root) {
+      this._stageRo = new ResizeObserver(() => this.queueViewerSlot());
+      this._stageRo.observe(this.root);
+    }
     mobileMq.addEventListener("change", this._onMobileLayout);
     this.queueViewerSlot({ boot: true });
   }
@@ -243,20 +369,8 @@ export class CaseStage {
       return;
     }
 
-    const vr = this.viewer.getBoundingClientRect();
-    const width = vr.width > 1 ? vr.width : this.viewer.offsetWidth || window.innerWidth;
-    const maxW = width * VIEWER_FIT;
-    const cs = getComputedStyle(this.viewer);
-    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
-
-    const heights = await Promise.all(
-      this.items.map((item) => measureItemDisplayHeight(item, maxW))
-    );
-    const maxContentH = heights.reduce((top, h) => Math.max(top, h), 0) || VIEWER_SLOT_MIN_PX;
-    const slotH = Math.max(Math.ceil(maxContentH + padY), VIEWER_SLOT_MIN_PX);
-
-    this.viewer.style.height = `${slotH}px`;
-    this.viewer.style.minHeight = `${slotH}px`;
+    this.viewer.style.height = "100%";
+    this.viewer.style.minHeight = "0";
     this.viewer.classList.add("is-slot-ready");
 
     if (opts.boot || opts.reselect) {
@@ -277,10 +391,11 @@ export class CaseStage {
     this.dockRing.innerHTML = this.items
       .map((item, i) => {
         const model = item.type === "model";
+        const crop = model && item.cropOverflow;
         return `
       <button
         type="button"
-        class="cstudio__dock-item${model ? " cstudio__dock-item--model" : ""}"
+        class="cstudio__dock-item${model ? " cstudio__dock-item--model" : ""}${crop ? " cstudio__dock-item--crop" : ""}"
         data-index="${i}"
         aria-label="${item.alt || item.label || item.id || `Item ${i + 1}`}"
       >
@@ -308,16 +423,24 @@ export class CaseStage {
   mountDockModel(canvas, item) {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(28, 1, 0.1, 20);
-    camera.position.set(0.45, 0.14, 2.05);
+    const camZ = Number(item.cameraDockZ) || 2.05;
+    camera.position.set(0.45, 0.14, camZ);
     camera.lookAt(0, 0.02, 0);
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(96, 96, false);
     renderer.setPixelRatio(1);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x999999, 1.1));
-    const key = new THREE.DirectionalLight(0xffffff, 0.45);
-    key.position.set(1.5, 2, 2);
+    if (item.metalLighting) applyMetalLighting(renderer, scene, item);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x999999, item.metalLighting ? 0.55 : 1.1));
+    const key = new THREE.DirectionalLight(0xffffff, item.metalLighting ? 1.65 : 0.45);
+    key.position.set(item.metalLighting ? 2.4 : 1.5, item.metalLighting ? 3.2 : 2, item.metalLighting ? 4 : 2);
     scene.add(key);
+    if (item.metalLighting) {
+      scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+      const rim = new THREE.DirectionalLight(0xffffff, 0.75);
+      rim.position.set(-2.2, 0.8, -2.5);
+      scene.add(rim);
+    }
 
     const entry = {
       scene,
@@ -327,32 +450,34 @@ export class CaseStage {
       spin: 0,
       yaw: 0,
       basePitch: 0.05,
+      baseRoll: 0,
+      faceLock: false,
       spinEnabled: item.dockSpin !== false && item.spin !== false,
       media: null,
       contentTex: null,
     };
     this.dockModels.set(canvas, entry);
 
-    this.gltfLoader.load(
-      item.src,
-      async (gltf) => {
-        const root = gltf.scene;
+    this.loadModel(item.src)
+      .then(async ({ scene: root }) => {
+        entry.yaw = this.fitMockup(root, item, 1.22, { dock: true });
+        bindModelOrientation(entry, item, { dock: true });
+        alignPhoneScreen(root, item);
         try {
-          const painted = await this.paintMockupContent(root, item);
+          await this.prepareModelRoot(root, item);
+          const painted = await this.paintMockupContent(root, item, this.root);
           entry.media = painted.media;
           entry.contentTex = painted.tex;
         } catch {
           /* chassis only */
         }
-        entry.yaw = this.fitMockup(root, item, 1.22, { dock: true });
-        entry.spinEnabled = item.dockSpin !== false && item.spin !== false;
-        scene.add(root);
-        entry.root = root;
+        entry.spinEnabled =
+          item.dockSpin !== false && item.spin !== false && !item.contentIframe;
+        entry.root = attachModelToScene(scene, root, item);
         renderer.render(scene, camera);
-      },
-      undefined,
-      () => {}
-    );
+        primeVideoPlayback(entry.media);
+      })
+      .catch(() => {});
   }
 
   disposeDockModels() {
@@ -365,28 +490,112 @@ export class CaseStage {
   }
 
   fitMockup(root, item, targetSize, opts = {}) {
-    const yaw = opts.dock ? dockYawForScreen(root) : yawForScreen(root);
-    root.rotation.set(opts.dock ? 0.05 : 0, yaw, 0);
+    let yaw;
+    const isPhone = /iphone/i.test(item.src || "");
+    if (isPhone) {
+      yaw = Math.PI + (opts.dock ? 0.62 : 0);
+    } else if (Number.isFinite(item.modelYaw)) {
+      const dockBias =
+        opts.dock && !item.modelFaceLock && !Number.isFinite(item.modelPitch) ? 0.62 : 0;
+      yaw = item.modelYaw + dockBias;
+    } else {
+      yaw = opts.dock ? dockYawForScreen(root) : yawForScreen(root);
+    }
+    const pitch = Number(item.modelPitch);
+    const roll = Number(item.modelRoll);
+    root.rotation.set(
+      Number.isFinite(pitch) ? pitch : opts.dock ? 0.05 : 0,
+      yaw,
+      Number.isFinite(roll) ? roll : 0
+    );
     root.updateMatrixWorld(true);
-    const box = new THREE.Box3().setFromObject(root);
+
+    let box;
+    if (item.fitContent) {
+      const content = root.getObjectByName("CONTENT");
+      if (content) {
+        content.updateMatrixWorld(true);
+        box = new THREE.Box3().setFromObject(content);
+      }
+    }
+    if (!box || box.isEmpty()) box = new THREE.Box3().setFromObject(root);
+
     const size = new THREE.Vector3();
     box.getSize(size);
     const maxDim = Math.max(size.x, size.y, size.z) || 1;
-    const s = (item.scale ?? 1) * (targetSize / maxDim);
+    const fitScale = opts.dock ? Number(item.fitDock) || 1 : Number(item.fitView) || 1;
+    const fitPad = Number(item.fitPadding) || (opts.dock ? 0.92 : MODEL_VIEWER_PAD);
+    const s = (item.scale ?? 1) * fitScale * fitPad * (targetSize / maxDim);
     root.scale.setScalar(s);
     const center = new THREE.Vector3();
     box.getCenter(center);
     root.position.sub(center.multiplyScalar(s));
+    if (Number.isFinite(item.offsetZ)) root.position.z += item.offsetZ;
+    if (Number.isFinite(item.offsetY)) root.position.y += item.offsetY;
     return yaw;
   }
 
+  loadModel(src) {
+    return new Promise((resolve, reject) => {
+      if (/\.fbx$/i.test(src)) {
+        this.fbxLoader.load(src, (scene) => resolve({ scene }), undefined, reject);
+        return;
+      }
+      this.gltfLoader.load(src, resolve, undefined, reject);
+    });
+  }
+
+  async prepareModelRoot(root, item) {
+    if (item.metalLighting) tuneMetalMaterials(root);
+    if (item.texture) await this.applyModelTexture(root, item.texture);
+  }
+
+  applyModelTexture(root, src) {
+    return new Promise((resolve, reject) => {
+      this.textureLoader.load(
+        src,
+        (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.flipY = false;
+          tex.needsUpdate = true;
+          root.traverse((child) => {
+            if (!child.isMesh) return;
+            const mats = Array.isArray(child.material) ? child.material : [child.material];
+            const painted = mats.map((mat) => {
+              const next = mat.clone();
+              next.map?.dispose?.();
+              next.map = tex;
+              next.transparent = true;
+              next.alphaTest = 0.04;
+              next.needsUpdate = true;
+              if (next.color) next.color.setRGB(1, 1, 1);
+              return next;
+            });
+            child.material = painted.length === 1 ? painted[0] : painted;
+          });
+          resolve(tex);
+        },
+        undefined,
+        reject
+      );
+    });
+  }
+
+  mockupContentSrc(item) {
+    if (item.contentIframe) return item.contentPoster || null;
+    return item.content || null;
+  }
+
   async paintMockupContent(root, item, host = document.body) {
-    if (!item.content) return { media: null, tex: null };
-    const media = await loadContentMedia(item.content);
+    const src = this.mockupContentSrc(item);
+    if (!src) return { media: null, tex: null };
+    const media = await loadContentMedia(src);
     if (!media) return { media: null, tex: null };
     const tex = applyContent(root, media, THREE, item.contentFit, {
       anchorY: item.contentAnchorY,
       insetY: item.contentInsetY,
+      pad: item.contentPad,
+      radius: item.contentRadius,
     });
     if (media instanceof HTMLVideoElement) attachHiddenVideo(media, host);
     return { media, tex };
@@ -421,38 +630,28 @@ export class CaseStage {
     }
 
     const follow = this.cursorFollow;
-    const px = this.modelPointer.x * follow;
-    const py = this.modelPointer.y * follow;
+    const t = this.clock.getElapsedTime();
+    const idle = mobileMq.matches && !reduced ? mobileIdleSway(t) : { yaw: 0, pitch: 0 };
+    const px = mobileMq.matches ? idle.yaw : this.modelPointer.x * follow * MODEL_CURSOR_YAW;
+    const py = mobileMq.matches ? idle.pitch : this.modelPointer.y * follow * -MODEL_CURSOR_PITCH;
+    const vx = mobileMq.matches ? idle.yaw : this.viewerPointer.x * follow * MODEL_CURSOR_YAW;
+    const vy = mobileMq.matches ? idle.pitch : this.viewerPointer.y * follow * -MODEL_CURSOR_PITCH;
 
     for (const entry of this.dockModels.values()) {
       if (!entry.root) continue;
-      if (entry.spinEnabled) entry.spin += dt * 0.45;
-      const targetYaw = entry.yaw + entry.spin + px * MODEL_CURSOR_YAW;
-      const targetPitch = entry.basePitch + py * -MODEL_CURSOR_PITCH;
-      entry.root.rotation.y = damp(entry.root.rotation.y, targetYaw, MODEL_CURSOR_LERP, dt);
-      entry.root.rotation.x = damp(entry.root.rotation.x, targetPitch, MODEL_CURSOR_LERP, dt);
+      if (entry.media instanceof HTMLVideoElement && entry.contentTex) {
+        entry.contentTex.needsUpdate = true;
+      }
+      applyModelRotation(entry, px, py, dt);
       entry.renderer.render(entry.scene, entry.camera);
     }
 
     if (this.floatModel?.renderer) {
-      if (this.floatModel.spinEnabled) this.floatModel.spin += dt * 0.22;
+      if (this.floatModel.media instanceof HTMLVideoElement && this.floatModel.contentTex) {
+        this.floatModel.contentTex.needsUpdate = true;
+      }
       if (this.floatModel.root) {
-        const vx = this.viewerPointer.x * follow;
-        const vy = this.viewerPointer.y * follow;
-        const targetYaw = this.floatModel.yaw + this.floatModel.spin + vx * MODEL_CURSOR_YAW;
-        const targetPitch = (this.floatModel.basePitch ?? 0) + vy * -MODEL_CURSOR_PITCH;
-        this.floatModel.root.rotation.y = damp(
-          this.floatModel.root.rotation.y,
-          targetYaw,
-          MODEL_CURSOR_LERP,
-          dt
-        );
-        this.floatModel.root.rotation.x = damp(
-          this.floatModel.root.rotation.x,
-          targetPitch,
-          MODEL_CURSOR_LERP,
-          dt
-        );
+        applyModelRotation(this.floatModel, vx, vy, dt, 0.22);
       }
       this.floatModel.renderer.render(this.floatModel.scene, this.floatModel.camera);
     }
@@ -477,6 +676,7 @@ export class CaseStage {
   }
 
   updateModelPointer(e) {
+    if (mobileMq.matches) return;
     if (this.dockScene) {
       const p = normPointer(e.clientX, e.clientY, this.dockScene.getBoundingClientRect());
       this.modelPointer.x = p.x;
@@ -562,7 +762,8 @@ export class CaseStage {
     const useMotion = animate && !reduced && !mobileMq.matches;
     if (useMotion && btn) await this.openFromDock(btn, item);
     else await this.placeFloating(item);
-    this.floatModel?.media?.play?.().catch(() => {});
+    this.primeAllVideos();
+    primeVideoPlayback(this.floatModel?.media);
   }
 
   disposeFloatModel() {
@@ -615,23 +816,36 @@ export class CaseStage {
   fitFloatBody(body) {
     if (!body || !this.viewer) return;
     const { maxW, maxH } = this.viewerBounds();
-    const widthPriority = mobileMq.matches;
+    const widthPriority = !mobileMq.matches;
+    const capW = Number(body.dataset.imageMaxWidth) || maxW;
+    const capH = Number(body.dataset.imageMaxHeight) || maxH;
 
     body.style.width = "";
     body.style.height = "";
 
-    const model = body.querySelector(".cstudio__float-model");
+    const mockup = body.querySelector(".cstudio__float-mockup");
+    const model = mockup?.querySelector(".cstudio__float-model") || body.querySelector(".cstudio__float-model");
     if (model) {
-      let w = maxW;
-      let h = maxW * 0.72;
-      if (!widthPriority && h > maxH) {
-        h = maxH;
-        w = h / 0.72;
-      }
+      const visit = mockup?.querySelector(".cstudio__float-visit");
+      const visitExtra = visit ? LINK_LABEL_EXTRA_PX : 0;
+      const aspect = Number(model.dataset.viewAspect) || DEFAULT_MODEL_ASPECT;
+      const boundsH = Math.max(1, maxH - visitExtra);
+      const { w, h } = fitInViewerBox(100, 100 * aspect, maxW, boundsH, false);
       model.style.width = `${Math.round(w)}px`;
       model.style.height = `${Math.round(h)}px`;
+      if (mockup) mockup.style.width = `${Math.round(w)}px`;
       body.style.width = `${Math.round(w)}px`;
-      body.style.height = `${Math.round(h)}px`;
+      body.style.height = `${Math.round(h + visitExtra)}px`;
+      body.style.maxHeight = `${Math.round(boundsH + visitExtra)}px`;
+      const float = body.closest(".cstudio__float");
+      if (float) float.style.maxHeight = `${Math.round(boundsH + visitExtra)}px`;
+      return;
+    }
+
+    const glyphs = body.querySelector(".cstudio__glyphs");
+    if (glyphs) {
+      body.style.width = `${Math.round(maxW)}px`;
+      body.style.height = "auto";
       return;
     }
 
@@ -645,8 +859,9 @@ export class CaseStage {
       if (!nw || !nh) return;
 
       const labelExtra = link ? LINK_LABEL_EXTRA_PX : 0;
-      const boundsH = Math.max(1, maxH - labelExtra);
-      const { w, h } = fitInViewerBox(nw, nh, maxW, boundsH, widthPriority);
+      const boundsH = Math.max(1, capH - labelExtra);
+      const fitW = Math.min(maxW, capW);
+      const { w, h } = fitInViewerBox(nw, nh, fitW, boundsH, widthPriority);
 
       body.style.width = `${Math.round(w)}px`;
       if (widthPriority) {
@@ -660,7 +875,6 @@ export class CaseStage {
         media.style.objectFit = "contain";
       }
       media.style.maxWidth = "none";
-      media.style.maxHeight = "none";
     };
 
     whenMediaReady(media, apply);
@@ -718,13 +932,67 @@ export class CaseStage {
   async fillFloatBody(body, item, thumbOnly, fromBtn = null) {
     this.disposeFloatModel();
     body.innerHTML = "";
+    delete body.dataset.imageMaxWidth;
+    delete body.dataset.imageMaxHeight;
+    if (item.imageMaxWidth) body.dataset.imageMaxWidth = String(item.imageMaxWidth);
+    if (item.imageMaxHeight) body.dataset.imageMaxHeight = String(item.imageMaxHeight);
+
+    if (item.type === "glyphs") {
+      const glyphs = item.glyphs ?? [];
+      body.innerHTML = `
+        <div class="cstudio__glyphs">
+          <div class="cstudio__glyphs-grid">
+            ${glyphs.map((src) => `<img src="${src}" alt="" loading="lazy" decoding="async" draggable="false" />`).join("")}
+          </div>
+          ${item.fontLabel ? `<p class="cstudio__glyphs-font">${item.fontLabel}</p>` : ""}
+        </div>`;
+      return;
+    }
 
     if (item.type === "model" && !thumbOnly) {
+      const hasIframe = Boolean(item.contentIframe);
+      const wrap = document.createElement("div");
+      wrap.className = [
+        "cstudio__float-mockup",
+        hasIframe ? "cstudio__float-mockup--iframe" : "",
+        item.cropOverflow ? "cstudio__float-mockup--crop" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const stage = document.createElement("div");
+      stage.className = "cstudio__float-mockup-stage";
       const canvas = document.createElement("canvas");
       canvas.className = "cstudio__float-model";
       canvas.width = 640;
       canvas.height = 480;
-      body.appendChild(canvas);
+      stage.appendChild(canvas);
+
+      if (hasIframe) {
+        const screen = document.createElement("div");
+        screen.className = "cstudio__float-screen";
+        const iframe = document.createElement("iframe");
+        iframe.src = item.contentIframe;
+        iframe.title = item.alt || "Live preview";
+        iframe.loading = "lazy";
+        iframe.setAttribute("referrerpolicy", "no-referrer-when-downgrade");
+        screen.appendChild(iframe);
+        stage.appendChild(screen);
+      }
+
+      wrap.appendChild(stage);
+
+      if (item.visitHref) {
+        const visit = document.createElement("a");
+        visit.className = "cstudio__float-visit";
+        visit.href = item.visitHref;
+        visit.target = "_blank";
+        visit.rel = "noopener";
+        visit.textContent = item.visitLabel || "Visit site →";
+        wrap.appendChild(visit);
+      }
+
+      body.appendChild(wrap);
       await this.mountFloatModel(canvas, item);
       return;
     }
@@ -751,14 +1019,11 @@ export class CaseStage {
 
     if (item.type === "video" && !isGif(item)) {
       const video = document.createElement("video");
-      video.src = item.src;
       if (item.poster) video.poster = item.poster;
-      video.muted = true;
-      video.playsInline = true;
       video.loop = true;
-      video.autoplay = true;
+      video.src = item.src;
       body.appendChild(video);
-      video.play().catch(() => {});
+      primeVideoPlayback(video);
       return;
     }
 
@@ -772,18 +1037,26 @@ export class CaseStage {
   async mountFloatModel(canvas, item) {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(32, canvas.width / canvas.height, 0.1, 40);
-    camera.position.set(0, 0.06, 3.6);
+    const camZ = Number(item.cameraZ) || 3.6;
+    camera.position.set(0, 0.06, camZ);
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setSize(canvas.clientWidth || 640, canvas.clientHeight || 480, false);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, 1.1));
-    const key = new THREE.DirectionalLight(0xffffff, 0.7);
-    key.position.set(0.4, 1.4, 4);
+    if (item.metalLighting) applyMetalLighting(renderer, scene, item);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, item.metalLighting ? 0.5 : 1.1));
+    const key = new THREE.DirectionalLight(0xffffff, item.metalLighting ? 1.85 : 0.7);
+    key.position.set(item.metalLighting ? 1.2 : 0.4, item.metalLighting ? 2.4 : 1.4, 4);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0xffffff, 0.35);
+    const fill = new THREE.DirectionalLight(0xffffff, item.metalLighting ? 0.9 : 0.35);
     fill.position.set(-2, 0.6, 2);
     scene.add(fill);
+    if (item.metalLighting) {
+      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+      const rim = new THREE.DirectionalLight(0xffffff, 0.8);
+      rim.position.set(2, -0.4, -3);
+      scene.add(rim);
+    }
 
     this.floatModel = {
       scene,
@@ -793,7 +1066,9 @@ export class CaseStage {
       spin: 0,
       yaw: 0,
       basePitch: 0,
-      spinEnabled: item.spin !== false && !item.content,
+      baseRoll: 0,
+      faceLock: false,
+      spinEnabled: item.spin !== false,
       media: null,
       contentTex: null,
     };
@@ -809,12 +1084,13 @@ export class CaseStage {
     resize();
 
     await new Promise((resolve) => {
-      this.gltfLoader.load(
-        item.src,
-        async (gltf) => {
-          const root = gltf.scene;
+      this.loadModel(item.src)
+        .then(async ({ scene: root }) => {
+          const yaw = this.fitMockup(root, item, 1.45);
+          alignPhoneScreen(root, item);
           try {
-            const painted = await this.paintMockupContent(root, item);
+            await this.prepareModelRoot(root, item);
+            const painted = await this.paintMockupContent(root, item, this.viewer || this.root);
             if (this.floatModel) {
               this.floatModel.media = painted.media;
               this.floatModel.contentTex = painted.tex;
@@ -822,19 +1098,20 @@ export class CaseStage {
           } catch {
             /* chassis only */
           }
-          const yaw = this.fitMockup(root, item, 1.45);
-          scene.add(root);
+          const aspect = modelViewAspect(root, item);
+          canvas.dataset.viewAspect = String(aspect);
           if (this.floatModel) {
-            this.floatModel.root = root;
+            this.floatModel.root = attachModelToScene(scene, root, item);
             this.floatModel.yaw = yaw;
-            this.floatModel.spinEnabled = item.spin !== false && !item.content;
+            bindModelOrientation(this.floatModel, item);
+            this.floatModel.viewAspect = aspect;
+            this.floatModel.spinEnabled = item.spin !== false;
           }
           renderer.render(scene, camera);
+          primeVideoPlayback(this.floatModel?.media);
           resolve();
-        },
-        undefined,
-        () => resolve()
-      );
+        })
+        .catch(() => resolve());
     });
   }
 
@@ -852,6 +1129,10 @@ export class CaseStage {
     clearTimeout(this._slotTimer);
     this._viewerRo?.disconnect();
     this._viewerRo = null;
+    this._stageRo?.disconnect();
+    this._stageRo = null;
+    this._videoIo?.disconnect();
+    this._videoIo = null;
     mobileMq.removeEventListener("change", this._onMobileLayout);
     this.clearFloater();
     this.disposeDockModels();
@@ -859,5 +1140,8 @@ export class CaseStage {
     window.removeEventListener("pointermove", this._onDockMove);
     window.removeEventListener("pointermove", this._onModelPointer);
     window.removeEventListener("pointerup", this._onDockUp);
+    this.viewer?.removeEventListener("touchstart", this._onPrimeVideos);
+    window.removeEventListener("touchstart", this._onPrimeVideos);
+    window.removeEventListener("pointerdown", this._onPrimeVideos);
   }
 }

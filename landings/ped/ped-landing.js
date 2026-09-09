@@ -7,7 +7,7 @@ const PORTFOLIO = "/creative/";
 const JOG_SPEED = 2.45;
 const WANDER_SPEED = 1.65;
 const TURN_TIME = 0.66;
-const PUNCH_REACH = 0.62;
+const PUNCH_REACH = 0.12;
 const PED_BACK = -1.45;
 const WALK_X = 1.5;
 const WALK_Z_MIN = -2.05;
@@ -94,7 +94,10 @@ function resize() {
   renderer.setSize(w, h, false);
   camera.aspect = w / Math.max(h, 1);
   camera.updateProjectionMatrix();
-  if (pedReady) framePed();
+  if (pedReady) {
+    framePed();
+    placeLabels();
+  }
 }
 
 function toBasic(mat) {
@@ -189,6 +192,7 @@ function framePed() {
     camera.lookAt(0, height * 0.28, PED_BACK * 0.25);
   }
   camera.updateProjectionMatrix();
+  placeLabels();
 }
 
 function play(name, fade, loopOnce) {
@@ -207,15 +211,6 @@ function clipTime(name) {
   return clip ? clip.duration : 0.5;
 }
 
-function hitPlaneY(ndcX, ndcY, y) {
-  ndc.set(ndcX, ndcY, 0.5).unproject(camera);
-  rayDir.copy(ndc).sub(camera.position);
-  if (Math.abs(rayDir.y) < 0.0001) return null;
-  const t = (y - camera.position.y) / rayDir.y;
-  if (t < 0.04) return null;
-  return camera.position.clone().add(rayDir.multiplyScalar(t));
-}
-
 function shoulderHeight() {
   if (pedModel) {
     const names = ["L UpperArm", "R UpperArm", "Neck", "Bip01 L Clavicle"];
@@ -229,45 +224,104 @@ function shoulderHeight() {
   return Math.max(pedHeight, 1.89) * 0.72;
 }
 
-function wordPunchPoint(el) {
+function punchAnchor(side) {
+  const left = side === "left";
+  const portrait = isMobile() && isPortrait();
+  const x = (left ? -1 : 1) * (portrait ? 1.45 : 2.35);
+  const z = portrait ? 0.3 : 0.12;
+  return new THREE.Vector3(x, shoulderHeight(), z);
+}
+
+function hitPlaneY(ndcX, ndcY, y) {
+  ndc.set(ndcX, ndcY, 0.5).unproject(camera);
+  rayDir.copy(ndc).sub(camera.position);
+  if (Math.abs(rayDir.y) < 0.0001) return null;
+  const t = (y - camera.position.y) / rayDir.y;
+  if (t < 0.04) return null;
+  return camera.position.clone().add(rayDir.multiplyScalar(t));
+}
+
+function labelFoot(el) {
   const r = el.getBoundingClientRect();
   const ndcX = ((r.left + r.width * 0.5) / window.innerWidth) * 2 - 1;
-  const ndcY = -((r.top + r.height * 0.4) / window.innerHeight) * 2 + 1;
-  const y = shoulderHeight();
-  const hit = hitPlaneY(ndcX, ndcY, y);
-  if (hit && Number.isFinite(hit.x) && Number.isFinite(hit.z)) return hit;
+  const ndcY = -((r.top + r.height * 0.5) / window.innerHeight) * 2 + 1;
+  const hit = hitPlaneY(ndcX, ndcY, 0);
+  if (hit && Number.isFinite(hit.x) && Number.isFinite(hit.z)) {
+    hit.y = 0;
+    return hit;
+  }
   const left = el === labelVamps;
-  return new THREE.Vector3(left ? -1.2 : 1.2, y, actor.position.z + 1.4);
+  return new THREE.Vector3(left ? -2.2 : 2.2, 0, 0.2);
+}
+
+function placeLabel(el, world) {
+  _pt.copy(world).project(camera);
+  const x = (_pt.x * 0.5 + 0.5) * window.innerWidth;
+  const y = (-_pt.y * 0.5 + 0.5) * window.innerHeight;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  el.style.right = "auto";
+  el.style.bottom = "auto";
+  if (!el.classList.contains("is-hit")) {
+    el.style.transform = "translate(-50%, -50%)";
+  }
+}
+
+function clearLabelPin(el) {
+  el.style.left = "";
+  el.style.top = "";
+  el.style.right = "";
+  el.style.bottom = "";
+  el.style.transform = "";
+}
+
+function placeLabels() {
+  if (!pedReady) return;
+  if (!isMobile()) {
+    clearLabelPin(labelVamps);
+    clearLabelPin(labelWork);
+    return;
+  }
+  placeLabel(labelVamps, punchAnchor("left"));
+  placeLabel(labelWork, punchAnchor("right"));
 }
 
 function faceYaw(dx, dz) {
   return yawXZ(dx, dz);
 }
 
-function facingXZ(yaw) {
-  return { x: -Math.sin(yaw), z: -Math.cos(yaw) };
-}
-
-function stanceForPunch(aim) {
-  const away = new THREE.Vector3(
-    aim.x - camera.position.x,
-    0,
-    aim.z - camera.position.z
-  );
-  if (away.lengthSq() < 0.0001) away.set(0, 0, -1);
-  away.normalize();
-  const dest = new THREE.Vector3(
-    aim.x + away.x * PUNCH_REACH,
-    0,
-    aim.z + away.z * PUNCH_REACH
-  );
-  const yaw = faceYaw(aim.x - dest.x, aim.z - dest.z);
-  const face = facingXZ(yaw);
-  const rightX = face.z;
-  const rightZ = -face.x;
-  dest.x -= rightX * 0.18;
-  dest.z -= rightZ * 0.18;
-  return { dest, punchFace: yaw };
+function stanceForPunch(side) {
+  if (isMobile()) {
+    const aim = punchAnchor(side);
+    const dest = new THREE.Vector3(aim.x, 0, aim.z - PUNCH_REACH);
+    return {
+      dest,
+      punchFace: faceYaw(aim.x - dest.x, aim.z - dest.z),
+      aim,
+    };
+  }
+  const el = side === "left" ? labelVamps : labelWork;
+  const foot = labelFoot(el);
+  const dx = foot.x - actor.position.x;
+  const dz = foot.z - actor.position.z;
+  const dist = Math.hypot(dx, dz);
+  const dest = new THREE.Vector3();
+  if (dist > PUNCH_REACH) {
+    dest.set(
+      actor.position.x + (dx / dist) * (dist - PUNCH_REACH),
+      0,
+      actor.position.z + (dz / dist) * (dist - PUNCH_REACH)
+    );
+  } else {
+    dest.copy(actor.position);
+    dest.y = 0;
+  }
+  const aim = new THREE.Vector3(foot.x, shoulderHeight(), foot.z);
+  return {
+    dest,
+    punchFace: faceYaw(aim.x - dest.x, aim.z - dest.z),
+    aim,
+  };
 }
 
 function aimFistAt(target, label, correctHand) {
@@ -441,13 +495,12 @@ function startTrip(side) {
   labelVamps.classList.toggle("is-locked", side === "left");
   labelWork.classList.toggle("is-locked", side === "right");
   const label = side === "left" ? labelVamps : labelWork;
-  const aim = wordPunchPoint(label);
-  const stance = stanceForPunch(aim);
+  const stance = stanceForPunch(side);
   goTo(stance.dest, {
     label,
     url: side === "left" ? VAMPS : PORTFOLIO,
     punchFace: shortest(actor.rotation.y, stance.punchFace),
-    aim,
+    aim: stance.aim,
     showMark: false,
   });
 }
@@ -690,6 +743,7 @@ function tick() {
   updateWander(dt);
   updateTrip(dt);
   updateClickArrow(dt);
+  placeLabels();
   renderer.render(scene, camera);
   requestAnimationFrame(tick);
 }

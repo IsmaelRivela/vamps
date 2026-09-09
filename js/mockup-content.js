@@ -10,9 +10,37 @@
 export function findMockupSpec(root) {
   let spec = {};
   root.traverse((o) => {
-    if (o.userData?.vamps_fit) spec = o.userData;
+    const ud = o.userData || {};
+    if (ud.vamps_fit || ud.vamps_kind === "screen" || ud.vamps_base_aspect) {
+      spec = { ...spec, ...ud };
+    }
   });
   return spec;
+}
+
+/** iPhone: cristal en +Z del export; frente del chasis en −Z → yaw π + CONTENT en −Z local. */
+export function alignPhoneScreen(root, item) {
+  const content = root.getObjectByName("CONTENT");
+  if (!content) return;
+
+  const isPhone =
+    Boolean(root.getObjectByName("iphone_lp")) || /iphone/i.test(item?.src || "");
+
+  if (isPhone) {
+    if (content.userData.vamps_originZ == null) {
+      content.userData.vamps_originZ = content.position.z;
+    }
+    content.position.z = -Math.abs(content.userData.vamps_originZ);
+    content.rotation.y = Math.PI;
+    return;
+  }
+
+  if (!Number.isFinite(item?.modelYaw)) return;
+  content.rotation.y = Math.PI;
+  if (content.userData.vamps_originZ == null) {
+    content.userData.vamps_originZ = content.position.z;
+  }
+  content.position.z = -content.userData.vamps_originZ;
 }
 
 export function yawForScreen(root) {
@@ -34,19 +62,6 @@ export function applyContent(root, image, THREE, fitOverride, opts = {}) {
 
   const spec = findMockupSpec(root);
   const tex = makeTexture(image, THREE);
-  const mat = content.material.clone();
-  mat.map = tex;
-  mat.transparent = false;
-  mat.toneMapped = false;
-  mat.needsUpdate = true;
-  content.material = mat;
-  if (mat.color) mat.color.setRGB(1, 1, 1);
-  if (mat.emissive) {
-    mat.emissiveMap = tex;
-    mat.emissive.setRGB(1, 1, 1);
-    mat.emissiveIntensity = 0.45;
-  }
-
   const imgAspect = imageAspect(image);
   const fit = fitOverride || spec.vamps_fit || "cover";
   const screenAspect = Number(spec.vamps_base_aspect) || 1.299;
@@ -57,6 +72,8 @@ export function applyContent(root, image, THREE, fitOverride, opts = {}) {
     matchFrame(root, content, imgAspect, spec);
     tex.repeat.set(1, 1);
     tex.offset.set(0, 0);
+    content.material = makeScreenMaterial(tex, THREE, content.material, opts);
+    finalizeScreenMesh(content);
     return tex;
   }
 
@@ -64,6 +81,8 @@ export function applyContent(root, image, THREE, fitOverride, opts = {}) {
     containInScreen(content, imgAspect, screenAspect);
     tex.repeat.set(1, 1);
     tex.offset.set(0, 0);
+    content.material = makeScreenMaterial(tex, THREE, content.material, opts);
+    finalizeScreenMesh(content);
     return tex;
   }
 
@@ -71,12 +90,45 @@ export function applyContent(root, image, THREE, fitOverride, opts = {}) {
     const anchorY = Number.isFinite(opts.anchorY) ? opts.anchorY : 0.5;
     coverWidthMap(tex, imgAspect, screenAspect, THREE, anchorY);
     trimScreenBottom(content, resolveInsetY(opts, spec));
+    insetScreenPad(content, opts.pad);
+    content.material = makeScreenMaterial(tex, THREE, content.material, opts);
+    finalizeScreenMesh(content);
     return tex;
   }
 
   coverMap(tex, imgAspect, screenAspect, THREE);
   trimScreenBottom(content, resolveInsetY(opts, spec));
+  insetScreenPad(content, opts.pad);
+  content.material = makeScreenMaterial(tex, THREE, content.material, opts);
+  finalizeScreenMesh(content);
   return tex;
+}
+
+function makeScreenMaterial(tex, THREE, previous, opts = {}) {
+  if (previous?.map && previous.map !== tex) previous.map.dispose?.();
+  if (previous?.alphaMap) previous.alphaMap.dispose?.();
+  const radius = Number(opts.radius);
+  const mat = new THREE.MeshBasicMaterial({
+    map: tex,
+    toneMapped: false,
+    transparent: radius > 0,
+    side: THREE.DoubleSide,
+  });
+  if (radius > 0) {
+    mat.alphaMap = roundedAlphaTexture(256, 512, radius, THREE);
+    mat.alphaTest = 0.04;
+  }
+  return mat;
+}
+
+function finalizeScreenMesh(content) {
+  content.renderOrder = 2;
+  const mat = content.material;
+  if (!mat) return;
+  mat.polygonOffset = true;
+  mat.polygonOffsetFactor = -2;
+  mat.polygonOffsetUnits = -2;
+  mat.needsUpdate = true;
 }
 
 function resolveInsetY(opts, spec) {
@@ -93,6 +145,43 @@ function resetContentTransform(content) {
   content.position.y = content.userData.vamps_originY;
 }
 
+/** Encoge CONTENT de forma uniforme para respetar bisel / notch. */
+function insetScreenPad(content, pad) {
+  const inset = Number(pad);
+  if (!inset) return;
+  const factor = 1 - Math.min(0.2, Math.max(0, inset));
+  content.scale.x *= factor;
+  content.scale.y *= factor;
+}
+
+function roundedAlphaTexture(w, h, radius, THREE) {
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "#fff";
+  const r = radius * Math.min(w, h);
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(w - r, 0);
+  ctx.quadraticCurveTo(w, 0, w, r);
+  ctx.lineTo(w, h - r);
+  ctx.quadraticCurveTo(w, h, w - r, h);
+  ctx.lineTo(r, h);
+  ctx.quadraticCurveTo(0, h, 0, h - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.NoColorSpace;
+  tex.flipY = false;
+  tex.needsUpdate = true;
+  return tex;
+}
+
 /** Acorta CONTENT por abajo y sube el pivot para que no invada el bisel. */
 function trimScreenBottom(content, insetY) {
   if (!insetY) return;
@@ -103,6 +192,47 @@ function trimScreenBottom(content, insetY) {
   content.position.y += halfH * insetY;
 }
 
+function configureInlineVideo(video) {
+  video.muted = true;
+  video.defaultMuted = true;
+  video.volume = 0;
+  video.loop = true;
+  video.playsInline = true;
+  video.autoplay = true;
+  video.preload = "auto";
+  video.crossOrigin = "anonymous";
+  video.setAttribute("muted", "");
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
+  video.setAttribute("autoplay", "");
+}
+
+export function primeVideoPlayback(media) {
+  if (!(media instanceof HTMLVideoElement)) return;
+  configureInlineVideo(media);
+  if (!media.isConnected) {
+    document.body.appendChild(media);
+  }
+  const tryPlay = () => {
+    if (document.hidden) return;
+    const playPromise = media.play();
+    if (playPromise?.catch) {
+      playPromise.catch(() => {});
+    }
+  };
+  tryPlay();
+  media.addEventListener("loadeddata", tryPlay, { once: true });
+  media.addEventListener("canplay", tryPlay, { once: true });
+  media.addEventListener("canplaythrough", tryPlay, { once: true });
+  if (media.readyState >= 2) tryPlay();
+}
+
+export function primeAllVideos(root = document) {
+  root.querySelectorAll("video.cstudio__mockup-video").forEach((video) => {
+    primeVideoPlayback(video);
+  });
+}
+
 export function loadContentMedia(src) {
   return new Promise((resolve, reject) => {
     if (!src) {
@@ -111,24 +241,14 @@ export function loadContentMedia(src) {
     }
     if (/\.(mp4|webm|mov|ogg)$/i.test(src)) {
       const video = document.createElement("video");
-      video.src = src;
-      video.muted = true;
-      video.defaultMuted = true;
-      video.volume = 0;
-      video.loop = true;
-      video.playsInline = true;
-      video.autoplay = true;
-      video.preload = "auto";
-      video.crossOrigin = "anonymous";
-      video.setAttribute("muted", "");
-      video.setAttribute("playsinline", "");
-      video.setAttribute("autoplay", "");
+      configureInlineVideo(video);
       video.className = "cstudio__mockup-video";
       const done = () => resolve(video);
       video.addEventListener("loadeddata", done, { once: true });
       video.addEventListener("error", () => reject(new Error(`No carga ${src}`)), {
         once: true,
       });
+      video.src = src;
       video.load();
       setTimeout(() => {
         if (video.readyState >= 2) done();
@@ -147,13 +267,30 @@ export function loadContentMedia(src) {
 
 export function attachHiddenVideo(video, host) {
   if (!(video instanceof HTMLVideoElement) || !host) return;
+  configureInlineVideo(video);
   if (!video.isConnected) host.appendChild(video);
-  const tryPlay = () => {
-    video.muted = true;
-    video.play().catch(() => {});
-  };
-  tryPlay();
-  video.addEventListener("canplay", tryPlay);
+  primeVideoPlayback(video);
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (!document.hidden) primeVideoPlayback(video);
+    },
+    { passive: true }
+  );
+  window.addEventListener(
+    "pageshow",
+    () => {
+      primeVideoPlayback(video);
+    },
+    { passive: true }
+  );
+  window.addEventListener(
+    "focus",
+    () => {
+      primeVideoPlayback(video);
+    },
+    { passive: true }
+  );
 }
 
 export function stopMedia(media) {

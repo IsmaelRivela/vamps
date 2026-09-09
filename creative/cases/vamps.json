@@ -9,18 +9,29 @@
     "text": "#0a0a0a"
   },
   "hero": {
-    "type": "image",
-    "src": "/assets/projects/vamps-brand/full-width-vamps.png",
-    "alt": "VAMPS hero"
+    "type": "scanner",
+    "src": "/assets/projects/vamps-brand/cabecera-vamps.jpg",
+    "alt": "VAMPS",
+    "background": "#ffffff",
+    "wobble": 0,
+    "scanGain": 1.15,
+    "mobilePassSec": 3.6,
+    "mobileDrift": 40
   },
   "rows": [
     {
       "label": "CONTEXT",
-      "value": "VAMPS started as a riff on Vans — \"Vamps of the world\" instead of \"Vans of the world\" — and grew into a concept brand with its own cheeky, barely controllable personality."
+      "value": {
+        "es": "Vamps, LeVamps, Studio — al final son el resultado de lo que, para mí, no es una marca sino un playground en el que experimentar visualmente e intentar desarrollar desde proyectos gráficos hasta producto.",
+        "en": "Vamps, LeVamps, Studio — they are ultimately the result of what, for me, is not a brand but a playground to experiment visually and develop everything from graphic projects to product."
+      }
     },
     {
       "label": "IDEA",
-      "value": "Not about blood or coffins: laid-back characters, vampire doodles, and \"vampirifications\" of things I like. A visual universe that's desenfadado, afable and hard to pin down."
+      "value": {
+        "es": "Vamps no es una identidad cerrada: es mi forma de tener libertad para hacer todo aquello que con clientes no se debe. Cambiar el branding de un día para otro o adaptar mis briefs a lo que me convenga. Para mí no es una marca sino un proyecto de mi día a día como diseñador.",
+        "en": "VAMPS is not a closed identity — it is my way of having the freedom to do everything you should not do with clients. Change the branding overnight or adapt briefs to suit myself. For me it is not a brand but an everyday designer project."
+      }
     },
     {
       "label": "ROLE",
@@ -28,29 +39,57 @@
     },
     {
       "label": "YEAR",
-      "value": "2026"
+      "value": {
+        "es": "2024 – actualidad",
+        "en": "2024 – present"
+      }
     },
     {
       "label": "DISCIPLINES",
-      "value": "Branding · Web · Editorial · Product"
+      "value": {
+        "es": "Branding · Web · Editorial · Producto · 3D (por ahora)",
+        "en": "Branding · Web · Editorial · Product · 3D (so far)"
+      }
     },
     {
       "label": "DELIVERABLES",
-      "value": "Logo system · Typography · Colour · Character & applications"
+      "value": "Whatever I need"
     }
   ],
   "carousel": [
     {
-      "id": "logo-construction-1",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/logocontruction1.svg",
-      "alt": "Logo construction 1"
+      "id": "pizza-box",
+      "type": "model",
+      "src": "/assets/vamps/pharma/3d/cajapizza3.glb",
+      "scale": 0.78,
+      "fitView": 1.35,
+      "fitPadding": 0.76,
+      "spin": true,
+      "alt": "VAMPS pizza box"
     },
     {
-      "id": "logo-construction-2",
+      "id": "ring",
+      "type": "model",
+      "src": "/assets/vamps/pharma/3d/vampire-fang-ring-case.glb",
+      "contentPoster": "/assets/vamps/pharma/anillo.jpg",
+      "scale": 0.5,
+      "modelYaw": 4.71238898038469,
+      "modelPitch": -0.47123889803846997,
+      "modelRoll": -1.5707963267948966,
+      "metalLighting": true,
+      "modelExposure": 1.25,
+      "fitView": 1.28,
+      "fitPadding": 0.84,
+      "spin": false,
+      "dockSpin": false,
+      "cursorTrack": true,
+      "alt": "Vampire fang ring"
+    },
+    {
+      "id": "logo",
       "type": "image",
-      "src": "/assets/projects/vamps-brand/logocontruction2.svg",
-      "alt": "Logo construction 2"
+      "src": "/assets/projects/vamps-brand/full-width-logo.png",
+      "alt": "VAMPS logo"
     },
     {
       "id": "clear-spaces",
@@ -59,67 +98,35 @@
       "alt": "Clear spaces"
     },
     {
-      "id": "full-logo",
+      "id": "vampboy",
       "type": "image",
-      "src": "/assets/projects/vamps-brand/full-width-logo.png",
-      "alt": "Full width logo"
+      "src": "/assets/vamps/sticker3.svg",
+      "imageMaxWidth": 260,
+      "alt": "Vamp boy"
     },
     {
-      "id": "isologo",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/isologotest.png",
-      "alt": "VAMPS isologo"
-    },
-    {
-      "id": "isodesigns",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/isodesigns.svg",
-      "alt": "Isotype designs"
-    },
-    {
-      "id": "iso-closeup",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/-full-width-iso.png",
-      "alt": "Isotype close-up"
-    },
-    {
-      "id": "color",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/color.jpg",
-      "alt": "Colour guidelines"
-    },
-    {
-      "id": "typography",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/helveticavampsbasefont.svg",
-      "alt": "Helvetica base typography"
-    },
-    {
-      "id": "closeups",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/closeups.png",
-      "alt": "Details"
-    },
-    {
-      "id": "vamp-figure",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/vamp-figure.jpg",
-      "alt": "Vamp figure"
-    },
-    {
-      "id": "heart-edit",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/vampheartedit.png",
-      "alt": "Heart edit"
-    },
-    {
-      "id": "pattern",
-      "type": "image",
-      "src": "/assets/projects/vamps-brand/vamps-edit.png",
-      "alt": "Editorial pattern"
+      "id": "pharma-mobile",
+      "type": "model",
+      "src": "/assets/3d/iphone.glb",
+      "content": "/assets/vamps/pharma/cerrado-pharma-pix2.png",
+      "contentFit": "coverWidth",
+      "contentAnchorY": 0.52,
+      "contentInsetY": 0.035,
+      "contentPad": 0.028,
+      "contentRadius": 0.095,
+      "scale": 0.7,
+      "fitView": 1.65,
+      "fitPadding": 0.84,
+      "cameraZ": 3.15,
+      "cameraDockZ": 2.25,
+      "viewAspect": 2,
+      "modelYaw": 3.141592653589793,
+      "visitHref": "https://levamps.com/vamps/pharma/",
+      "visitLabel": "Visit VAMPS Pharma",
+      "spin": false,
+      "alt": "VAMPS Pharma mobile"
     }
   ],
-  "carouselStart": 8,
   "gallery": [],
   "nav": {
     "prev": { "case": "copydad", "title": "Copydad" },
