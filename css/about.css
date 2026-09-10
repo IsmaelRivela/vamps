@@ -5,6 +5,12 @@ body.about {
   color: #1c1b19;
   min-height: 100dvh;
   overflow-x: hidden;
+  font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+}
+
+body.about,
+body.about * {
+  font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
 }
 
 .mark--about {
@@ -12,17 +18,23 @@ body.about {
   top: max(1.15rem, env(safe-area-inset-top));
   left: max(1.25rem, env(safe-area-inset-left));
   z-index: var(--z-nav);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #1c1b19;
-  opacity: 0.55;
+  display: block;
+  line-height: 0;
+  color: inherit;
+  text-decoration: none;
+  mix-blend-mode: difference;
 }
 
 .mark--about:hover,
 .mark--about:focus-visible {
-  opacity: 1;
+  opacity: 0.82;
+}
+
+.mark--about .mark__logo {
+  display: block;
+  width: auto;
+  height: clamp(2.94rem, 8vw, 6.19rem);
+  filter: brightness(0) invert(1);
 }
 
 .about-layout {
@@ -37,7 +49,7 @@ body.about {
 
 .about-main {
   padding:
-    clamp(5.5rem, 12vw, 8rem)
+    clamp(8rem, 16vw, 11rem)
     max(var(--gutter), env(safe-area-inset-right))
     clamp(3rem, 8vw, 5rem)
     max(var(--gutter), env(safe-area-inset-left));
@@ -72,6 +84,9 @@ body.about {
 
 .about-hero__inner {
   max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
 .about-hero__title {
@@ -79,7 +94,13 @@ body.about {
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 1.08;
-  margin-bottom: var(--space-lg);
+  margin-bottom: 0;
+}
+
+.about-hero__intro,
+.about-section__text {
+  text-align: justify;
+  text-align-last: left;
 }
 
 .about-hero__intro {
@@ -87,6 +108,18 @@ body.about {
   color: #4d4a45;
   line-height: 1.65;
   max-width: 38rem;
+}
+
+.about-job__place a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: #c9c4bb;
+}
+
+.about-job__place a:hover {
+  color: #1c1b19;
+  text-decoration-color: #1c1b19;
 }
 
 .about-section {
@@ -221,7 +254,7 @@ body.about {
   }
 
   .about-main {
-    padding-top: 0;
+    padding-top: var(--space-xl);
   }
 
   .about-job__head {
