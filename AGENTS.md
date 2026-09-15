@@ -34,7 +34,7 @@ Ped JS: `import * as THREE from "three"` and `GLTFLoader` from `three/addons/loa
 - Floor click → ground ray, red arrow, walk.
 - VAMPS / Portfolio → `FightA_1`, then `/vamps/` or `/creative/`.
 - Desktop words: CSS `6vw` sides, mid-screen. Do not JS-pin. Punch dest from the label rect.
-- Mobile words: JS-pin to `punchAnchor`. Do not change mobile when editing desktop. Playground: `~/Desktop/IA/vamps/vamps-levapms` (`AGENTS.md` there).
+- Mobile words: JS-pin to `punchAnchor`. Do not change mobile when editing desktop. Playground: `~/Desktop/IA/LeVampsStudio/tools/ped-playground/vamps-levapms` (`AGENTS.md` there).
 
 ## Export a new GLB
 
@@ -53,6 +53,16 @@ Follow `landings/EXPORT.md`. Never ship leftover `IFP_*` actions.
 - Motor: `js/case-studio-parallax.js` + `css/case-studio-parallax.css`.
 - Manifest hero `"type": "parallax"`: fondo + layer4 estáticos; cloud-3 ×3 loop; resto parallax suave; logo breathe; layer-5 `object-fit: cover` encima.
 - TinyPNG opcional: `TINYPNG_API_KEY` en entorno al optimizar.
+
+## Site metadata (SEO)
+
+Single source of truth: `data/site-metadata.json` (person, URLs, default OG image, copy).
+
+When editing `<head>` on a page:
+
+- **Person JSON-LD:** full name `Ismael Rivela Jelliti`, `jobTitle` Concept & Art Director, email `ismael.creative@levamps.com`, `sameAs` LinkedIn `/in/ismaelrivelajelliti`, Instagram `ismaelrivela_`, Behance.
+- **Default OG/Twitter image:** `https://levamps.com/assets/projects/copydad/cabecera-poster.jpg` (or case-specific hero).
+- **Do not use** old `hola@ismaelrivela.com`, `linkedin.com/in/ismaelrivela`, or `@ismaelrivela` without underscore.
 
 ## Git on this machine
 

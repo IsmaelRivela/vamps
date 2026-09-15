@@ -1,0 +1,29 @@
+{
+  "site": {
+    "name": "VAMPS",
+    "domain": "https://levamps.com",
+    "locale": "en_GB",
+    "themeColor": "#efece6",
+    "defaultOgImage": "/assets/projects/copydad/cabecera-poster.jpg"
+  },
+  "person": {
+    "name": "Ismael Rivela Jelliti",
+    "alternateName": "Ismael Rivela",
+    "jobTitle": "Concept & Art Director",
+    "email": "ismael.creative@levamps.com",
+    "locality": "Madrid",
+    "country": "ES",
+    "sameAs": [
+      "https://www.linkedin.com/in/ismaelrivelajelliti",
+      "https://www.instagram.com/ismaelrivela_/",
+      "https://www.behance.net/ismaelrivela"
+    ]
+  },
+  "copy": {
+    "homeTitle": "VAMPS — Ismael Rivela Jelliti · Concept & art direction",
+    "homeDescription": "Concept and art direction by Ismael Rivela Jelliti, Madrid. Brand identity, motion, 3D and digital craft. Portfolio and studio work at levamps.com.",
+    "aboutDescription": "Ismael Rivela Jelliti — concept and art director in Madrid. Brand identity, motion, 3D and interactive portfolio work.",
+    "creativeDescription": "Selected work: brand concepts, art direction and visual systems. La Tulipana, Copydad and VAMPS case studies.",
+    "vampsLabDescription": "VAMPS is Ismael Rivela's creative lab: visual exploration, conceptual branding and digital experiments."
+  }
+}
