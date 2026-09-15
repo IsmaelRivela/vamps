@@ -1,6 +1,8 @@
 {
-  "name": "levamps",
-  "short_name": "vamps",
+  "name": "VAMPS — Ismael Rivela",
+  "short_name": "VAMPS",
+  "description": "Concept and art direction. Brand identity and digital craft.",
+  "lang": "en",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -15,7 +17,9 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ff0000",
-  "background_color": "#ffffff",
-  "display": "standalone"
+  "theme_color": "#efece6",
+  "background_color": "#efece6",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/"
 }
